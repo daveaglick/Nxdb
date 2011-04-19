@@ -9,6 +9,7 @@ using org.basex.index;
 using org.basex.io;
 using org.basex.util;
 
+
 namespace Nxdb
 {
     //Based mostly on Data.insert()
