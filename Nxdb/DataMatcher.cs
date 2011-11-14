@@ -10,6 +10,7 @@ using Array=org.basex.util.Array;
 
 namespace Nxdb
 {
+    /*
     //TODO: Queue changes and only execute at the very end in case there is parsing error while reading?
 
     internal class DataMatcher
@@ -317,4 +318,5 @@ namespace Nxdb
             return false;
         }
     }
+    */
 }

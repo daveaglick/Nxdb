@@ -12,6 +12,7 @@ using org.basex.util;
 
 namespace Nxdb
 {
+    /*
     //Based mostly on Data.insert()
     //This will insert simple name/value pairs of a given node type or
     //will insert data from an XmlReader, which it will read from the current position ALL THE WAY to the end
@@ -312,4 +313,5 @@ namespace Nxdb
             }
         }
     }
+    */ 
 }

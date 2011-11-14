@@ -7,8 +7,8 @@ using org.basex.query.item;
 
 namespace Nxdb.Dom
 {
-    public interface INxXmlNode
-    {
-        NxNode NxNode { get; }
-    }
+    //public interface INxXmlNode
+    //{
+    //    NxNode NxNode { get; }
+    //}
 }

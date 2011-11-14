@@ -7,6 +7,7 @@ using org.basex.util;
 
 namespace Nxdb
 {
+    /*
     //TODO: If the original input has an xml declaration, that appears to get read into BaseX as text
     //content before the opening element. When it gets serialized back out, the XmlWriter throws an
     //exception that there is text content before the opening element.
@@ -110,4 +111,5 @@ namespace Nxdb
             close();
         }
     }
+     */
 }

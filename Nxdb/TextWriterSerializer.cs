@@ -7,6 +7,7 @@ using org.basex.util;
 
 namespace Nxdb
 {
+    /*
     //Serializes the text content (InnerText) of a BaseX node to a TextWriter
     internal class TextWriterSerializer : Serializer, IDisposable
     {
@@ -99,4 +100,5 @@ namespace Nxdb
             close();
         }
     }
+     */ 
 }

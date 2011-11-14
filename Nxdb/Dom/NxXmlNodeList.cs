@@ -8,28 +8,28 @@ using org.basex.query.iter;
 
 namespace Nxdb.Dom
 {
-    public class NxXmlNodeList : XmlNodeList
-    {
-        private readonly List<NxNode> nodeList;
+    //public class NxXmlNodeList : XmlNodeList
+    //{
+    //    private readonly List<NxNode> nodeList;
 
-        internal NxXmlNodeList(IEnumerable<NxNode> nodes)
-        {
-            nodeList = new List<NxNode>(nodes);
-        }
+    //    internal NxXmlNodeList(IEnumerable<NxNode> nodes)
+    //    {
+    //        nodeList = new List<NxNode>(nodes);
+    //    }
 
-        public override XmlNode Item(int index)
-        {
-            return nodeList[index].XmlNode;
-        }
+    //    public override XmlNode Item(int index)
+    //    {
+    //        return nodeList[index].XmlNode;
+    //    }
 
-        public override int Count
-        {
-            get { return nodeList.Count; }
-        }
+    //    public override int Count
+    //    {
+    //        get { return nodeList.Count; }
+    //    }
 
-        public override IEnumerator GetEnumerator()
-        {
-            return nodeList.GetEnumerator();
-        }
-    }
+    //    public override IEnumerator GetEnumerator()
+    //    {
+    //        return nodeList.GetEnumerator();
+    //    }
+    //}
 }

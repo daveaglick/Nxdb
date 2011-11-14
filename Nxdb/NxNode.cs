@@ -13,54 +13,55 @@ using org.basex.util;
 
 namespace Nxdb
 {
-    public class NxNode : IEquatable<NxNode>
+    public class NxNode //: IEquatable<NxNode>
     {
-        private readonly NxCollection collection;
-        public NxCollection Collection
+        private readonly NxDatabase _database;
+        public NxDatabase Database
         {
-            get { return collection; }
+            get { return _database; }
         }
 
-        private readonly int id;
+        private readonly int _id;
         public int Id
         {
-            get { return id; }
+            get { return _id; }
         }
 
-        private int pre;    //This should be updated before every use by calling Valid.get or CheckValid()
+        private int _pre;    //This should be updated before every use by calling Valid.get or CheckValid()
+
         public int Index
         {
             get
             {
                 CheckValid();
-                return pre;
+                return _pre;
             }
         }
 
         //Cache the node kind since it should never change and is used frequently
-        private readonly int kind;
+        private readonly int _kind;
         internal int Kind
         {
             get
             {
-                return kind;
+                return _kind;
             }
         }
 
         //Cache the last modified time to avoid checking pre against id on every operation
-        private long time;
+        private long _time;
 
-        internal NxNode(NxCollection collection, int pre)
-            : this(collection, pre, collection.Data.id(pre))
+        internal NxNode(NxDatabase database, int pre)
+            : this(database, pre, database.Data.id(pre))
         {}
 
-        internal NxNode(NxCollection collection, int pre, int id)
+        internal NxNode(NxDatabase database, int pre, int id)
         {
-            this.collection = collection;
-            this.pre = pre;
-            this.id = id;
-            kind = GetKind(collection.Data, pre);
-            time = collection.Data.meta.time;
+            _database = database;
+            _pre = pre;
+            _id = id;
+            _kind = GetKind(database.Data, pre);
+            _time = database.Data.meta.time;
         }
 
         internal static int GetKind(Data data, int pre)
@@ -68,6 +69,7 @@ namespace Nxdb
             return data.kind(pre);
         }
 
+        /*
         #region Dom
 
         public XmlNodeType NodeType
@@ -105,7 +107,7 @@ namespace Nxdb
                 //Has it already been cached?
                 WeakReference weakNode;
                 XmlNode xmlNode = null;
-                if(collection.DomCache.TryGetValue(id, out weakNode))
+                if(database.DomCache.TryGetValue(id, out weakNode))
                 {
                     xmlNode = (XmlNode)weakNode.Target;
                 }
@@ -139,7 +141,7 @@ namespace Nxdb
                     }
 
                     //Cache for later
-                    collection.DomCache[id] = new WeakReference(xmlNode);
+                    database.DomCache[id] = new WeakReference(xmlNode);
                 }
 
                 return xmlNode;
@@ -158,6 +160,8 @@ namespace Nxdb
 
         #endregion
 
+        */
+
         #region Validity
 
         //Verify the id and pre values still match, and if they don't update the pre
@@ -168,22 +172,17 @@ namespace Nxdb
         {
             get
             {
-                if( pre == -1 )
+                if( _pre == -1 )
                 {
                     return false;
                 }
-                if( collection.Disposed )
+                if (_time != _database.Data.meta.time)
                 {
-                    pre = -1;
-                    return false;
-                }
-                if (time != collection.Data.meta.time)
-                {
-                    time = collection.Data.meta.time;
-                    if( pre >= collection.Data.meta.size || id != collection.Data.id(pre) )
+                    _time = _database.Data.meta.time;
+                    if( _pre >= _database.Data.meta.size || _id != _database.Data.id(_pre) )
                     {
-                        pre = collection.Data.pre(id);
-                        return pre != -1;
+                        _pre = _database.Data.pre(_id);
+                        return _pre != -1;
                     }
                 }
                 return true;
@@ -205,12 +204,9 @@ namespace Nxdb
             }
             if( kinds.Length > 0 )
             {
-                foreach(int testKind in kinds)
+                if (kinds.Any(testKind => testKind == _kind))
                 {
-                    if( testKind == kind )
-                    {
-                        return true;
-                    }
+                    return true;
                 }
                 if (throwKindException)
                 {
@@ -223,11 +219,12 @@ namespace Nxdb
 
         #endregion
 
+        /*
         #region Queries
         
         public NxQuery GetQuery(string expression)
         {
-            NxQuery query = new NxQuery(collection.Database, expression);
+            NxQuery query = new NxQuery(database.Manager, expression);
             query.SetContext(this);
             return query;
         }
@@ -262,9 +259,9 @@ namespace Nxdb
             {
                 if (CheckValid(Data.ELEM, Data.DOC))
                 {
-                    foreach (int childPre in GetChildPres(collection.Data, pre, kind, false))
+                    foreach (int childPre in GetChildPres(database.Data, pre, kind, false))
                     {
-                        yield return new NxNode(collection, childPre);
+                        yield return new NxNode(database, childPre);
                     }
                 }
                 yield break;
@@ -286,12 +283,12 @@ namespace Nxdb
                 if (CheckValid(Data.ELEM, Data.DOC))
                 {
                     int lastChildPre = -1;
-                    IEnumerator<int> childEnumerator = GetChildPres(collection.Data, pre, kind, false).GetEnumerator();
+                    IEnumerator<int> childEnumerator = GetChildPres(database.Data, pre, kind, false).GetEnumerator();
                     while (childEnumerator.MoveNext())
                     {
                         lastChildPre = childEnumerator.Current;
                     }
-                    return lastChildPre == -1 ? null : new NxNode(collection, lastChildPre);
+                    return lastChildPre == -1 ? null : new NxNode(database, lastChildPre);
                 }
                 return null;
             }
@@ -303,7 +300,7 @@ namespace Nxdb
             {
                 if (CheckValid(Data.ELEM, Data.DOC))
                 {
-                    return GetChildPres(collection.Data, pre, kind, false).GetEnumerator().MoveNext();
+                    return GetChildPres(database.Data, pre, kind, false).GetEnumerator().MoveNext();
                 }
                 return false;
             }
@@ -319,14 +316,14 @@ namespace Nxdb
             {
                 if (CheckValid(Data.ELEM, Data.TEXT, Data.COMM, Data.PI))
                 {
-                    int parentPre = collection.Data.parent(pre, kind);
+                    int parentPre = database.Data.parent(pre, kind);
                     if (parentPre != -1)
                     {
-                        IEnumerator<int> childEnumerator = GetChildPres(collection.Data, parentPre, collection.Data.kind(parentPre), false).GetEnumerator();
+                        IEnumerator<int> childEnumerator = GetChildPres(database.Data, parentPre, database.Data.kind(parentPre), false).GetEnumerator();
                         while (childEnumerator.MoveNext() && childEnumerator.Current != pre) { }
                         while (childEnumerator.MoveNext())
                         {
-                            yield return new NxNode(collection, childEnumerator.Current);
+                            yield return new NxNode(database, childEnumerator.Current);
                         }
                     }
                 }
@@ -349,10 +346,10 @@ namespace Nxdb
             {
                 if (CheckValid(Data.ELEM, Data.TEXT, Data.COMM, Data.PI))
                 {
-                    int parentPre = collection.Data.parent(pre, kind);
+                    int parentPre = database.Data.parent(pre, kind);
                     if (parentPre != -1)
                     {
-                        IEnumerator<int> childEnumerator = GetChildPres(collection.Data, parentPre, collection.Data.kind(parentPre), false).GetEnumerator();
+                        IEnumerator<int> childEnumerator = GetChildPres(database.Data, parentPre, database.Data.kind(parentPre), false).GetEnumerator();
                         List<int> precedingPres = new List<int>();
                         while (childEnumerator.MoveNext() && childEnumerator.Current != pre)
                         {
@@ -361,7 +358,7 @@ namespace Nxdb
                         precedingPres.Reverse();
                         foreach (int precedingPre in precedingPres)
                         {
-                            yield return new NxNode(collection, precedingPre);
+                            yield return new NxNode(database, precedingPre);
                         }
                     }
                     yield break;
@@ -375,10 +372,10 @@ namespace Nxdb
             {
                 if (CheckValid(Data.ELEM, Data.TEXT, Data.COMM, Data.PI))
                 {
-                    int parentPre = collection.Data.parent(pre, kind);
+                    int parentPre = database.Data.parent(pre, kind);
                     if (parentPre != -1)
                     {
-                        IEnumerator<int> childEnumerator = GetChildPres(collection.Data, parentPre, collection.Data.kind(parentPre), false).GetEnumerator();
+                        IEnumerator<int> childEnumerator = GetChildPres(database.Data, parentPre, database.Data.kind(parentPre), false).GetEnumerator();
                         int lastChild = -1;
                         while (childEnumerator.MoveNext() && childEnumerator.Current != pre)
                         {
@@ -386,7 +383,7 @@ namespace Nxdb
                         }
                         if (lastChild != -1)
                         {
-                            return new NxNode(collection, lastChild);
+                            return new NxNode(database, lastChild);
                         }
                     }
                 }
@@ -405,29 +402,29 @@ namespace Nxdb
                     List<int> tempPres = new List<int>();
                     int currentPre = pre;
                     int currentKind = kind;
-                    int parentPre = collection.Data.parent(pre, kind);
+                    int parentPre = database.Data.parent(pre, kind);
                     while (parentPre != -1)
                     {
-                        int parentKind = collection.Data.kind(parentPre);
+                        int parentKind = database.Data.kind(parentPre);
                         if (currentKind != Data.ATTR)
                         {
                             tempPres.Clear();
-                            IEnumerator<int> childEnumerator = GetChildPres(collection.Data, parentPre, parentKind, false).GetEnumerator();
+                            IEnumerator<int> childEnumerator = GetChildPres(database.Data, parentPre, parentKind, false).GetEnumerator();
                             while (childEnumerator.MoveNext() && childEnumerator.Current != currentPre)
                             {
                                 tempPres.Add(childEnumerator.Current);
-                                tempPres.AddRange(GetDescendantPres(collection.Data, childEnumerator.Current, collection.Data.kind(childEnumerator.Current)));
+                                tempPres.AddRange(GetDescendantPres(database.Data, childEnumerator.Current, database.Data.kind(childEnumerator.Current)));
                             }
                             tempPres.Reverse();
                             precedingPres.AddRange(tempPres);
                         }
                         currentPre = parentPre;
                         currentKind = parentKind;
-                        parentPre = collection.Data.parent(parentPre, parentKind);
+                        parentPre = database.Data.parent(parentPre, parentKind);
                     }
                     foreach (int precedingPre in precedingPres)
                     {
-                        yield return new NxNode(collection, precedingPre);
+                        yield return new NxNode(database, precedingPre);
                     }
                 }
                 yield break;
@@ -442,24 +439,24 @@ namespace Nxdb
                 {
                     int currentPre = pre;
                     int currentKind = kind;
-                    int parentPre = collection.Data.parent(pre, kind);
+                    int parentPre = database.Data.parent(pre, kind);
                     while (parentPre != -1)
                     {
-                        int parentKind = collection.Data.kind(parentPre);
-                        IEnumerator<int> childEnumerator = GetChildPres(collection.Data, parentPre, parentKind, false).GetEnumerator();
+                        int parentKind = database.Data.kind(parentPre);
+                        IEnumerator<int> childEnumerator = GetChildPres(database.Data, parentPre, parentKind, false).GetEnumerator();
                         while (currentKind != Data.ATTR && childEnumerator.MoveNext() && childEnumerator.Current != currentPre) { }
                         while (childEnumerator.MoveNext())
                         {
-                            yield return new NxNode(collection, childEnumerator.Current);
+                            yield return new NxNode(database, childEnumerator.Current);
                             foreach (int descendantPre in
-                                GetDescendantPres(collection.Data, childEnumerator.Current, collection.Data.kind(childEnumerator.Current)))
+                                GetDescendantPres(database.Data, childEnumerator.Current, database.Data.kind(childEnumerator.Current)))
                             {
-                                yield return new NxNode(collection, descendantPre);
+                                yield return new NxNode(database, descendantPre);
                             }
                         }
                         currentPre = parentPre;
                         currentKind = parentKind;
-                        parentPre = collection.Data.parent(parentPre, parentKind);
+                        parentPre = database.Data.parent(parentPre, parentKind);
                     }
                 }
                 yield break;
@@ -497,12 +494,12 @@ namespace Nxdb
                 int currentPre = pre;
                 int currentKind = kind;
                 int parent;
-                while (currentKind != Data.DOC && (parent = collection.Data.parent(currentPre, currentKind)) != -1)
+                while (currentKind != Data.DOC && (parent = database.Data.parent(currentPre, currentKind)) != -1)
                 {
                     currentPre = parent;
-                    currentKind = collection.Data.kind(currentPre);
+                    currentKind = database.Data.kind(currentPre);
                 }
-                return currentKind == Data.DOC ? new NxNode(collection, currentPre) : null;
+                return currentKind == Data.DOC ? new NxNode(database, currentPre) : null;
             }
         }
 
@@ -511,10 +508,10 @@ namespace Nxdb
             get
             {
                 CheckValid();
-                int parent = collection.Data.parent(pre, kind);
+                int parent = database.Data.parent(pre, kind);
                 if (parent >= 0)
                 {
-                    return new NxNode(collection, parent);
+                    return new NxNode(database, parent);
                 }
                 return null;
             }
@@ -526,11 +523,11 @@ namespace Nxdb
             get
             {
                 CheckValid();
-                int parentPre = collection.Data.parent(pre, kind);
+                int parentPre = database.Data.parent(pre, kind);
                 while(parentPre >= 0)
                 {
-                    yield return new NxNode(collection, parentPre);
-                    parentPre = collection.Data.parent(parentPre, collection.Data.kind(parentPre));
+                    yield return new NxNode(database, parentPre);
+                    parentPre = database.Data.parent(parentPre, database.Data.kind(parentPre));
                 }
                 yield break;
             }
@@ -557,9 +554,9 @@ namespace Nxdb
             {
                 if (CheckValid(Data.ELEM, Data.DOC))
                 {
-                    foreach (int descendantPre in GetDescendantPres(collection.Data, pre, kind))
+                    foreach (int descendantPre in GetDescendantPres(database.Data, pre, kind))
                     {
-                        yield return new NxNode(collection, descendantPre);
+                        yield return new NxNode(database, descendantPre);
                     }
                 }
                 yield break;
@@ -601,7 +598,7 @@ namespace Nxdb
             get
             {
                 CheckValid();
-                return collection.Data.size(pre, kind);
+                return database.Data.size(pre, kind);
             }
         }
 
@@ -624,9 +621,9 @@ namespace Nxdb
         private int GetAttributePre(string name)
         {
             byte[] token = Token.token(name);
-            foreach (int attrPre in GetAttributePres(collection.Data, pre, kind))
+            foreach (int attrPre in GetAttributePres(database.Data, pre, kind))
             {
-                if(Token.eq(token, collection.Data.name(attrPre, Data.ATTR)))
+                if(Token.eq(token, database.Data.name(attrPre, Data.ATTR)))
                 {
                     return attrPre;
                 }
@@ -640,9 +637,9 @@ namespace Nxdb
             {
                 if (CheckValid(Data.ELEM))
                 {
-                    foreach (int attrPre in GetAttributePres(collection.Data, pre, kind))
+                    foreach (int attrPre in GetAttributePres(database.Data, pre, kind))
                     {
-                        yield return new NxNode(collection, attrPre);
+                        yield return new NxNode(database, attrPre);
                     }
                 }
                 yield break;
@@ -655,7 +652,7 @@ namespace Nxdb
             if (CheckValid(Data.ELEM))
             {
                 int attrPre = GetAttributePre(name);
-                return attrPre == -1 ? string.Empty : Token.@string(collection.Data.text(attrPre, false));
+                return attrPre == -1 ? string.Empty : Token.@string(database.Data.text(attrPre, false));
             }
             return null;
         }
@@ -665,7 +662,7 @@ namespace Nxdb
             if (CheckValid(Data.ELEM))
             {
                 int attrPre = GetAttributePre(name);
-                return attrPre == -1 ? null : new NxNode(collection, attrPre);
+                return attrPre == -1 ? null : new NxNode(database, attrPre);
             }
             return null;
         }
@@ -673,10 +670,10 @@ namespace Nxdb
         public void RemoveAllAttributes()
         {
             CheckValid(true, Data.ELEM);
-            int count = collection.Data.attSize(pre, kind);
+            int count = database.Data.attSize(pre, kind);
             while (--count > 0)
             {
-                collection.Data.delete(pre + 1);
+                database.Data.delete(pre + 1);
             }
             FinishUpdate();
         }
@@ -684,9 +681,9 @@ namespace Nxdb
         public void RemoveAttributeAt(int i)
         {
             CheckValid(true, Data.ELEM);
-            if( i < collection.Data.attSize(pre, kind))
+            if( i < database.Data.attSize(pre, kind))
             {
-                collection.Data.delete(pre + 1 + i);
+                database.Data.delete(pre + 1 + i);
             }
             FinishUpdate();
         }
@@ -700,7 +697,7 @@ namespace Nxdb
             }
             CheckValid(true, Data.ELEM, Data.DOC);
             refNode.CheckValid(true, Data.ATTR);
-            RemoveAttribute(collection.Data, refNode.pre);
+            RemoveAttribute(database.Data, refNode.pre);
             FinishUpdate();
         }
 
@@ -733,18 +730,18 @@ namespace Nxdb
         {
             CheckAttributeUpdateParams(name, value);
             CheckValid(true, Data.ELEM);
-            DataInserter.Insert(XmlNodeType.Attribute, collection.Data, pre + 1, pre, name, value);
+            DataInserter.Insert(XmlNodeType.Attribute, database.Data, pre + 1, pre, name, value);
             FinishUpdate();
-            return new NxNode(collection, pre + 1);
+            return new NxNode(database, pre + 1);
         }
 
         public NxNode AppendAttribute(string name, string value)
         {
             CheckAttributeUpdateParams(name, value);
             CheckValid(true, Data.ELEM);
-            int ipre = AppendAttribute(collection.Data, pre, kind, name, value);
+            int ipre = AppendAttribute(database.Data, pre, kind, name, value);
             FinishUpdate();
-            return new NxNode(collection, ipre);
+            return new NxNode(database, ipre);
         }
 
         internal static int AppendAttribute(Data data, int pre, int kind, string name, string value)
@@ -759,13 +756,13 @@ namespace Nxdb
             CheckAttributeUpdateParams(name, value);
             CheckValid(true, Data.ELEM);
             refNode.CheckValid(true, Data.ATTR);
-            if (collection.Data.parent(refNode.pre, refNode.kind) != pre)
+            if (database.Data.parent(refNode.pre, refNode.kind) != pre)
             {
                 throw new ArgumentException("The specified node is not a direct descendant of this node");
             }
-            int ipre = InsertAttributeBefore(collection.Data, pre, name, value, refNode.pre);
+            int ipre = InsertAttributeBefore(database.Data, pre, name, value, refNode.pre);
             FinishUpdate();
-            return new NxNode(collection, ipre);
+            return new NxNode(database, ipre);
         }
 
         internal static int InsertAttributeBefore(Data data, int pre, string name, string value, int refPre)
@@ -779,13 +776,13 @@ namespace Nxdb
             CheckAttributeUpdateParams(name, value);
             CheckValid(true, Data.ELEM);
             refNode.CheckValid(true, Data.ATTR);
-            if (collection.Data.parent(refNode.pre, refNode.kind) != pre)
+            if (database.Data.parent(refNode.pre, refNode.kind) != pre)
             {
                 throw new ArgumentException("The specified node is not a direct descendant of this node");
             }
-            DataInserter.Insert(XmlNodeType.Attribute, collection.Data, refNode.pre + 1, pre, name, value);
+            DataInserter.Insert(XmlNodeType.Attribute, database.Data, refNode.pre + 1, pre, name, value);
             FinishUpdate();
-            return new NxNode(collection, refNode.pre + 1);
+            return new NxNode(database, refNode.pre + 1);
         }
 
         #endregion
@@ -796,8 +793,8 @@ namespace Nxdb
         private int DeleteAllChildren(bool includeAttributes)
         {
             int count = 0;
-            int firstChildPre = pre + collection.Data.attSize(pre, kind);   //Need to include attributes for initial insert pre to account for empty elements with attributes
-            foreach (int childPre in GetChildPres(collection.Data, pre, kind, includeAttributes))
+            int firstChildPre = pre + database.Data.attSize(pre, kind);   //Need to include attributes for initial insert pre to account for empty elements with attributes
+            foreach (int childPre in GetChildPres(database.Data, pre, kind, includeAttributes))
             {
                 if (count == 0)
                 {
@@ -807,7 +804,7 @@ namespace Nxdb
             }
             while (count-- > 0)
             {
-                collection.Data.delete(firstChildPre);
+                database.Data.delete(firstChildPre);
             }
             return firstChildPre;
         }
@@ -829,11 +826,11 @@ namespace Nxdb
             }
             CheckValid(true, Data.ELEM, Data.DOC);
             refNode.CheckValid();
-            if (collection.Data.parent(refNode.pre, refNode.kind) != pre)
+            if (database.Data.parent(refNode.pre, refNode.kind) != pre)
             {
                 throw new ArgumentException("The specified node is not a direct descendant of this node");
             }
-            RemoveChild(collection.Data, refNode.pre);
+            RemoveChild(database.Data, refNode.pre);
             FinishUpdate();
         }
 
@@ -850,13 +847,13 @@ namespace Nxdb
             }
             CheckValid(true, Data.ELEM, Data.DOC);
             refNode.CheckValid(true, Data.ELEM, Data.TEXT, Data.COMM, Data.PI);
-            if (collection.Data.parent(refNode.pre, refNode.kind) != pre)
+            if (database.Data.parent(refNode.pre, refNode.kind) != pre)
             {
                 throw new ArgumentException("The specified node is not a direct descendant of this node");
             }
-            int ipre = refNode.pre + collection.Data.size(refNode.pre, refNode.kind);
-            DataInserter.Insert(xmlReader, collection.Data, ipre, pre);
-            collection.Data.delete(refNode.pre);
+            int ipre = refNode.pre + database.Data.size(refNode.pre, refNode.kind);
+            DataInserter.Insert(xmlReader, database.Data, ipre, pre);
+            database.Data.delete(refNode.pre);
             FinishUpdate();
         }
 
@@ -868,7 +865,7 @@ namespace Nxdb
         public void Match(XmlReader xmlReader)
         {
             CheckValid(true, Data.ELEM);
-            DataMatcher.Match(xmlReader, collection.Data, pre);
+            DataMatcher.Match(xmlReader, database.Data, pre);
             FinishUpdate();
         }
 
@@ -880,10 +877,10 @@ namespace Nxdb
         //Flushes the data and optionaly rebuilds indexes
         private void FinishUpdate()
         {
-            collection.Data.flush();
-            if (collection.Database.OptimizeCollectionOnUpdate)
+            database.Data.flush();
+            if (database.Manager.OptimizeCollectionOnUpdate)
             {
-                collection.Optimize();
+                database.Optimize();
             }
         }
 
@@ -893,7 +890,7 @@ namespace Nxdb
             {
                 CheckValid();
                 StringBuilder stringBuilder = new StringBuilder();
-                using (XmlWriter xmlWriter = XmlWriter.Create(stringBuilder, NxCollection.WriterSettings))
+                using (XmlWriter xmlWriter = XmlWriter.Create(stringBuilder, NxDatabase.WriterSettings))
                 {
                     WriteContentTo(xmlWriter);
                 }
@@ -914,7 +911,7 @@ namespace Nxdb
             }
             CheckValid(true, Data.ELEM, Data.DOC);
             int ipre = DeleteAllChildren(false);
-            DataInserter.Insert(xmlReader, collection.Data, ipre, pre);
+            DataInserter.Insert(xmlReader, database.Data, ipre, pre);
             FinishUpdate();
         }
 
@@ -924,7 +921,7 @@ namespace Nxdb
             {
                 CheckValid();
                 StringBuilder stringBuilder = new StringBuilder();
-                using (XmlWriter xmlWriter = XmlWriter.Create(stringBuilder, NxCollection.WriterSettings))
+                using (XmlWriter xmlWriter = XmlWriter.Create(stringBuilder, NxDatabase.WriterSettings))
                 {
                     WriteTo(xmlWriter);
                 }
@@ -952,7 +949,7 @@ namespace Nxdb
                 if (CheckValid(Data.ELEM, Data.DOC))
                 {
                     int ipre = DeleteAllChildren(false);
-                    DataInserter.Insert(XmlNodeType.Text, collection.Data, ipre, pre, null, value);
+                    DataInserter.Insert(XmlNodeType.Text, database.Data, ipre, pre, null, value);
                     FinishUpdate();
                 }
             }
@@ -963,7 +960,7 @@ namespace Nxdb
             get
             {
                 CheckValid();
-                return new NxTextReader(collection, pre, kind);
+                return new NxTextReader(database, pre, kind);
             }
         }
 
@@ -977,7 +974,7 @@ namespace Nxdb
             CheckValid();
             using (TextWriterSerializer serializer = new TextWriterSerializer(textWriter))
             {
-                serializer.node(collection.Data, pre);
+                serializer.node(database.Data, pre);
             }
         }
 
@@ -992,7 +989,7 @@ namespace Nxdb
             {
                 using (XmlWriterSerializer serializer = new XmlWriterSerializer(xmlWriter, kind == Data.DOC))
                 {
-                    serializer.node(collection.Data, pre);
+                    serializer.node(database.Data, pre);
                 }
             }
         }
@@ -1008,9 +1005,9 @@ namespace Nxdb
             {
                 using (XmlWriterSerializer serializer = new XmlWriterSerializer(xmlWriter, false))
                 {
-                    foreach (int childPre in GetChildPres(collection.Data, pre, kind, false))
+                    foreach (int childPre in GetChildPres(database.Data, pre, kind, false))
                     {
-                        serializer.node(collection.Data, childPre);
+                        serializer.node(database.Data, childPre);
                     }
                 }
             }
@@ -1028,12 +1025,12 @@ namespace Nxdb
             }
             CheckValid(true, Data.ELEM, Data.DOC);
             refNode.CheckValid(true, Data.ELEM, Data.TEXT, Data.COMM, Data.PI);
-            if (collection.Data.parent(refNode.pre, refNode.kind) != pre)
+            if (database.Data.parent(refNode.pre, refNode.kind) != pre)
             {
                 throw new ArgumentException("The specified node is not a direct descendant of this node");
             }
-            int ipre = refNode.pre + collection.Data.size(refNode.pre, refNode.kind);
-            DataInserter.Insert(xmlReader, collection.Data, ipre, pre);
+            int ipre = refNode.pre + database.Data.size(refNode.pre, refNode.kind);
+            DataInserter.Insert(xmlReader, database.Data, ipre, pre);
             FinishUpdate();
         }
 
@@ -1045,12 +1042,12 @@ namespace Nxdb
             }
             CheckValid(true, Data.ELEM, Data.DOC);
             refNode.CheckValid(true, Data.ELEM, Data.TEXT, Data.COMM, Data.PI);
-            if (collection.Data.parent(refNode.pre, refNode.kind) != pre)
+            if (database.Data.parent(refNode.pre, refNode.kind) != pre)
             {
                 throw new ArgumentException("The specified node is not a direct descendant of this node");
             }
-            int ipre = refNode.pre + collection.Data.size(refNode.pre, refNode.kind);
-            DataInserter.Insert(nodeType, collection.Data, ipre, pre, name, value);
+            int ipre = refNode.pre + database.Data.size(refNode.pre, refNode.kind);
+            DataInserter.Insert(nodeType, database.Data, ipre, pre, name, value);
             FinishUpdate();
         }
 
@@ -1066,11 +1063,11 @@ namespace Nxdb
             }
             CheckValid(true, Data.ELEM, Data.DOC);
             refNode.CheckValid(true, Data.ELEM, Data.TEXT, Data.COMM, Data.PI);
-            if (collection.Data.parent(refNode.pre, refNode.kind) != pre)
+            if (database.Data.parent(refNode.pre, refNode.kind) != pre)
             {
                 throw new ArgumentException("The specified node is not a direct descendant of this node");
             }
-            InsertBefore(collection.Data, pre, xmlReader, refNode.pre);
+            InsertBefore(database.Data, pre, xmlReader, refNode.pre);
             FinishUpdate();
         }
 
@@ -1087,11 +1084,11 @@ namespace Nxdb
             }
             CheckValid(true, Data.ELEM, Data.DOC);
             refNode.CheckValid(true, Data.ELEM, Data.TEXT, Data.COMM, Data.PI);
-            if (collection.Data.parent(refNode.pre, refNode.kind) != pre)
+            if (database.Data.parent(refNode.pre, refNode.kind) != pre)
             {
                 throw new ArgumentException("The specified node is not a direct descendant of this node");
             }
-            InsertBefore(collection.Data, pre, nodeType, name, value, refNode.pre);
+            InsertBefore(database.Data, pre, nodeType, name, value, refNode.pre);
             FinishUpdate();
         }
 
@@ -1107,7 +1104,7 @@ namespace Nxdb
                 throw new ArgumentNullException("xmlReader");
             }
             CheckValid(true, Data.ELEM, Data.DOC);
-            AppendChild(collection.Data, pre, kind, xmlReader);
+            AppendChild(database.Data, pre, kind, xmlReader);
             FinishUpdate();
         }
 
@@ -1120,7 +1117,7 @@ namespace Nxdb
         public void AppendChild(XmlNodeType nodeType, string name, string value)
         {
             CheckValid(true, Data.ELEM, Data.DOC);
-            AppendChild(collection.Data, pre, kind, nodeType, name, value);
+            AppendChild(database.Data, pre, kind, nodeType, name, value);
             FinishUpdate();
         }
 
@@ -1137,16 +1134,16 @@ namespace Nxdb
                 throw new ArgumentNullException("xmlReader");
             }
             CheckValid(true, Data.ELEM);
-            int ipre = pre + collection.Data.attSize(pre, kind);
-            DataInserter.Insert(xmlReader, collection.Data, ipre, pre);
+            int ipre = pre + database.Data.attSize(pre, kind);
+            DataInserter.Insert(xmlReader, database.Data, ipre, pre);
             FinishUpdate();
         }
 
         public void PrependChild(XmlNodeType nodeType, string name, string value)
         {
             CheckValid(true, Data.ELEM);
-            int ipre = pre + collection.Data.attSize(pre, kind);
-            DataInserter.Insert(nodeType, collection.Data, ipre, pre, name, value);
+            int ipre = pre + database.Data.attSize(pre, kind);
+            DataInserter.Insert(nodeType, database.Data, ipre, pre, name, value);
             FinishUpdate();
         }
 
@@ -1158,7 +1155,7 @@ namespace Nxdb
             }
             using (StringReader stringReader = new StringReader(xmlContent))
             {
-                using (XmlReader xmlReader = XmlReader.Create(stringReader, NxCollection.ReaderSettings))
+                using (XmlReader xmlReader = XmlReader.Create(stringReader, NxDatabase.ReaderSettings))
                 {
                     action(xmlReader);
                 }
@@ -1173,7 +1170,7 @@ namespace Nxdb
             }
             using (StringReader stringReader = new StringReader(xmlContent))
             {
-                using (XmlReader xmlReader = XmlReader.Create(stringReader, NxCollection.ReaderSettings))
+                using (XmlReader xmlReader = XmlReader.Create(stringReader, NxDatabase.ReaderSettings))
                 {
                     action(xmlReader, refNode);
                 }
@@ -1206,7 +1203,7 @@ namespace Nxdb
             {
                 if( CheckValid(Data.TEXT, Data.ATTR, Data.COMM, Data.PI) )
                 {
-                    return GetValue(collection.Data, pre, kind);
+                    return GetValue(database.Data, pre, kind);
                 }
                 return null;
             }
@@ -1217,7 +1214,7 @@ namespace Nxdb
                     throw new ArgumentNullException("value");
                 }
                 CheckValid(true, Data.TEXT, Data.ATTR, Data.COMM, Data.PI);
-                SetValue(collection.Data, pre, kind, value);
+                SetValue(database.Data, pre, kind, value);
                 FinishUpdate();
             }
         }
@@ -1238,7 +1235,7 @@ namespace Nxdb
             {
                 if( CheckValid(Data.ELEM, Data.ATTR, Data.PI) )
                 {
-                    return GetName(collection.Data, pre, kind);
+                    return GetName(database.Data, pre, kind);
                 }
                 return String.Empty;
             }
@@ -1255,9 +1252,9 @@ namespace Nxdb
                 }
                 byte[] name = Token.token(value);
                 byte[] uri = value.IndexOf(':') > 0
-                    ? collection.Data._field_ns.uri(collection.Data._field_ns.uri(name, pre))
+                    ? database.Data._field_ns.uri(database.Data._field_ns.uri(name, pre))
                     : new byte[]{};
-                collection.Data.rename(pre, kind, Token.token(value), uri);
+                database.Data.rename(pre, kind, Token.token(value), uri);
                 FinishUpdate();
             }
         }
@@ -1273,7 +1270,7 @@ namespace Nxdb
             {
                 if (CheckValid(Data.ELEM, Data.ATTR, Data.PI))
                 {
-                    byte[] name = collection.Data.name(pre, kind);
+                    byte[] name = database.Data.name(pre, kind);
                     byte[] localName = Token.ln(name);
                     if (localName.Length > 0)
                     {
@@ -1291,7 +1288,7 @@ namespace Nxdb
             {
                 if (CheckValid(Data.ELEM, Data.ATTR, Data.PI))
                 {
-                    return Token.@string(Token.pref(collection.Data.name(pre, kind)));
+                    return Token.@string(Token.pref(database.Data.name(pre, kind)));
                 }
                 return String.Empty;
             }
@@ -1303,11 +1300,11 @@ namespace Nxdb
             {
                 if (CheckValid(Data.ELEM, Data.ATTR, Data.PI))
                 {
-                    byte[] name = collection.Data.name(pre, kind);
+                    byte[] name = database.Data.name(pre, kind);
                     byte[] pref = Token.pref(name);
                     if(pref.Length > 0)
                     {
-                        return Token.@string(collection.Data._field_ns.uri(collection.Data._field_ns.uri(name, pre)));
+                        return Token.@string(database.Data._field_ns.uri(database.Data._field_ns.uri(name, pre)));
                     }
                 }
                 return String.Empty;
@@ -1324,7 +1321,7 @@ namespace Nxdb
             {
                 return false;
             }
-            return collection.Equals(other.Collection) && id == other.Id;
+            return database.Equals(other.Database) && id == other.Id;
         }
 
         public override bool Equals(object other)
@@ -1341,10 +1338,11 @@ namespace Nxdb
         {
             int result = 17;
             result = 37 * result + id.GetHashCode();
-            result = 37 * result + collection.GetHashCode();
+            result = 37 * result + database.GetHashCode();
             return result;
         }
 
         #endregion
+        */
     }
 }

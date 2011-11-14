@@ -7,9 +7,10 @@ using org.basex.data;
 
 namespace Nxdb
 {
+    /*
     internal class NxTextReader : TextReader
     {
-        private readonly NxCollection collection;
+        private readonly NxDatabase database;
         private readonly IEnumerator<int> descendants;
 
         //The current descendant pre
@@ -18,11 +19,11 @@ namespace Nxdb
         //The text buffer - when empty go to the next descendant
         private readonly StringBuilder bufferBuilder = new StringBuilder();
 
-        public NxTextReader(NxCollection collection, int pre, int kind)
+        public NxTextReader(NxDatabase database, int pre, int kind)
         {
-            this.collection = collection;
+            this.database = database;
             this.pre = pre;
-            descendants = NxNode.GetDescendantPres(collection.Data, pre, kind).GetEnumerator();
+            descendants = NxNode.GetDescendantPres(database.Data, pre, kind).GetEnumerator();
             FillBuffer();
         }
 
@@ -31,9 +32,9 @@ namespace Nxdb
             while(descendants.MoveNext())
             {
                 pre = descendants.Current;
-                if(NxNode.GetKind(collection.Data, pre) == Data.TEXT)
+                if(NxNode.GetKind(database.Data, pre) == Data.TEXT)
                 {
-                    bufferBuilder.Append(NxNode.GetValue(collection.Data, pre, Data.TEXT));
+                    bufferBuilder.Append(NxNode.GetValue(database.Data, pre, Data.TEXT));
                     return true;
                 }
             }
@@ -90,4 +91,5 @@ namespace Nxdb
         }
 
     }
+     */ 
 }

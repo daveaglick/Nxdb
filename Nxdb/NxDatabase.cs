@@ -1,373 +1,176 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Text;
+using System.Xml;
+using ikvm.@internal;
+using java.io;
+using Nxdb.Io;
+using java.lang;
+using org.basex.api.xmldb;
 using org.basex.core;
 using org.basex.core.cmd;
 using org.basex.data;
-
-//TODO - Should the database be disposable? If so, write out the the properties on dispose instead of on set and close/dispose all collections
+using org.basex.io;
+using org.basex.util;
+using org.basex.build;
+using org.xmldb.api;
+using File = java.io.File;
+using String = System.String;
+using StringReader = java.io.StringReader;
 
 namespace Nxdb
 {
-    public class NxDatabase : IDictionary<string, NxCollection>
+    //Represents a single BaseX database into which all documents should be stored
+    //Unlike the previous versions, it's recommended just one overall NxDatabase be used
+    //and querying between them is not supported
+    //The documents in the database can be grouped using paths in the document name,
+    //i.e.: "folderA/docA.xml", "folderA/docB.xml", "folderB/docC.xml"
+    public class NxDatabase : IDisposable
     {
-        private readonly string path;
+        private static string _home = null;
 
-        private readonly Context context;
-        internal Context Context
+        public static void SetHome(string path)
         {
-            get { return context; }
-        }
+            if (path == null) throw new ArgumentNullException("path");
+            if (path == String.Empty) throw new ArgumentException("path");
 
-        private readonly NxdbProp prop;
+            _home = path;
 
-        private readonly Dictionary<string, NxCollection> collections = new Dictionary<string, NxCollection>();
-
-        public NxDatabase(string path)
-        {
-            if (path == null)
-            {
-                throw new ArgumentNullException("path");
-            }
-            this.path = path;
-            
-            //Create the directory
-            if(!Directory.Exists(path))
+            //Create the home path
+            if (!Directory.Exists(path))
             {
                 Directory.CreateDirectory(path);
             }
 
-            //Create context, and use a hack to put properties files in the database path
-            string oldHome = Prop.HOME;
-            Prop.HOME = path;
-            context = new Context();
-            prop = new NxdbProp();
-            Prop.HOME = oldHome;
-            DatabasePath = path;
+            //Set the home path so the BaseX preference file will go there (rather than user path)
+            Prop.HOME = Path.Combine(_home, "pref");
         }
 
-        public NxCollection Add(string name)
-        {
-            if (name == null)
-            {
-                throw new ArgumentNullException("name");
-            }
-            if( collections.ContainsKey(name) )
-            {
-                throw new ArgumentException(name + " already exists");
-            }
-            NxCollection collection = new NxCollection(this, name);
-            collections.Add(name, collection);
-            return collection;
-        }
-
-        public NxCollection Open(string name)
-        {
-            if (name == null)
-            {
-                throw new ArgumentNullException("name");
-            }
-            NxCollection collection;
-            if (!collections.TryGetValue(name, out collection))
-            {
-                Data data = org.basex.core.cmd.Open.open(name, context);
-                collection = new NxCollection(this, name, data);
-                collections.Add(name, collection);
-            }
-            return collection;
-        }
-
-        public bool Exists(string name)
+        public static bool Drop(string name)
         {
             if (name == null) throw new ArgumentNullException("name");
-            return context.prop.dbexists(name);
+            if (name == String.Empty) throw new ArgumentException("name");
+
+            return Run(new DropDB(name), GetContext());
         }
 
-        public bool Drop(string name)
+        private static Context GetContext()
         {
-            if (name == null)
+            //Set a default home if one hasn't been provided yet
+            if (_home == null)
             {
-                throw new ArgumentNullException("name");
+                SetHome(Path.Combine(Environment.CurrentDirectory, "Nxdb"));
             }
-            if( collections.ContainsKey(name) )
+
+            //Now we can create the context since the path for preferences has been set
+            Context context = new Context();
+
+            //Now set the database path
+            context.mprop.set(MainProp.DBPATH, _home);
+
+            return context;
+        }
+
+        private readonly Context _context;
+
+        public NxDatabase(string name)
+        {
+            if (name == null) throw new ArgumentNullException("name");
+            if (name == String.Empty) throw new ArgumentException("name");
+            
+            _context = GetContext();
+
+            //Open/create the requested database
+            if(!Run(new Open(name)))
             {
-                collections.Remove(name);
-            }
-            return DropDB.drop(name, context.prop);
-        }
-
-        public NxQuery GetQuery(string expression)
-        {
-            NxQuery query = new NxQuery(this, expression);
-            List<NxNode> docNodes = new List<NxNode>();
-            foreach(KeyValuePair<string, NxCollection> kvp in collections)
-            {
-                query.SetCollection(kvp.Key, kvp.Value);
-                docNodes.AddRange(kvp.Value.Values);
-            }
-            query.SetContext(docNodes);
-            return query;
-        }
-
-        public IEnumerable<object> Query(string expression)
-        {
-            return GetQuery(expression).Evaluate();
-        }
-
-        public NxQuery GetQuery(string expression, IEnumerable<NxNode> queryContext)
-        {
-            NxQuery query = new NxQuery(this, expression);
-            foreach (KeyValuePair<string, NxCollection> kvp in collections)
-            {
-                query.SetCollection(kvp.Key, kvp.Value);
-            }
-            query.SetContext(queryContext);
-            return query;
-        }
-
-        public IEnumerable<object> Query(string expression, IEnumerable<NxNode> queryContext)
-        {
-            return GetQuery(expression, queryContext).Evaluate();
-        }
-
-        //Get a query object without a preset context or collections
-        public NxQuery GetEmptyQuery(string expression)
-        {
-            return new NxQuery(this, expression);
-        }
-
-        //IDictionary
-
-        public NxCollection this[string key]
-        {
-            get { return collections[key]; }
-            set { throw new NotSupportedException(); }
-        }
-
-        public bool Remove(string key)
-        {
-            NxCollection collection;
-            if( collections.TryGetValue(key, out collection) )
-            {
-                collection.Dispose();
-            }
-            return collections.Remove(key);
-        }
-
-        public IEnumerator<KeyValuePair<string, NxCollection>> GetEnumerator()
-        {
-            return collections.GetEnumerator();
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
-
-        public void Add(KeyValuePair<string, NxCollection> item)
-        {
-            throw new NotSupportedException();
-        }
-
-        public void Add(string key, NxCollection value)
-        {
-            throw new NotSupportedException();
-        }
-
-        public void Clear()
-        {
-            List<NxCollection> dispose = new List<NxCollection>(collections.Values);
-            collections.Clear();
-            foreach (NxCollection collection in dispose)
-            {
-                collection.Dispose();
+                //Unable to open it, try creating
+                if (!Run(new CreateDB(name)))
+                {
+                    throw new ArgumentException();
+                }
             }
         }
 
-        public bool Contains(KeyValuePair<string, NxCollection> item)
+        public void Dispose()
         {
-            NxCollection value;
-            return collections.TryGetValue(item.Key, out value) && value == item.Value;
+            Run(new Close());
         }
 
-        public void CopyTo(KeyValuePair<string, NxCollection>[] array, int arrayIndex)
+        //BaseX commands can be run in one of two ways:
+        //1) An instance of the command class can be created and passed to the following Run() method
+        //2) When the above won't work, a Func or Action can be used to wrap a command and run it
+
+        internal static bool Run(Command command, Context context)
         {
-            List<KeyValuePair<string, NxCollection>> source = new List<KeyValuePair<string, NxCollection>>(this);
-            source.CopyTo(array, arrayIndex);
+            bool ret = command.run(context);
+            string info = command.info();
+            Debug.WriteLine(info);  //TODO: Replace this with some kind of logging mechanism
+            return ret;
         }
 
-        public bool Remove(KeyValuePair<string, NxCollection> item)
+        internal static bool Run(Func<Context, string> func, Context context)
         {
-            if (Contains(item))
-            {
-                return Remove(item.Key);
-            }
-            return false;
+            return Run(new FuncCommand(func), context);
         }
 
-        public int Count
+        internal static bool Run(Action<Context> action, Context context)
         {
-            get { return collections.Count; }
+            return Run(new FuncCommand(action), context);
         }
 
-        public bool IsReadOnly
+        internal bool Run(Command command)
         {
-            get { return false; }
+            return Run(command, _context);
         }
 
-        public bool ContainsKey(string key)
+        internal bool Run(Func<Context, string> func)
         {
-            return collections.ContainsKey(key);
+            return Run(new FuncCommand(func));
         }
 
-        public bool TryGetValue(string key, out NxCollection value)
+        internal bool Run(Action<Context> action)
         {
-            return collections.TryGetValue(key, out value);
+            return Run(new FuncCommand(action));
         }
 
-        public ICollection<string> Keys
-        {
-            get { return collections.Keys; }
-        }
-
-        public ICollection<NxCollection> Values
-        {
-            get { return collections.Values; }
-        }
-
-        public override bool Equals(object obj)
-        {
-            NxDatabase other = obj as NxDatabase;
-            if( other != null && path.Equals(other.path))
-            {
-                return true;
-            }
-            return false;
-        }
-
-        public override int GetHashCode()
-        {
-            return path.GetHashCode();
-        }
-
-        //Properties helpers
+        //The following perform the same operation as their equivalent BaseX command:
+        //http://docs.basex.org/wiki/Commands
         
-        private static void SetProperty(AProp aProp, object[] key, string value)
+        public bool Add(string path, string content)
         {
-            aProp.set(key, value);
-            aProp.write();
+            return Run(new Add(path, content));
         }
 
-        private static string GetPropertyString(AProp aProp, object[] key)
+        public bool Delete(string path)
         {
-            return aProp.get(key);
+            return Run(new Delete(path));
         }
 
-        private static void SetProperty(AProp aProp, object[] key, bool value)
+        public bool Rename(string path, string newPath)
         {
-            aProp.set(key, value);
-            aProp.write();
+            return Run(new Rename(path, newPath));
         }
 
-        private static bool GetPropertyBool(AProp aProp, object[] key)
+        public bool Replace(string path, string content)
         {
-            return aProp.@is(key);
+            return Run(new Replace(path, content));
         }
 
-        //Nxdb properties
-        //TODO - Convert this class to internal and expost using InternalsVisibleTo
-        public class NxdbProp : AProp
-        {
-            public NxdbProp() : base(".nxdb") { }
+        //More direct access
 
-            public static readonly object[] OPTIMIZEONADD = { "OPTIMIZEONADD", new java.lang.Boolean(true) };
-            public static readonly object[] OPTIMIZEONREMOVE = { "OPTIMIZEONREMOVE", new java.lang.Boolean(true) };
-            public static readonly object[] OPTIMIZEONUPDATE = { "OPTIMIZEONUPDATE", new java.lang.Boolean(true) };
-            public static readonly object[] DROPONDISPOSE = { "DROPONDISPOSE", new java.lang.Boolean(true) };
+        internal Data Data
+        {
+            get { return _context.data(); }
         }
 
-        //Whether collections should be optimized and indexes rebuilt when new documents are added
-        //The first document added to a collection is always optimized
-        public bool OptimizeCollectionOnAdd
+        public NxNode Get(string path)
         {
-            get { return GetPropertyBool(prop, NxdbProp.OPTIMIZEONADD); }
-            set { SetProperty(prop, NxdbProp.OPTIMIZEONADD, value); }
-        }
-
-        //Whether collections should be optimized and indexes rebuilt when documents are removed
-        public bool OptimizeCollectionOnRemove
-        {
-            get { return GetPropertyBool(prop, NxdbProp.OPTIMIZEONREMOVE); }
-            set { SetProperty(prop, NxdbProp.OPTIMIZEONREMOVE, value); }
-        }
-
-        //Whether collections should be optimized and indexes rebuilt when updates are applied
-        //TODO - Check queries to see if updates are going to be applied and if so, check this flag to know whether the database needs to be optimized at the end
-        public bool OptimizeCollectionOnUpdate
-        {
-            get { return GetPropertyBool(prop, NxdbProp.OPTIMIZEONUPDATE); }
-            set { SetProperty(prop, NxdbProp.OPTIMIZEONUPDATE, value); }
-        }
-
-        //Indicates if the database should be deleted from disk when it gets disposed
-        public bool DropOnDispose
-        {
-            get { return GetPropertyBool(prop, NxdbProp.DROPONDISPOSE); }
-            set { SetProperty(prop, NxdbProp.DROPONDISPOSE, value); }
-        }
-
-        //BaseX properties (these can be found in the Prop class)
-
-        public string DatabasePath
-        {
-            get { return GetPropertyString(context.prop, Prop.DBPATH); }
-            private set { SetProperty(context.prop, Prop.DBPATH, value); }
-        }
-
-        public bool ChopWhitespace
-        {
-            get { return GetPropertyBool(context.prop, Prop.CHOP); }
-            set { SetProperty(context.prop, Prop.CHOP, value); }
-        }
-
-        public bool UseAttributeIndex
-        {
-            get { return GetPropertyBool(context.prop, Prop.ATTRINDEX); }
-            set { SetProperty(context.prop, Prop.ATTRINDEX, value); }
-        }
-
-        public bool UseTextIndex
-        {
-            get { return GetPropertyBool(context.prop, Prop.TEXTINDEX); }
-            set { SetProperty(context.prop, Prop.TEXTINDEX, value); }
-        }
-
-        public bool UseFullTextIndex
-        {
-            get { return GetPropertyBool(context.prop, Prop.FTINDEX); }
-            set { SetProperty(context.prop, Prop.FTINDEX, value); }
-        }
-
-        public bool UsePathIndex
-        {
-            get { return GetPropertyBool(context.prop, Prop.PATHINDEX); }
-            set { SetProperty(context.prop, Prop.PATHINDEX, value); }
-        }
-
-        public bool MainTableInMemory
-        {
-            get { return GetPropertyBool(context.prop, Prop.TABLEMEM); }
-            set { SetProperty(context.prop, Prop.TABLEMEM, value); }
-        }
-
-        public bool DatabaseInMemory
-        {
-            get { return GetPropertyBool(context.prop, Prop.MAINMEM); }
-            set { SetProperty(context.prop, Prop.MAINMEM, value); }
+            int pre = Data.doc(path);
+            return pre == -1 ? null : new NxNode(this, pre);
         }
     }
 }

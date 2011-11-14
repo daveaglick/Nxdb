@@ -15,9 +15,10 @@ using Type=org.basex.query.item.Type;
 
 namespace Nxdb
 {
+    /*
     public class NxQuery
     {
-        private readonly NxDatabase database;
+        private readonly NxManager manager;
         private readonly List<NxNode> nodes = new List<NxNode>();
         private readonly Dictionary<string, List<NxNode>> collections = new Dictionary<string, List<NxNode>>();
         private readonly string expression;
@@ -25,17 +26,17 @@ namespace Nxdb
         public string Expression
         { get { return expression; } }
 
-        internal NxQuery(NxDatabase database, string expression)
+        internal NxQuery(NxManager manager, string expression)
         {
-            if (database == null)
+            if (manager == null)
             {
-                throw new ArgumentNullException("database");
+                throw new ArgumentNullException("manager");
             }
             if (expression == null)
             {
                 throw new ArgumentNullException("expression");
             }
-            this.database = database;
+            this.manager = manager;
             this.expression = expression;
         }
 
@@ -44,13 +45,13 @@ namespace Nxdb
             nodes.Clear();
         }
 
-        public void SetContext(NxCollection collection)
+        public void SetContext(NxDatabase database)
         {
-            if (collection == null)
+            if (database == null)
             {
-                throw new ArgumentNullException("collection");
+                throw new ArgumentNullException("database");
             }
-            SetCollection(null, collection);
+            SetCollection(null, database);
         }
 
         public void SetContext(NxNode node)
@@ -72,15 +73,15 @@ namespace Nxdb
         }
 
         //name == null -> set the context
-        //name == String.Empty -> set the default (first) collection
-        //name == text -> set a named collection
-        public void SetCollection(string name, NxCollection collection)
+        //name == String.Empty -> set the default (first) database
+        //name == text -> set a named database
+        public void SetCollection(string name, NxDatabase database)
         {
-            if( collection == null )
+            if( database == null )
             {
-                throw new ArgumentNullException("collection");
+                throw new ArgumentNullException("database");
             }
-            SetCollection(name, collection.Values);
+            SetCollection(name, database.Values);
         }
 
         public void SetCollection(string name, NxNode node)
@@ -89,7 +90,7 @@ namespace Nxdb
             {
                 throw new ArgumentNullException("node");
             }
-            if( !node.Collection.Database.Equals(database) )
+            if( !node.Database.Manager.Equals(manager) )
             {
                 throw new ArgumentException("Specified node is not part of database for this query");
             }
@@ -112,7 +113,7 @@ namespace Nxdb
             }
             foreach(NxNode node in collectionNodes)
             {
-                if (!node.Collection.Database.Equals(database))
+                if (!node.Database.Manager.Equals(manager))
                 {
                     throw new ArgumentException("Specified node is not part of database for this query");
                 }
@@ -138,7 +139,7 @@ namespace Nxdb
             collections.Clear();
         }
 
-        //Gets both the context and all collection nodes
+        //Gets both the context and all database nodes
         public IEnumerable<NxNode> GetAllNodes()
         {
             HashSet<NxNode> allNodes = new HashSet<NxNode>();
@@ -165,7 +166,7 @@ namespace Nxdb
         private Iter GetResultIter()
         {
             //Create an initialize the QueryContext
-            QueryContext queryContext = new QueryContext(database.Context);
+            QueryContext queryContext = new QueryContext(manager.Context);
             queryContext.nodes = null;
 
             //Add the variables
@@ -204,7 +205,7 @@ namespace Nxdb
                     bool found = false;
                     foreach (DBNode sn in docslist)
                     {
-                        if (sn.pre == docNode.Index && sn.data == docNode.Collection.Data)
+                        if (sn.pre == docNode.Index && sn.data == docNode.Database.Data)
                         {
                             found = true;
                             break;
@@ -212,7 +213,7 @@ namespace Nxdb
                     }
                     if (!found)
                     {
-                        docslist.Add(new DBNode(docNode.Collection.Data, docNode.Index, docNode.Kind));
+                        docslist.Add(new DBNode(docNode.Database.Data, docNode.Index, docNode.Kind));
                     }
                 }
             }
@@ -251,7 +252,7 @@ namespace Nxdb
                     ItemIter si = new ItemIter(nodes.Count);
                     foreach (NxNode node in nodes)
                     {
-                        si.add(new DBNode(node.Collection.Data, node.Index, node.Kind));
+                        si.add(new DBNode(node.Database.Data, node.Index, node.Kind));
                     }
                     queryContext.value = si.finish();
                 }
@@ -330,7 +331,7 @@ namespace Nxdb
             if (node != null)
             {
                 Data data = node.data;
-                foreach (NxCollection collection in database.Values)
+                foreach (NxDatabase collection in manager.Values)
                 {
                     if (collection.Data == data)
                     {
@@ -378,4 +379,5 @@ namespace Nxdb
             }
         }
     }
+     */
 }
