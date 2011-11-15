@@ -56,9 +56,9 @@ namespace NxdbTests
             //Reopen the database
             using (NxDatabase database = new NxDatabase(name))
             {
-                Test(() => database.Add("Nested/TestB", "<TestB><Root>abcd</Root></TestB>"), "Add TestB");
-                Test(() => database.Replace("TestA", "<TestC><Root>abcd</Root></TestC>"), "Replace TestA with TestC");
-                Test(() => database.Rename("TestC", "TestD"), "Rename TestC -> TestD");
+                Test(() => database.Add("TestB", "<TestB><Root>abcd</Root></TestB>"), "Add TestB");
+                Test(() => database.Replace("TestA", "<TestC><Root>abcd</Root></TestC>"), "Replace TestA Content");
+                Test(() => database.Rename("TestA", "TestD"), "Rename TestA -> TestD");
             }
             
             return true;
@@ -69,8 +69,8 @@ namespace NxdbTests
         {
             using (NxDatabase database = new NxDatabase(name))
             {
-                NxNode docNode = database.Get("TestC");
-                NxNode childNode = database.Get("TestC/Root");
+                NxNode docNode = database.Get("TestD");
+                Test(() => docNode != null, "Get TestD");
             }
             return true;
         }

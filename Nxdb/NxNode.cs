@@ -13,6 +13,7 @@ using org.basex.util;
 
 namespace Nxdb
 {
+    //TODO: Reimplement IEquatable<NxNode>
     public class NxNode //: IEquatable<NxNode>
     {
         private readonly NxDatabase _database;
@@ -27,49 +28,51 @@ namespace Nxdb
             get { return _id; }
         }
 
-        private int _pre;    //This should be updated before every use by calling Valid.get or CheckValid()
+        private DBNode _node;  //This should be updated before every use by calling Valid.get or CheckValid(), null = invalidated  
 
+        //Exposing "pre" as "Index" for API consumers
         public int Index
         {
             get
             {
                 CheckValid();
-                return _pre;
+                return _node.pre;
             }
         }
 
         //Cache the node kind since it should never change and is used frequently
         private readonly int _kind;
+
         internal int Kind
         {
-            get
-            {
-                return _kind;
-            }
+            get { return _kind; }
         }
 
         //Cache the last modified time to avoid checking pre against id on every operation
         private long _time;
 
         internal NxNode(NxDatabase database, int pre)
-            : this(database, pre, database.Data.id(pre))
+            : this(database, pre, database.GetId(pre))
         {}
 
         internal NxNode(NxDatabase database, int pre, int id)
         {
             _database = database;
-            _pre = pre;
+            _node = new DBNode(database.Data, pre);
             _id = id;
-            _kind = GetKind(database.Data, pre);
-            _time = database.Data.meta.time;
+            _kind = database.GetKind(pre);
+            _time = database.GetTime();
         }
 
-        internal static int GetKind(Data data, int pre)
+        internal NxNode(NxDatabase database, DBNode node)
         {
-            return data.kind(pre);
+            _database = database;
+            _node = node;
+            _id = database.GetId(node.pre);
+            _kind = database.GetKind(node.pre);
+            _time = database.GetTime();
         }
-
-        /*
+        
         #region Dom
 
         public XmlNodeType NodeType
@@ -77,7 +80,7 @@ namespace Nxdb
             get
             {
                 CheckValid();
-                switch (kind)
+                switch (_kind)
                 {
                     case (Data.DOC):
                         return XmlNodeType.Document;
@@ -98,6 +101,7 @@ namespace Nxdb
         }
 
         //Get the System.XmlNode representation and cache it for future reference
+        //TODO: Uncomment DOM objects in the switch statement
         public XmlNode XmlNode
         {
             get
@@ -107,7 +111,7 @@ namespace Nxdb
                 //Has it already been cached?
                 WeakReference weakNode;
                 XmlNode xmlNode = null;
-                if(database.DomCache.TryGetValue(id, out weakNode))
+                if(_database.DomCache.TryGetValue(_id, out weakNode))
                 {
                     xmlNode = (XmlNode)weakNode.Target;
                 }
@@ -116,32 +120,32 @@ namespace Nxdb
                 if (xmlNode == null)
                 {
                     //Create the appropriate node type
-                    switch (kind)
+                    switch (_kind)
                     {
                         case (Data.DOC):
-                            xmlNode = new NxDocument(this);
+                            //xmlNode = new NxDocument(this);
                             break;
                         case (Data.ELEM):
-                            xmlNode = new NxElement(this);
+                            //xmlNode = new NxElement(this);
                             break;
                         case (Data.TEXT):
-                            xmlNode = new NxText(this);
+                            //xmlNode = new NxText(this);
                             break;
                         case (Data.ATTR):
-                            xmlNode = new NxAttribute(this);
+                            //xmlNode = new NxAttribute(this);
                             break;
                         case (Data.COMM):
-                            xmlNode = new NxComment(this);
+                            //xmlNode = new NxComment(this);
                             break;
                         case (Data.PI):
-                            xmlNode = new NxProcessingInstruction(this);
+                            //xmlNode = new NxProcessingInstruction(this);
                             break;
                         default:
                             throw new InvalidOperationException("Unexpected node type");
                     }
 
                     //Cache for later
-                    database.DomCache[id] = new WeakReference(xmlNode);
+                    _database.DomCache[_id] = new WeakReference(xmlNode);
                 }
 
                 return xmlNode;
@@ -151,17 +155,11 @@ namespace Nxdb
         //Checks if the input NxNode is null and if so, returns null - used from Dom implementations
         internal static XmlNode GetXmlNode(NxNode node)
         {
-            if (node == null)
-            {
-                return null;
-            }
-            return node.XmlNode;
+            return node == null ? null : node.XmlNode;
         }
 
         #endregion
-
-        */
-
+        
         #region Validity
 
         //Verify the id and pre values still match, and if they don't update the pre
@@ -172,19 +170,32 @@ namespace Nxdb
         {
             get
             {
-                if( _pre == -1 )
+                //If we no longer have a node, then we've been invalidated
+                if( _node == null )
                 {
                     return false;
                 }
-                if (_time != _database.Data.meta.time)
+
+                //Check if the database has been modified since the last validity check
+                long time = _database.GetTime();
+                if (_time != time)
                 {
-                    _time = _database.Data.meta.time;
-                    if( _pre >= _database.Data.meta.size || _id != _database.Data.id(_pre) )
+                    _time = time;
+
+                    //First check if the pre value is too large (the database shrunk),
+                    //then check if the current pre still refers to the same id (do second since it requires disk access)
+                    if (_node.pre >= _database.GetSize() || _id != _database.GetId(_node.pre))
                     {
-                        _pre = _database.Data.pre(_id);
-                        return _pre != -1;
+                        int pre = _database.GetPre(_id);
+                        if(pre == -1)
+                        {
+                            _node = null;
+                            return false;
+                        }
+                        _node.set(pre, _kind);
                     }
                 }
+
                 return true;
             }
         }
@@ -237,7 +248,17 @@ namespace Nxdb
         }
 
         #endregion
+        
+        */
 
+        #region Children
+
+
+
+        #endregion
+
+        /*
+        
         #region Children
 
         //Helper for the various child axis enumerables and acessors so we don't create unused NxNode objects

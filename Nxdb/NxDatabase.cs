@@ -140,24 +140,24 @@ namespace Nxdb
         //The following perform the same operation as their equivalent BaseX command:
         //http://docs.basex.org/wiki/Commands
         
-        public bool Add(string path, string content)
+        public bool Add(string name, string content)
         {
-            return Run(new Add(path, content));
+            return Run(new Add(name, content));
         }
 
-        public bool Delete(string path)
+        public bool Delete(string name)
         {
-            return Run(new Delete(path));
+            return Run(new Delete(name));
         }
 
-        public bool Rename(string path, string newPath)
+        public bool Rename(string name, string newName)
         {
-            return Run(new Rename(path, newPath));
+            return Run(new Rename(name, newName));
         }
 
-        public bool Replace(string path, string content)
+        public bool Replace(string name, string content)
         {
-            return Run(new Replace(path, content));
+            return Run(new Replace(name, content));
         }
 
         //More direct access
@@ -167,10 +167,46 @@ namespace Nxdb
             get { return _context.data(); }
         }
 
-        public NxNode Get(string path)
+        public NxNode Get(string name)
         {
-            int pre = Data.doc(path);
+            int pre = Data.doc(name);
             return pre == -1 ? null : new NxNode(this, pre);
+        }
+
+        internal int GetKind(int pre)
+        {
+            return Data.kind(pre);
+        }
+
+        internal int GetId(int pre)
+        {
+            return Data.id(pre);
+        }
+
+        internal int GetPre(int id)
+        {
+            return Data.pre(id);
+        }
+
+        internal long GetTime()
+        {
+            return Data.meta.time;
+        }
+
+        internal int GetSize()
+        {
+            return Data.meta.size;
+        }
+
+        //A cache of all constructed DOM nodes for this collection
+        //Needed because .NET XML DOM consumers probably expect one object per node instead of the on the fly creation that Nxdb uses
+        //This ensures reference equality for equivalent NxNodes
+        //Key = node Id, Value = WeakReference to XmlNode instance
+        private readonly Dictionary<int, WeakReference> _domCache = new Dictionary<int, WeakReference>();
+
+        internal Dictionary<int, WeakReference> DomCache
+        {
+            get { return _domCache; }
         }
     }
 }

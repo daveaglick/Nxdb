@@ -12,7 +12,7 @@ using Type=org.basex.query.item.Type;
 
 namespace Nxdb.Dom
 {
-    ////Keep in mind different instances could refer to the same document, should compare with equals
+    //Keep in mind different instances could refer to the same document, should compare with equals
     //public class NxDocument : XmlDocument, INxXmlNode
     //{
     //    private readonly NxNode node;
