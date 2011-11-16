@@ -10,17 +10,22 @@ using ikvm.@internal;
 using java.io;
 using Nxdb.Io;
 using java.lang;
+using java.math;
+using javax.xml.datatype;
+using javax.xml.@namespace;
 using org.basex.api.xmldb;
 using org.basex.core;
 using org.basex.core.cmd;
 using org.basex.data;
 using org.basex.io;
+using org.basex.query.item;
 using org.basex.util;
 using org.basex.build;
 using org.xmldb.api;
 using File = java.io.File;
 using String = System.String;
 using StringReader = java.io.StringReader;
+using Type = org.basex.query.item.Type;
 
 namespace Nxdb
 {
@@ -173,11 +178,6 @@ namespace Nxdb
             return pre == -1 ? null : new NxNode(this, pre);
         }
 
-        internal int GetKind(int pre)
-        {
-            return Data.kind(pre);
-        }
-
         internal int GetId(int pre)
         {
             return Data.id(pre);
@@ -196,6 +196,52 @@ namespace Nxdb
         internal int GetSize()
         {
             return Data.meta.size;
+        }
+
+        internal object GetObjectForItem(Item item)
+        {
+            //Check for a null item
+            if (item == null) return null;
+
+            //Is it a node?
+            ANode node = item as ANode;
+            if (node != null)
+            {
+                return new NxNode(this, node);
+            }
+            
+            //Get the Java object
+            object obj = item.toJava();
+
+            //Clean up non-.NET values
+            if(obj is BigInteger)
+            {
+                BigInteger bigInteger = (BigInteger) obj;
+                obj = Convert.ToDecimal(bigInteger.toString());
+            }
+            else if(obj is BigDecimal)
+            {
+                BigDecimal bigDecimal = (BigDecimal) obj;
+                obj = Convert.ToDecimal(bigDecimal.toString());
+            }
+            else if (obj is XMLGregorianCalendar)
+            {
+                XMLGregorianCalendar date = (XMLGregorianCalendar) obj;
+                date.normalize();   //Normalizes the date to UTC
+                obj = XmlConvert.ToDateTime(date.toXMLFormat(), XmlDateTimeSerializationMode.Utc);
+            }
+            else if(obj is Duration)
+            {
+                Duration duration = (Duration) obj;
+                obj = XmlConvert.ToTimeSpan(duration.toString());
+            }
+            else if(obj is QName)
+            {
+                QName qname = (QName) obj;
+                obj = new XmlQualifiedName(qname.getLocalPart(), qname.getNamespaceURI());
+            }
+
+            return obj;
         }
 
         //A cache of all constructed DOM nodes for this collection

@@ -22,30 +22,24 @@ namespace Nxdb
             get { return _database; }
         }
 
+        private ANode _aNode;  //This should be updated before every use by calling Valid.get or CheckValid(), null = invalidated
+        private DBNode _dbNode; //This should be set if the node is a DBNode, null = not a DBNode
+
+        //The unique immutable ID for the node, -1 if not database node
         private readonly int _id;
         public int Id
         {
             get { return _id; }
         }
 
-        private DBNode _node;  //This should be updated before every use by calling Valid.get or CheckValid(), null = invalidated  
-
-        //Exposing "pre" as "Index" for API consumers
+        //Exposing "pre" as "Index" for API consumers, -1 if not database node
         public int Index
         {
             get
             {
                 CheckValid();
-                return _node.pre;
+                return _dbNode == null ? -1 : _dbNode.pre;
             }
-        }
-
-        //Cache the node kind since it should never change and is used frequently
-        private readonly int _kind;
-
-        internal int Kind
-        {
-            get { return _kind; }
         }
 
         //Cache the last modified time to avoid checking pre against id on every operation
@@ -58,18 +52,27 @@ namespace Nxdb
         internal NxNode(NxDatabase database, int pre, int id)
         {
             _database = database;
-            _node = new DBNode(database.Data, pre);
+            _dbNode = new DBNode(database.Data, pre);
+            _aNode = _dbNode;
             _id = id;
-            _kind = database.GetKind(pre);
             _time = database.GetTime();
         }
 
         internal NxNode(NxDatabase database, DBNode node)
         {
             _database = database;
-            _node = node;
+            _dbNode = node;
+            _aNode = node;
             _id = database.GetId(node.pre);
-            _kind = database.GetKind(node.pre);
+            _time = database.GetTime();
+        }
+
+        internal NxNode(NxDatabase database, ANode node)
+        {
+            _database = database;
+            _aNode = node;
+            _dbNode = _aNode as DBNode;
+            _id = _dbNode == null ? -1 : database.GetId(_dbNode.pre);
             _time = database.GetTime();
         }
         
@@ -80,23 +83,32 @@ namespace Nxdb
             get
             {
                 CheckValid();
-                switch (_kind)
+                NodeType nodeType = _aNode.ndType();
+                if (nodeType == org.basex.query.item.NodeType.ELM)
                 {
-                    case (Data.DOC):
-                        return XmlNodeType.Document;
-                    case (Data.ELEM):
-                        return XmlNodeType.Element;
-                    case (Data.TEXT):
-                        return XmlNodeType.Text;
-                    case (Data.ATTR):
-                        return XmlNodeType.Attribute;
-                    case (Data.COMM):
-                        return XmlNodeType.Comment;
-                    case (Data.PI):
-                        return XmlNodeType.ProcessingInstruction;
-                    default:
-                        throw new InvalidOperationException("Unexpected node type");
+                    return XmlNodeType.Element;
                 }
+                if (nodeType == org.basex.query.item.NodeType.TXT)
+                {
+                    return XmlNodeType.Text;
+                }
+                if (nodeType == org.basex.query.item.NodeType.ATT)
+                {
+                    return XmlNodeType.Attribute;
+                }
+                if(nodeType == org.basex.query.item.NodeType.DOC)
+                {
+                    return XmlNodeType.Document;
+                }
+                if (nodeType == org.basex.query.item.NodeType.COM)
+                {
+                    return XmlNodeType.Comment;
+                }
+                if (nodeType == org.basex.query.item.NodeType.PI)
+                {
+                    return XmlNodeType.ProcessingInstruction;
+                }
+                throw new InvalidOperationException("Unexpected node type");
             }
         }
 
@@ -120,28 +132,34 @@ namespace Nxdb
                 if (xmlNode == null)
                 {
                     //Create the appropriate node type
-                    switch (_kind)
+                    NodeType nodeType = _aNode.ndType();
+                    if (nodeType == org.basex.query.item.NodeType.ELM)
                     {
-                        case (Data.DOC):
-                            //xmlNode = new NxDocument(this);
-                            break;
-                        case (Data.ELEM):
-                            //xmlNode = new NxElement(this);
-                            break;
-                        case (Data.TEXT):
-                            //xmlNode = new NxText(this);
-                            break;
-                        case (Data.ATTR):
-                            //xmlNode = new NxAttribute(this);
-                            break;
-                        case (Data.COMM):
-                            //xmlNode = new NxComment(this);
-                            break;
-                        case (Data.PI):
-                            //xmlNode = new NxProcessingInstruction(this);
-                            break;
-                        default:
-                            throw new InvalidOperationException("Unexpected node type");
+                        //xmlNode = new NxElement(this);
+                    }
+                    else if (nodeType == org.basex.query.item.NodeType.TXT)
+                    {
+                        //xmlNode = new NxText(this);
+                    }
+                    else if (nodeType == org.basex.query.item.NodeType.ATT)
+                    {
+                        //xmlNode = new NxAttribute(this);
+                    }
+                    else if (nodeType == org.basex.query.item.NodeType.DOC)
+                    {
+                        //xmlNode = new NxDocument(this);
+                    }
+                    else if (nodeType == org.basex.query.item.NodeType.COM)
+                    {
+                        //xmlNode = new NxComment(this);
+                    }
+                    else if (nodeType == org.basex.query.item.NodeType.PI)
+                    {
+                        //xmlNode = new NxProcessingInstruction(this);
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException("Unexpected node type");
                     }
 
                     //Cache for later
@@ -171,9 +189,15 @@ namespace Nxdb
             get
             {
                 //If we no longer have a node, then we've been invalidated
-                if( _node == null )
+                if( _aNode == null )
                 {
                     return false;
+                }
+
+                //If we're not a database node, then always valid
+                if( _dbNode == null )
+                {
+                    return true;
                 }
 
                 //Check if the database has been modified since the last validity check
@@ -184,15 +208,16 @@ namespace Nxdb
 
                     //First check if the pre value is too large (the database shrunk),
                     //then check if the current pre still refers to the same id (do second since it requires disk access)
-                    if (_node.pre >= _database.GetSize() || _id != _database.GetId(_node.pre))
+                    if (_dbNode.pre >= _database.GetSize() || _id != _database.GetId(_dbNode.pre))
                     {
                         int pre = _database.GetPre(_id);
                         if(pre == -1)
                         {
-                            _node = null;
+                            _aNode = null;
+                            _dbNode = null;
                             return false;
                         }
-                        _node.set(pre, _kind);
+                        _dbNode.set(pre, ANode.kind(_aNode.ndType()));
                     }
                 }
 
@@ -202,20 +227,20 @@ namespace Nxdb
 
         //Internal convinience method for checking validity and then throwing an exception if no longer valid
         //Also checks if this node matches one of a set of kinds
-        private bool CheckValid(params int[] kinds)
+        private bool CheckValid(params NodeType[] nodeTypes)
         {
-            return CheckValid(false, kinds);
+            return CheckValid(false, nodeTypes);
         }
 
-        private bool CheckValid(bool throwKindException, params int[] kinds)
+        private bool CheckValid(bool throwKindException, params NodeType[] nodeTypes)
         {
             if( !Valid )
             {
                 throw new InvalidOperationException("Node no longer valid");
             }
-            if( kinds.Length > 0 )
+            if (nodeTypes.Length > 0)
             {
-                if (kinds.Any(testKind => testKind == _kind))
+                if (nodeTypes.Any(t => t == _aNode.ndType()))
                 {
                     return true;
                 }
@@ -253,7 +278,14 @@ namespace Nxdb
 
         #region Children
 
-
+        public IEnumerable<object> Children
+        {
+            get
+            { 
+                CheckValid();
+                return new IterEnum(_database, _aNode.children());
+            }
+        }
 
         #endregion
 

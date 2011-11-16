@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Xml;
 using Nxdb;
 
 namespace NxdbTests
@@ -71,6 +72,11 @@ namespace NxdbTests
             {
                 NxNode docNode = database.Get("TestD");
                 Test(() => docNode != null, "Get TestD");
+                NxNode child = docNode.Children.OfType<NxNode>().First() //<TestB>
+                    .Children.OfType<NxNode>().First()  //<Root>
+                    .Children.OfType<NxNode>().First();  //Text
+                Test(() => child.NodeType == XmlNodeType.Text, "Get Text Child");
+                //TODO: Test text child value once value property is implemented
             }
             return true;
         }
