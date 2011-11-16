@@ -9,6 +9,7 @@ using Nxdb.Dom;
 using org.basex.build;
 using org.basex.data;
 using org.basex.query.item;
+using org.basex.query.iter;
 using org.basex.util;
 
 namespace Nxdb
@@ -276,211 +277,49 @@ namespace Nxdb
         
         */
 
-        #region Children
+        #region Axis Traversal
 
-        public IEnumerable<object> Children
+        //Provides typed enumeration for BaseX NodeIter, which are limited to ANode results
+        //and thus the enumeration results are guaranteed to produce NxNode objects
+        private IEnumerable<NxNode> EnumerateNodes(NodeIter iter)
         {
-            get
-            { 
-                CheckValid();
-                return new IterEnum(_database, _aNode.children());
-            }
-        }
-
-        #endregion
-
-        /*
-        
-        #region Children
-
-        //Helper for the various child axis enumerables and acessors so we don't create unused NxNode objects
-        internal static IEnumerable<int> GetChildPres(Data data, int parentPre, int parentKind, bool includeAttributes)
-        {
-            int childPre = parentPre + (includeAttributes ? 1 : data.attSize(parentPre, parentKind));
-            int size = parentPre + data.size(parentPre, parentKind);
-            while (childPre != size)
-            {
-                yield return childPre;
-                childPre += data.size(childPre, data.kind(childPre));
-            }
-            yield break;
+            IterEnum iterEnum = new IterEnum(_database, iter);
+            return iterEnum.Cast<NxNode>();
         }
 
         public IEnumerable<NxNode> ChildNodes
         {
             get
             {
-                if (CheckValid(Data.ELEM, Data.DOC))
-                {
-                    foreach (int childPre in GetChildPres(database.Data, pre, kind, false))
-                    {
-                        yield return new NxNode(database, childPre);
-                    }
-                }
-                yield break;
+                CheckValid();
+                return EnumerateNodes(_aNode.children());
             }
         }
 
-        public NxNode FirstChild
+        public bool HasChildren
         {
             get
-            {
-                return ChildNodes.FirstOrDefault();
+            { 
+                CheckValid();
+                return _aNode.hasChildren();
             }
         }
-
-        public NxNode LastChild
-        {
-            get
-            {
-                if (CheckValid(Data.ELEM, Data.DOC))
-                {
-                    int lastChildPre = -1;
-                    IEnumerator<int> childEnumerator = GetChildPres(database.Data, pre, kind, false).GetEnumerator();
-                    while (childEnumerator.MoveNext())
-                    {
-                        lastChildPre = childEnumerator.Current;
-                    }
-                    return lastChildPre == -1 ? null : new NxNode(database, lastChildPre);
-                }
-                return null;
-            }
-        }
-
-        public bool HasChildNodes
-        {
-            get
-            {
-                if (CheckValid(Data.ELEM, Data.DOC))
-                {
-                    return GetChildPres(database.Data, pre, kind, false).GetEnumerator().MoveNext();
-                }
-                return false;
-            }
-        }
-
-        #endregion
-
-        #region Preceding/Following
 
         public IEnumerable<NxNode> FollowingSiblingNodes
         {
             get
             {
-                if (CheckValid(Data.ELEM, Data.TEXT, Data.COMM, Data.PI))
-                {
-                    int parentPre = database.Data.parent(pre, kind);
-                    if (parentPre != -1)
-                    {
-                        IEnumerator<int> childEnumerator = GetChildPres(database.Data, parentPre, database.Data.kind(parentPre), false).GetEnumerator();
-                        while (childEnumerator.MoveNext() && childEnumerator.Current != pre) { }
-                        while (childEnumerator.MoveNext())
-                        {
-                            yield return new NxNode(database, childEnumerator.Current);
-                        }
-                    }
-                }
-                yield break;
+                CheckValid();
+                return EnumerateNodes(_aNode.follSibl());
             }
         }
 
-        public NxNode FollowingSibling
-        {
-            get
-            {
-                return FollowingSiblingNodes.FirstOrDefault();
-            }
-        }
-
-        //These are returned in order closest to this node (this is different from the ordering of the coorisponding XPath axis)
         public IEnumerable<NxNode> PrecedingSiblingNodes
         {
             get
             {
-                if (CheckValid(Data.ELEM, Data.TEXT, Data.COMM, Data.PI))
-                {
-                    int parentPre = database.Data.parent(pre, kind);
-                    if (parentPre != -1)
-                    {
-                        IEnumerator<int> childEnumerator = GetChildPres(database.Data, parentPre, database.Data.kind(parentPre), false).GetEnumerator();
-                        List<int> precedingPres = new List<int>();
-                        while (childEnumerator.MoveNext() && childEnumerator.Current != pre)
-                        {
-                            precedingPres.Add(childEnumerator.Current);
-                        }
-                        precedingPres.Reverse();
-                        foreach (int precedingPre in precedingPres)
-                        {
-                            yield return new NxNode(database, precedingPre);
-                        }
-                    }
-                    yield break;
-                }
-            }
-        }
-
-        public NxNode PrecedingSibling
-        {
-            get
-            {
-                if (CheckValid(Data.ELEM, Data.TEXT, Data.COMM, Data.PI))
-                {
-                    int parentPre = database.Data.parent(pre, kind);
-                    if (parentPre != -1)
-                    {
-                        IEnumerator<int> childEnumerator = GetChildPres(database.Data, parentPre, database.Data.kind(parentPre), false).GetEnumerator();
-                        int lastChild = -1;
-                        while (childEnumerator.MoveNext() && childEnumerator.Current != pre)
-                        {
-                            lastChild = childEnumerator.Current;
-                        }
-                        if (lastChild != -1)
-                        {
-                            return new NxNode(database, lastChild);
-                        }
-                    }
-                }
-                return null;
-            }
-        }
-
-        //These are returned in order closest to this node (this is different from the ordering of the coorisponding XPath axis)
-        public IEnumerable<NxNode> PrecedingNodes
-        {
-            get
-            {
-                if (CheckValid(Data.ELEM, Data.TEXT, Data.COMM, Data.PI))
-                {
-                    List<int> precedingPres = new List<int>();
-                    List<int> tempPres = new List<int>();
-                    int currentPre = pre;
-                    int currentKind = kind;
-                    int parentPre = database.Data.parent(pre, kind);
-                    while (parentPre != -1)
-                    {
-                        int parentKind = database.Data.kind(parentPre);
-                        if (currentKind != Data.ATTR)
-                        {
-                            tempPres.Clear();
-                            IEnumerator<int> childEnumerator = GetChildPres(database.Data, parentPre, parentKind, false).GetEnumerator();
-                            while (childEnumerator.MoveNext() && childEnumerator.Current != currentPre)
-                            {
-                                tempPres.Add(childEnumerator.Current);
-                                tempPres.AddRange(GetDescendantPres(database.Data, childEnumerator.Current, database.Data.kind(childEnumerator.Current)));
-                            }
-                            tempPres.Reverse();
-                            precedingPres.AddRange(tempPres);
-                        }
-                        currentPre = parentPre;
-                        currentKind = parentKind;
-                        parentPre = database.Data.parent(parentPre, parentKind);
-                    }
-                    foreach (int precedingPre in precedingPres)
-                    {
-                        yield return new NxNode(database, precedingPre);
-                    }
-                }
-                yield break;
+                CheckValid();
+                return EnumerateNodes(_aNode.precSibl());
             }
         }
 
@@ -488,71 +327,17 @@ namespace Nxdb
         {
             get
             {
-                if (CheckValid(Data.ELEM, Data.TEXT, Data.COMM, Data.PI))
-                {
-                    int currentPre = pre;
-                    int currentKind = kind;
-                    int parentPre = database.Data.parent(pre, kind);
-                    while (parentPre != -1)
-                    {
-                        int parentKind = database.Data.kind(parentPre);
-                        IEnumerator<int> childEnumerator = GetChildPres(database.Data, parentPre, parentKind, false).GetEnumerator();
-                        while (currentKind != Data.ATTR && childEnumerator.MoveNext() && childEnumerator.Current != currentPre) { }
-                        while (childEnumerator.MoveNext())
-                        {
-                            yield return new NxNode(database, childEnumerator.Current);
-                            foreach (int descendantPre in
-                                GetDescendantPres(database.Data, childEnumerator.Current, database.Data.kind(childEnumerator.Current)))
-                            {
-                                yield return new NxNode(database, descendantPre);
-                            }
-                        }
-                        currentPre = parentPre;
-                        currentKind = parentKind;
-                        parentPre = database.Data.parent(parentPre, parentKind);
-                    }
-                }
-                yield break;
+                CheckValid();
+                return EnumerateNodes(_aNode.foll());
             }
         }
 
-        //Conveniences to match XmlNode
-        public NxNode NextSibling
-        {
-            get { return FollowingSibling; }
-        }
-
-        public NxNode PreviousSibling
-        {
-            get { return PrecedingSibling; }
-        }
-
-        #endregion
-
-        #region Parent/Ancestor/Descendant
-
-        public NxNode OwnerDocument
+        public IEnumerable<NxNode> PrecedingNodes
         {
             get
             {
                 CheckValid();
-
-                //Is this the document?
-                if (kind == Data.DOC)
-                {
-                    return this;
-                }
-
-                //Otherwise, crawl up until we find it
-                int currentPre = pre;
-                int currentKind = kind;
-                int parent;
-                while (currentKind != Data.DOC && (parent = database.Data.parent(currentPre, currentKind)) != -1)
-                {
-                    currentPre = parent;
-                    currentKind = database.Data.kind(currentPre);
-                }
-                return currentKind == Data.DOC ? new NxNode(database, currentPre) : null;
+                return EnumerateNodes(_aNode.prec());
             }
         }
 
@@ -561,43 +346,26 @@ namespace Nxdb
             get
             {
                 CheckValid();
-                int parent = database.Data.parent(pre, kind);
-                if (parent >= 0)
-                {
-                    return new NxNode(database, parent);
-                }
-                return null;
+                ANode node = _aNode.parent();
+                return node == null ? null : new NxNode(_database, node);
             }
         }
 
-        //These are returned in order closest to this node (this is different from the ordering of the coorisponding XPath axis)
         public IEnumerable<NxNode> AncestorNodes
         {
             get
             {
                 CheckValid();
-                int parentPre = database.Data.parent(pre, kind);
-                while(parentPre >= 0)
-                {
-                    yield return new NxNode(database, parentPre);
-                    parentPre = database.Data.parent(parentPre, database.Data.kind(parentPre));
-                }
-                yield break;
+                return EnumerateNodes(_aNode.anc());
             }
         }
 
-        //These are returned in order closest to this node (this is different from the ordering of the coorisponding XPath axis)
         public IEnumerable<NxNode> AncestorOrSelfNodes
         {
             get
             {
                 CheckValid();
-                yield return this;
-                foreach (NxNode ancestorNode in AncestorNodes)
-                {
-                    yield return ancestorNode;
-                }
-                yield break;
+                return EnumerateNodes(_aNode.ancOrSelf());
             }
         }
 
@@ -605,14 +373,8 @@ namespace Nxdb
         {
             get
             {
-                if (CheckValid(Data.ELEM, Data.DOC))
-                {
-                    foreach (int descendantPre in GetDescendantPres(database.Data, pre, kind))
-                    {
-                        yield return new NxNode(database, descendantPre);
-                    }
-                }
-                yield break;
+                CheckValid();
+                return EnumerateNodes(_aNode.descendant());
             }
         }
 
@@ -620,38 +382,8 @@ namespace Nxdb
         {
             get
             {
-                if (CheckValid(Data.ELEM, Data.DOC))
-                {
-                    yield return this;
-                    foreach (NxNode descendantNode in DescendantNodes)
-                    {
-                        yield return descendantNode;
-                    }
-                }
-                yield break;
-            }
-        }
-
-        internal static IEnumerable<int> GetDescendantPres(Data data, int parentPre, int parentKind)
-        {
-            foreach (int childPre in GetChildPres(data, parentPre, parentKind, false))
-            {
-                yield return childPre;
-                foreach (int descendantPre in GetDescendantPres(data, childPre, data.kind(childPre)))
-                {
-                    yield return descendantPre;
-                }
-            }
-            yield break;
-        }
-
-        //Gets the total number of descendant nodes, including attributes
-        public int Size
-        {
-            get
-            {
                 CheckValid();
-                return database.Data.size(pre, kind);
+                return EnumerateNodes(_aNode.descOrSelf());
             }
         }
 
@@ -659,66 +391,47 @@ namespace Nxdb
 
         #region Attributes
 
-        internal static IEnumerable<int> GetAttributePres(Data data, int parentPre, int parentKind)
-        {
-            int size = parentPre + data.attSize(parentPre, parentKind);
-            int attrPre = parentPre + 1;
-            while (attrPre != size)
-            {
-                yield return attrPre;
-                attrPre++;
-            }
-            yield break;
-        }
-
-        private int GetAttributePre(string name)
-        {
-            byte[] token = Token.token(name);
-            foreach (int attrPre in GetAttributePres(database.Data, pre, kind))
-            {
-                if(Token.eq(token, database.Data.name(attrPre, Data.ATTR)))
-                {
-                    return attrPre;
-                }
-            }
-            return -1;
-        }
-
         public IEnumerable<NxNode> Attributes
         {
             get
             {
-                if (CheckValid(Data.ELEM))
-                {
-                    foreach (int attrPre in GetAttributePres(database.Data, pre, kind))
-                    {
-                        yield return new NxNode(database, attrPre);
-                    }
-                }
-                yield break;
+                CheckValid();
+                return EnumerateNodes(_aNode.attributes());
             }
         }
 
-        //Returns String.Empty if the attribute doesn't exist and null if this is not an element node
-        public string GetAttribute(string name)
+        private ANode GetAttributeANode(string name)
         {
-            if (CheckValid(Data.ELEM))
+            //Traverse the BaseX AxisIter directly to avoid performance penalty of converting all results to NxNode
+            //This code based on ANode.attribute()
+            QNm qnm = new QNm(Token.token(name));
+            AxisIter ai = _aNode.attributes();
+            while (true)
             {
-                int attrPre = GetAttributePre(name);
-                return attrPre == -1 ? string.Empty : Token.@string(database.Data.text(attrPre, false));
+                ANode node = ai.next();
+                if (node == null) return null;
+                if (node.qname().eq(qnm)) return node;
             }
-            return null;
         }
 
         public NxNode GetAttributeNode(string name)
         {
-            if (CheckValid(Data.ELEM))
-            {
-                int attrPre = GetAttributePre(name);
-                return attrPre == -1 ? null : new NxNode(database, attrPre);
-            }
-            return null;
+            CheckValid();
+            ANode node = GetAttributeANode(name);
+            return node == null ? null : new NxNode(_database, node);
         }
+
+        //Returns String.Empty if the attribute doesn't exist
+        public string GetAttribute(string name)
+        {
+            CheckValid();
+            ANode node = GetAttributeANode(name);
+            return node == null ? String.Empty : Token.@string(node.atom());
+        }
+
+        #endregion
+
+        /*
 
         public void RemoveAllAttributes()
         {
