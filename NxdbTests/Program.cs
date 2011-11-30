@@ -22,6 +22,11 @@ namespace NxdbTests
             }
             NxDatabase.SetHome(path);
 
+            //using (NxDatabase database = new NxDatabase("DB1"))
+            //{
+            //    database.Add("Big", "C:\\Users\\dglick\\Documents\\DRAC\\STORM\\xml\\ATCALBoard.xml");
+            //}
+
             //Create a new database
             Test(() => CreateTests("DB1"), "Create Database DB1");
 
@@ -58,7 +63,7 @@ namespace NxdbTests
             using (NxDatabase database = new NxDatabase(name))
             {
                 Test(() => database.Add("TestB", "<TestB><Root>abcd</Root></TestB>"), "Add TestB");
-                Test(() => database.Replace("TestA", "<TestC><Root>abcd</Root></TestC>"), "Replace TestA Content");
+                Test(() => database.Replace("TestA", "<TestC><Root a='a' b='b'>abcd</Root></TestC>"), "Replace TestA Content");
                 Test(() => database.Rename("TestA", "TestD"), "Rename TestA -> TestD");
             }
             
@@ -72,10 +77,16 @@ namespace NxdbTests
             {
                 NxNode docNode = database.Get("TestD");
                 Test(() => docNode != null, "Get TestD");
-                NxNode child = docNode.Children.OfType<NxNode>().First() //<TestB>
-                    .Children.OfType<NxNode>().First()  //<Root>
-                    .Children.OfType<NxNode>().First();  //Text
-                Test(() => child.NodeType == XmlNodeType.Text, "Get Text Child");
+
+                NxNode root = docNode.ChildNodes.First() //<TestB>
+                    .ChildNodes.First();  //<Root>
+                Test(() => root.Attributes.Count() == 2, "Pre-Removal Attribute Count");
+                root.RemoveAllAttributes();
+                Test(() => root.Attributes.Count() == 0, "Post-Removal Attribute Count");
+
+                NxNode text = root.ChildNodes.First();
+                Test(() => text.NodeType == XmlNodeType.Text, "Get Text Child");
+
                 //TODO: Test text child value once value property is implemented
             }
             return true;

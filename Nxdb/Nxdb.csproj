@@ -172,6 +172,7 @@
     <Compile Include="TextWriterSerializer.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="UpdateContext.cs" />
     <Compile Include="XmlWriterSerializer.cs">
       <SubType>Code</SubType>
     </Compile>

@@ -165,7 +165,22 @@ namespace Nxdb
             return Run(new Replace(name, content));
         }
 
+        public bool Optimize()
+        {
+            return Run(new Optimize());
+        }
+
+        public bool OptimizeAll()
+        {
+            return Run(new OptimizeAll());
+        }
+
         //More direct access
+
+        internal Context Context
+        {
+            get { return _context; }
+        }
 
         internal Data Data
         {
@@ -198,6 +213,7 @@ namespace Nxdb
             return Data.meta.size;
         }
 
+        //This is used to get an atomic type object or a node object from a database item
         internal object GetObjectForItem(Item item)
         {
             //Check for a null item

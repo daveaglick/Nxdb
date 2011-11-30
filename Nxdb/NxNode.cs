@@ -10,6 +10,7 @@ using org.basex.build;
 using org.basex.data;
 using org.basex.query.item;
 using org.basex.query.iter;
+using org.basex.query.up.primitives;
 using org.basex.util;
 
 namespace Nxdb
@@ -43,6 +44,16 @@ namespace Nxdb
             }
         }
 
+        //Gets the database kind
+        private int Kind
+        {
+            get
+            {
+                CheckValid();
+                return ANode.kind(_aNode.ndType());
+            }
+        }
+
         //Cache the last modified time to avoid checking pre against id on every operation
         private long _time;
 
@@ -52,6 +63,9 @@ namespace Nxdb
 
         internal NxNode(NxDatabase database, int pre, int id)
         {
+            if (database == null) throw new ArgumentNullException("database");
+            if (pre < 0) throw new ArgumentOutOfRangeException("pre");
+            if (id < 0) throw new ArgumentOutOfRangeException("id");
             _database = database;
             _dbNode = new DBNode(database.Data, pre);
             _aNode = _dbNode;
@@ -61,6 +75,8 @@ namespace Nxdb
 
         internal NxNode(NxDatabase database, DBNode node)
         {
+            if (database == null) throw new ArgumentNullException("database");
+            if (node == null) throw new ArgumentNullException("node");
             _database = database;
             _dbNode = node;
             _aNode = node;
@@ -70,6 +86,8 @@ namespace Nxdb
 
         internal NxNode(NxDatabase database, ANode node)
         {
+            if (database == null) throw new ArgumentNullException("database");
+            if (node == null) throw new ArgumentNullException("node");
             _database = database;
             _aNode = node;
             _dbNode = _aNode as DBNode;
@@ -226,32 +244,17 @@ namespace Nxdb
             }
         }
 
-        //Internal convinience method for checking validity and then throwing an exception if no longer valid
-        //Also checks if this node matches one of a set of kinds
-        private bool CheckValid(params NodeType[] nodeTypes)
-        {
-            return CheckValid(false, nodeTypes);
-        }
-
-        private bool CheckValid(bool throwKindException, params NodeType[] nodeTypes)
+        private void CheckValid(bool database = false)
         {
             if( !Valid )
             {
                 throw new InvalidOperationException("Node no longer valid");
             }
-            if (nodeTypes.Length > 0)
+
+            if(database && _dbNode == null)
             {
-                if (nodeTypes.Any(t => t == _aNode.ndType()))
-                {
-                    return true;
-                }
-                if (throwKindException)
-                {
-                    throw new InvalidOperationException("Invalid node type for this operation");
-                }
-                return false;
+                throw new InvalidOperationException("This operation requires a database node");
             }
-            return true;
         }
 
         #endregion
@@ -395,7 +398,7 @@ namespace Nxdb
         {
             get
             {
-                CheckValid();
+                CheckValid(true);
                 return EnumerateNodes(_aNode.attributes());
             }
         }
@@ -429,21 +432,23 @@ namespace Nxdb
             return node == null ? String.Empty : Token.@string(node.atom());
         }
 
+        public void RemoveAllAttributes()
+        {
+            CheckValid(true);
+            using (new UpdateContext())
+            {
+                int count = _database.Data.attSize(_dbNode.pre, Kind);
+                for (int p = 1; p < count; p++ )
+                {
+                    UpdateContext.AddUpdate(new DeleteNode(_dbNode.pre + p, _database.Data, null), _database.Context);
+                }
+            }
+        }
+
         #endregion
 
         /*
-
-        public void RemoveAllAttributes()
-        {
-            CheckValid(true, Data.ELEM);
-            int count = database.Data.attSize(pre, kind);
-            while (--count > 0)
-            {
-                database.Data.delete(pre + 1);
-            }
-            FinishUpdate();
-        }
-
+        
         public void RemoveAttributeAt(int i)
         {
             CheckValid(true, Data.ELEM);
