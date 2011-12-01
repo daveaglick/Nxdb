@@ -21,6 +21,7 @@ using org.basex.io;
 using org.basex.query.item;
 using org.basex.util;
 using org.basex.build;
+using org.basex.util.list;
 using org.xmldb.api;
 using File = java.io.File;
 using String = System.String;
@@ -191,6 +192,19 @@ namespace Nxdb
         {
             int pre = Data.doc(name);
             return pre == -1 ? null : new NxNode(this, pre);
+        }
+
+        public IEnumerable<string> Documents
+        {
+            get
+            {
+                IntList il = Data.docs();
+                for(int c = 0 ; c < il.size() ; c++ )
+                {
+                    int pre = il.get(c);
+                    yield return Token.@string(Data.text(pre, true));
+                }
+            }
         }
 
         internal int GetId(int pre)
