@@ -429,6 +429,9 @@ namespace Nxdb
         public NxNode GetAttributeNode(string name)
         {
             CheckValid();
+            if (name == null) throw new ArgumentNullException("name");
+            if (name == String.Empty) throw new ArgumentException("name");
+
             ANode node = GetAttributeANode(name);
             return node == null ? null : new NxNode(_database, node);
         }
@@ -437,6 +440,9 @@ namespace Nxdb
         public string GetAttribute(string name)
         {
             CheckValid();
+            if (name == null) throw new ArgumentNullException("name");
+            if (name == String.Empty) throw new ArgumentException("name");
+
             ANode node = GetAttributeANode(name);
             return node == null ? String.Empty : node.atom().Token();
         }
@@ -444,6 +450,7 @@ namespace Nxdb
         public void RemoveAllAttributes()
         {
             CheckValid(true);
+
             using (new UpdateContext())
             {
                 foreach(DBNode node in EnumerateANodes(_aNode.attributes()).OfType<DBNode>())
@@ -456,6 +463,9 @@ namespace Nxdb
         public void RemoveAttribute(string name)
         {
             CheckValid(true);
+            if (name == null) throw new ArgumentNullException("name");
+            if (name == String.Empty) throw new ArgumentException("name");
+
             DBNode node = GetAttributeANode(name) as DBNode;
             if (node != null)
             {
@@ -469,6 +479,10 @@ namespace Nxdb
         public void InsertAttribute(string name, string value)
         {
             CheckValid(true);
+            if (name == null) throw new ArgumentNullException("name");
+            if (value == null) throw new ArgumentNullException("value");
+            if (name == String.Empty) throw new ArgumentException("name");
+
             using (new UpdateContext())
             {
                 Update(new InsertAttribute(_dbNode.pre, _database.Data, null,
@@ -492,33 +506,33 @@ namespace Nxdb
             return new NodeCache(nodes, nodes.Length);
         }
 
-        ////Returns the first child insert pre
-        //private int DeleteAllChildren(bool includeAttributes)
-        //{
-        //    int count = 0;
-        //    int firstChildPre = pre + database.Data.attSize(pre, kind);   //Need to include attributes for initial insert pre to account for empty elements with attributes
-        //    foreach (int childPre in GetChildPres(database.Data, pre, kind, includeAttributes))
-        //    {
-        //        if (count == 0)
-        //        {
-        //            firstChildPre = childPre;
-        //        }
-        //        count++;
-        //    }
-        //    while (count-- > 0)
-        //    {
-        //        database.Data.delete(firstChildPre);
-        //    }
-        //    return firstChildPre;
-        //}
+        /// <summary>
+        /// Removes all child nodes AND attributes.
+        /// </summary>
+        public void RemoveAll()
+        {
+            using (new UpdateContext())
+            {
+                RemoveAllAttributes();  //Contains the call to CheckValid()
+                foreach (DBNode node in EnumerateANodes(_aNode.children()).OfType<DBNode>())
+                {
+                    Update(new DeleteNode(node.pre, _database.Data, null));
+                }
+            }
+        }
 
-        ////Removes all child nodes AND attributes
-        //public void RemoveAll()
-        //{
-        //    CheckValid(true, Data.ELEM, Data.DOC);
-        //    DeleteAllChildren(true);
-        //    FinishUpdate();
-        //}
+        public void RemoveChild(NxNode node)
+        {
+            CheckValid(true);
+            if (node == null) throw new ArgumentNullException("node");
+            if (node._dbNode == null || !node.Database.Equals(_database)) throw new ArgumentException("node must be from the same database");
+            if ( !node._aNode.parent().@is(_aNode) ) throw new ArgumentException("node is not a child of this node");
+
+            using (new UpdateContext())
+            {
+                Update(new DeleteNode(node._dbNode.pre, _database.Data, null));
+            }
+        }
 
         ////Removes a specific child (including attributes)
         //public void RemoveChild(NxNode refNode)

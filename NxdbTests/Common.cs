@@ -49,14 +49,14 @@ namespace NxdbTests
         {
             /* <X>
              *  <XA a='Xaa'>Xa</XA>
-             *  <XB>
+             *  <XB d='Xbd' e='Xbe'>
              *   <XBA>Xba</XBA>
              *   <XBB a='Xbba' b='Xbbb' c='Xbbc'>Xbb</XBB>
              *  </XB>
              * </X>
              */
-            
-            return String.Format("<{0}><{0}A a='{0}aa'>{0}a</{0}A><{0}B><{0}BA>{0}ba</{0}BA><{0}BB a='{0}bba' b='{0}bbb' c='{0}bbc'>{0}bb</{0}BB></{0}B></{0}>", name);
+
+            return String.Format("<{0}><{0}A a='{0}aa'>{0}a</{0}A><{0}B d='{0}bd' e='{0}be'><{0}BA>{0}ba</{0}BA><{0}BB a='{0}bba' b='{0}bbb' c='{0}bbc'>{0}bb</{0}BB></{0}B></{0}>", name);
         }
 
         public static Documents Populate(NxDatabase database, params string[] names)
