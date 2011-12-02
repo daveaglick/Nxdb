@@ -44,16 +44,6 @@ namespace Nxdb
             }
         }
 
-        //Gets the database kind
-        private int Kind
-        {
-            get
-            {
-                CheckValid();
-                return ANode.kind(_aNode.ndType());
-            }
-        }
-
         //Cache the last modified time to avoid checking pre against id on every operation
         private long _time;
 
@@ -78,8 +68,8 @@ namespace Nxdb
             if (database == null) throw new ArgumentNullException("database");
             if (node == null) throw new ArgumentNullException("node");
             _database = database;
-            _dbNode = node;
-            _aNode = node;
+            _dbNode = node.copy();
+            _aNode = _dbNode;
             _id = database.GetId(node.pre);
             _time = database.GetTime();
         }
@@ -89,9 +79,20 @@ namespace Nxdb
             if (database == null) throw new ArgumentNullException("database");
             if (node == null) throw new ArgumentNullException("node");
             _database = database;
-            _aNode = node;
-            _dbNode = _aNode as DBNode;
-            _id = _dbNode == null ? -1 : database.GetId(_dbNode.pre);
+            _dbNode = node as DBNode;
+            if(_dbNode != null)
+            {
+                //If this is a DBNode, we need a copy
+                _dbNode = _dbNode.copy();
+                _aNode = _dbNode;
+                _id = database.GetId(_dbNode.pre);
+            }
+            else
+            {
+                //Otherwise, just use the original ANode
+                _aNode = node;
+                _id = -1;
+            }
             _time = database.GetTime();
         }
         
@@ -296,6 +297,16 @@ namespace Nxdb
             return iterEnum.Cast<NxNode>();
         }
 
+        private IEnumerable<ANode> EnumerateANodes(NodeIter iter)
+        {
+            while (true)
+            {
+                ANode node = iter.next();
+                if (node == null) yield break;
+                yield return node;
+            }
+        }
+
         public IEnumerable<NxNode> ChildNodes
         {
             get
@@ -411,16 +422,8 @@ namespace Nxdb
 
         private ANode GetAttributeANode(string name)
         {
-            //Traverse the BaseX AxisIter directly to avoid performance penalty of converting all results to NxNode
-            //This code based on ANode.attribute()
             QNm qnm = new QNm(name.Token());
-            AxisIter ai = _aNode.attributes();
-            while (true)
-            {
-                ANode node = ai.next();
-                if (node == null) return null;
-                if (node.qname().eq(qnm)) return node;
-            }
+            return EnumerateANodes(_aNode.attributes()).FirstOrDefault(n => n.qname().eq(qnm));
         }
 
         public NxNode GetAttributeNode(string name)
@@ -443,10 +446,9 @@ namespace Nxdb
             CheckValid(true);
             using (new UpdateContext())
             {
-                int count = _database.Data.attSize(_dbNode.pre, Kind);
-                for (int p = 1; p < count; p++ )
+                foreach(DBNode node in EnumerateANodes(_aNode.attributes()).OfType<DBNode>())
                 {
-                    Update(new DeleteNode(_dbNode.pre + p, _database.Data, null));
+                    Update(new DeleteNode(node.pre, _database.Data, null));
                 }
             }
         }
