@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
+using System.Threading;
 using NUnit.Framework;
 using Nxdb;
 
@@ -28,17 +29,34 @@ namespace NxdbTests
         }
 
         //Remove the previous database - every test should stand in isolation
+        //Need to keep trying to delete the directory because deletion fails sometimes for unknown reasons
         public static void Reset()
         {
-            if (Directory.Exists(Path))
+            while (Directory.Exists(Path))
             {
-                Directory.Delete(Path, true);
+                try
+                {
+                    Directory.Delete(Path, true);
+                }
+                catch (Exception)
+                {
+                    Thread.Sleep(100);
+                }
             }
         }
 
         public static string GenerateXmlContent(string name)
         {
-            return String.Format("<{0}><{0}A a='attr_{0}a'>{0}a</{0}A><{0}B><{0}BA>{0}ba</{0}BA><{0}BB b='attr_{0}bb'>{0}bb</{0}BB></{0}B></{0}>", name);
+            /* <X>
+             *  <XA a='Xaa'>Xa</XA>
+             *  <XB>
+             *   <XBA>Xba</XBA>
+             *   <XBB a='Xbba' b='Xbbb' c='Xbbc'>Xbb</XBB>
+             *  </XB>
+             * </X>
+             */
+            
+            return String.Format("<{0}><{0}A a='{0}aa'>{0}a</{0}A><{0}B><{0}BA>{0}ba</{0}BA><{0}BB a='{0}bba' b='{0}bbb' c='{0}bbc'>{0}bb</{0}BB></{0}B></{0}>", name);
         }
 
         public static Documents Populate(NxDatabase database, params string[] names)

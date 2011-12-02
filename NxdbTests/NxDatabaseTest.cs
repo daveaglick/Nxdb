@@ -22,7 +22,7 @@ namespace NxdbTests
             Assert.IsTrue(NxDatabase.Drop(Common.DatabaseName));
             using (NxDatabase database = new NxDatabase(Common.DatabaseName))
             {
-                CollectionAssert.AreEqual(new []{Common.DatabaseName}, database.Documents); //Initially has an empty document with the database name
+                CollectionAssert.AreEqual(new []{Common.DatabaseName}, database.DocumentNames); //Initially has an empty document with the database name
             }
         }
 
@@ -79,13 +79,13 @@ namespace NxdbTests
         }
 
         [Test]
-        public void Get()
+        public void GetDocument()
         {
             Common.Reset();
             using (NxDatabase database = new NxDatabase(Common.DatabaseName))
             {
                 Documents docs = Common.Populate(database, "A", "B", "C", "D");
-                NxNode node = database.Get(docs.Names[1]);
+                NxNode node = database.GetDocument(docs.Names[1]);
                 Assert.IsNotNull(node);
                 //TODO: Verify node name
             }

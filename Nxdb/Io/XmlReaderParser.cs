@@ -27,7 +27,7 @@ namespace Nxdb.Io
         //Based on org.basex.build.xml.XMLParser.parse()
         public override void parse(Builder builder)
         {
-            builder.startDoc(Token.token(_name));
+            builder.startDoc(_name.Token());
             while(_reader.Read())
             {
                 switch(_reader.NodeType)
@@ -38,23 +38,23 @@ namespace Nxdb.Io
                     case XmlNodeType.Text:
                     case XmlNodeType.SignificantWhitespace:
                     case XmlNodeType.Whitespace:
-                        builder.text(Token.token(_reader.Value));
+                        builder.text(_reader.Value.Token());
                         break;
                     case XmlNodeType.Comment:
-                        builder.comment(Token.token(_reader.Value));
+                        builder.comment(_reader.Value.Token());
                         break;
                     case XmlNodeType.ProcessingInstruction:
-                        builder.pi(Token.token(_reader.Name + " " + _reader.Value));
+                        builder.pi((_reader.Name + " " + _reader.Value).Token());
                         break;
                     case XmlNodeType.Element:
                         ParseAttributes(builder);
                         if(_reader.IsEmptyElement)
                         {
-                            builder.emptyElem(Token.token(_reader.Name), atts);
+                            builder.emptyElem(_reader.Name.Token(), atts);
                         }
                         else
                         {
-                            builder.startElem(Token.token(_reader.Name), atts);
+                            builder.startElem(_reader.Name.Token(), atts);
                         }
                         break;
                     case XmlNodeType.EndElement:
@@ -72,8 +72,8 @@ namespace Nxdb.Io
             {
                 while (_reader.MoveToNextAttribute())
                 {
-                    byte[] attName = Token.token(_reader.Name);
-                    byte[] attValue = Token.token(_reader.Value);
+                    byte[] attName = _reader.Name.Token();
+                    byte[] attValue = _reader.Value.Token();
                     if (Token.startsWith(attName, Token.XMLNSC))
                     {
                         builder.startNS(Token.ln(attName), attValue);

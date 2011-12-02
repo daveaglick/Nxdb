@@ -118,6 +118,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="HelperExtensions.cs" />
     <Compile Include="IterEnum.cs" />
     <Compile Include="DataInserter.cs">
       <SubType>Code</SubType>

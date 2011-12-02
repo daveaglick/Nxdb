@@ -188,13 +188,13 @@ namespace Nxdb
             get { return _context.data(); }
         }
 
-        public NxNode Get(string name)
+        public NxNode GetDocument(string name)
         {
             int pre = Data.doc(name);
             return pre == -1 ? null : new NxNode(this, pre);
         }
 
-        public IEnumerable<string> Documents
+        public IEnumerable<NxNode> Documents
         {
             get
             {
@@ -202,7 +202,20 @@ namespace Nxdb
                 for(int c = 0 ; c < il.size() ; c++ )
                 {
                     int pre = il.get(c);
-                    yield return Token.@string(Data.text(pre, true));
+                    yield return new NxNode(this, pre);
+                }
+            }
+        }
+
+        public IEnumerable<string> DocumentNames
+        {
+            get
+            {
+                IntList il = Data.docs();
+                for (int c = 0; c < il.size(); c++)
+                {
+                    int pre = il.get(c);
+                    yield return Data.text(pre, true).Token();
                 }
             }
         }

@@ -244,17 +244,23 @@ namespace Nxdb
             }
         }
 
-        private void CheckValid(bool database = false)
+        private void CheckValid(bool requireDatabase = false)
         {
             if( !Valid )
             {
                 throw new InvalidOperationException("Node no longer valid");
             }
 
-            if(database && _dbNode == null)
+            if(requireDatabase && _dbNode == null)
             {
                 throw new InvalidOperationException("This operation requires a database node");
             }
+        }
+
+        private bool CheckType(params NodeType[] types)
+        {
+            NodeType nodeType = _aNode.ndType();
+            return types.Contains(nodeType);
         }
 
         #endregion
@@ -407,7 +413,7 @@ namespace Nxdb
         {
             //Traverse the BaseX AxisIter directly to avoid performance penalty of converting all results to NxNode
             //This code based on ANode.attribute()
-            QNm qnm = new QNm(Token.token(name));
+            QNm qnm = new QNm(name.Token());
             AxisIter ai = _aNode.attributes();
             while (true)
             {
@@ -429,9 +435,9 @@ namespace Nxdb
         {
             CheckValid();
             ANode node = GetAttributeANode(name);
-            return node == null ? String.Empty : Token.@string(node.atom());
+            return node == null ? String.Empty : node.atom().Token();
         }
-
+        
         public void RemoveAllAttributes()
         {
             CheckValid(true);
@@ -440,680 +446,627 @@ namespace Nxdb
                 int count = _database.Data.attSize(_dbNode.pre, Kind);
                 for (int p = 1; p < count; p++ )
                 {
-                    UpdateContext.AddUpdate(new DeleteNode(_dbNode.pre + p, _database.Data, null), _database.Context);
+                    Update(new DeleteNode(_dbNode.pre + p, _database.Data, null));
                 }
             }
         }
 
-        #endregion
-
-        /*
-        
-        public void RemoveAttributeAt(int i)
+        public void RemoveAttribute(string name)
         {
-            CheckValid(true, Data.ELEM);
-            if( i < database.Data.attSize(pre, kind))
+            CheckValid(true);
+            DBNode node = GetAttributeANode(name) as DBNode;
+            if (node != null)
             {
-                database.Data.delete(pre + 1 + i);
-            }
-            FinishUpdate();
-        }
-
-        //Calls RemoveChild but checks for attribute node
-        public void RemoveAttribute(NxNode refNode)
-        {
-            if (refNode == null)
-            {
-                throw new ArgumentNullException("refNode");
-            }
-            CheckValid(true, Data.ELEM, Data.DOC);
-            refNode.CheckValid(true, Data.ATTR);
-            RemoveAttribute(database.Data, refNode.pre);
-            FinishUpdate();
-        }
-
-        internal static void RemoveAttribute(Data data, int refPre)
-        {
-            RemoveChild(data, refPre);
-        }
-
-        private void CheckAttributeUpdateParams(string name, string value)
-        {
-            if (name == null)
-            {
-                throw new ArgumentNullException("name");
-            }
-            if (value == null)
-            {
-                throw new ArgumentNullException("value");
-            }
-            if( name == String.Empty )
-            {
-                throw new ArgumentException("name must not be empty");
-            }
-            if (value == String.Empty)
-            {
-                throw new ArgumentException("value must not be empty");
+                using (new UpdateContext())
+                {
+                    Update(new DeleteNode(node.pre, _database.Data, null));
+                }
             }
         }
 
-        public NxNode PrependAttribute(string name, string value)
+        public void InsertAttribute(string name, string value)
         {
-            CheckAttributeUpdateParams(name, value);
-            CheckValid(true, Data.ELEM);
-            DataInserter.Insert(XmlNodeType.Attribute, database.Data, pre + 1, pre, name, value);
-            FinishUpdate();
-            return new NxNode(database, pre + 1);
-        }
-
-        public NxNode AppendAttribute(string name, string value)
-        {
-            CheckAttributeUpdateParams(name, value);
-            CheckValid(true, Data.ELEM);
-            int ipre = AppendAttribute(database.Data, pre, kind, name, value);
-            FinishUpdate();
-            return new NxNode(database, ipre);
-        }
-
-        internal static int AppendAttribute(Data data, int pre, int kind, string name, string value)
-        {
-            int ipre = pre + data.attSize(pre, kind);
-            DataInserter.Insert(XmlNodeType.Attribute, data, ipre, pre, name, value);
-            return ipre;
-        }
-
-        public NxNode InsertAttributeBefore(string name, string value, NxNode refNode)
-        {
-            CheckAttributeUpdateParams(name, value);
-            CheckValid(true, Data.ELEM);
-            refNode.CheckValid(true, Data.ATTR);
-            if (database.Data.parent(refNode.pre, refNode.kind) != pre)
+            CheckValid(true);
+            using (new UpdateContext())
             {
-                throw new ArgumentException("The specified node is not a direct descendant of this node");
+                Update(new InsertAttribute(_dbNode.pre, _database.Data, null,
+                    GetNodeCache(new FAttr(new QNm(name.Token()), value.Token()))));
             }
-            int ipre = InsertAttributeBefore(database.Data, pre, name, value, refNode.pre);
-            FinishUpdate();
-            return new NxNode(database, ipre);
-        }
-
-        internal static int InsertAttributeBefore(Data data, int pre, string name, string value, int refPre)
-        {
-            DataInserter.Insert(XmlNodeType.Attribute, data, refPre, pre, name, value);
-            return refPre;
-        }
-
-        public NxNode InsertAttributeAfter(string name, string value, NxNode refNode)
-        {
-            CheckAttributeUpdateParams(name, value);
-            CheckValid(true, Data.ELEM);
-            refNode.CheckValid(true, Data.ATTR);
-            if (database.Data.parent(refNode.pre, refNode.kind) != pre)
-            {
-                throw new ArgumentException("The specified node is not a direct descendant of this node");
-            }
-            DataInserter.Insert(XmlNodeType.Attribute, database.Data, refNode.pre + 1, pre, name, value);
-            FinishUpdate();
-            return new NxNode(database, refNode.pre + 1);
         }
 
         #endregion
 
         #region Reading/Writing
 
-        //Returns the first child insert pre
-        private int DeleteAllChildren(bool includeAttributes)
+        //Helper to add an update primitive to the open update context with the current database context
+        private void Update(UpdatePrimitive update)
         {
-            int count = 0;
-            int firstChildPre = pre + database.Data.attSize(pre, kind);   //Need to include attributes for initial insert pre to account for empty elements with attributes
-            foreach (int childPre in GetChildPres(database.Data, pre, kind, includeAttributes))
-            {
-                if (count == 0)
-                {
-                    firstChildPre = childPre;
-                }
-                count++;
-            }
-            while (count-- > 0)
-            {
-                database.Data.delete(firstChildPre);
-            }
-            return firstChildPre;
+            UpdateContext.AddUpdate(update, _database.Context);
         }
 
-        //Removes all child nodes AND attributes
-        public void RemoveAll()
+        //Helper to generate a NodeCache from a series of ANodes
+        private NodeCache GetNodeCache(params ANode[] nodes)
         {
-            CheckValid(true, Data.ELEM, Data.DOC);
-            DeleteAllChildren(true);
-            FinishUpdate();
+            return new NodeCache(nodes, nodes.Length);
         }
 
-        //Removes a specific child (including attributes)
-        public void RemoveChild(NxNode refNode)
-        {
-            if (refNode == null)
-            {
-                throw new ArgumentNullException("refNode");
-            }
-            CheckValid(true, Data.ELEM, Data.DOC);
-            refNode.CheckValid();
-            if (database.Data.parent(refNode.pre, refNode.kind) != pre)
-            {
-                throw new ArgumentException("The specified node is not a direct descendant of this node");
-            }
-            RemoveChild(database.Data, refNode.pre);
-            FinishUpdate();
-        }
+        ////Returns the first child insert pre
+        //private int DeleteAllChildren(bool includeAttributes)
+        //{
+        //    int count = 0;
+        //    int firstChildPre = pre + database.Data.attSize(pre, kind);   //Need to include attributes for initial insert pre to account for empty elements with attributes
+        //    foreach (int childPre in GetChildPres(database.Data, pre, kind, includeAttributes))
+        //    {
+        //        if (count == 0)
+        //        {
+        //            firstChildPre = childPre;
+        //        }
+        //        count++;
+        //    }
+        //    while (count-- > 0)
+        //    {
+        //        database.Data.delete(firstChildPre);
+        //    }
+        //    return firstChildPre;
+        //}
 
-        internal static void RemoveChild(Data data, int refPre)
-        {
-            data.delete(refPre);
-        }
+        ////Removes all child nodes AND attributes
+        //public void RemoveAll()
+        //{
+        //    CheckValid(true, Data.ELEM, Data.DOC);
+        //    DeleteAllChildren(true);
+        //    FinishUpdate();
+        //}
 
-        public void ReplaceChild(XmlReader xmlReader, NxNode refNode)
-        {
-            if (refNode == null)
-            {
-                throw new ArgumentNullException("refNode");
-            }
-            CheckValid(true, Data.ELEM, Data.DOC);
-            refNode.CheckValid(true, Data.ELEM, Data.TEXT, Data.COMM, Data.PI);
-            if (database.Data.parent(refNode.pre, refNode.kind) != pre)
-            {
-                throw new ArgumentException("The specified node is not a direct descendant of this node");
-            }
-            int ipre = refNode.pre + database.Data.size(refNode.pre, refNode.kind);
-            DataInserter.Insert(xmlReader, database.Data, ipre, pre);
-            database.Data.delete(refNode.pre);
-            FinishUpdate();
-        }
+        ////Removes a specific child (including attributes)
+        //public void RemoveChild(NxNode refNode)
+        //{
+        //    if (refNode == null)
+        //    {
+        //        throw new ArgumentNullException("refNode");
+        //    }
+        //    CheckValid(true, Data.ELEM, Data.DOC);
+        //    refNode.CheckValid();
+        //    if (database.Data.parent(refNode.pre, refNode.kind) != pre)
+        //    {
+        //        throw new ArgumentException("The specified node is not a direct descendant of this node");
+        //    }
+        //    RemoveChild(database.Data, refNode.pre);
+        //    FinishUpdate();
+        //}
 
-        public void ReplaceChild(string xmlContent, NxNode refNode)
-        {
-            StringBasedOperation(xmlContent, refNode, ReplaceChild);
-        }
+        //internal static void RemoveChild(Data data, int refPre)
+        //{
+        //    data.delete(refPre);
+        //}
 
-        public void Match(XmlReader xmlReader)
-        {
-            CheckValid(true, Data.ELEM);
-            DataMatcher.Match(xmlReader, database.Data, pre);
-            FinishUpdate();
-        }
+        //public void ReplaceChild(XmlReader xmlReader, NxNode refNode)
+        //{
+        //    if (refNode == null)
+        //    {
+        //        throw new ArgumentNullException("refNode");
+        //    }
+        //    CheckValid(true, Data.ELEM, Data.DOC);
+        //    refNode.CheckValid(true, Data.ELEM, Data.TEXT, Data.COMM, Data.PI);
+        //    if (database.Data.parent(refNode.pre, refNode.kind) != pre)
+        //    {
+        //        throw new ArgumentException("The specified node is not a direct descendant of this node");
+        //    }
+        //    int ipre = refNode.pre + database.Data.size(refNode.pre, refNode.kind);
+        //    DataInserter.Insert(xmlReader, database.Data, ipre, pre);
+        //    database.Data.delete(refNode.pre);
+        //    FinishUpdate();
+        //}
 
-        public void Match(string xmlContent)
-        {
-            StringBasedOperation(xmlContent, Match);
-        }
+        //public void ReplaceChild(string xmlContent, NxNode refNode)
+        //{
+        //    StringBasedOperation(xmlContent, refNode, ReplaceChild);
+        //}
 
-        //Flushes the data and optionaly rebuilds indexes
-        private void FinishUpdate()
-        {
-            database.Data.flush();
-            if (database.Manager.OptimizeCollectionOnUpdate)
-            {
-                database.Optimize();
-            }
-        }
+        //public void Match(XmlReader xmlReader)
+        //{
+        //    CheckValid(true, Data.ELEM);
+        //    DataMatcher.Match(xmlReader, database.Data, pre);
+        //    FinishUpdate();
+        //}
 
-        public string InnerXml
-        {
-            get
-            {
-                CheckValid();
-                StringBuilder stringBuilder = new StringBuilder();
-                using (XmlWriter xmlWriter = XmlWriter.Create(stringBuilder, NxDatabase.WriterSettings))
-                {
-                    WriteContentTo(xmlWriter);
-                }
-                return stringBuilder.ToString();
-            }
-            set
-            {
-                StringBasedOperation(value, ReadContentFrom);
-            }
-        }
+        //public void Match(string xmlContent)
+        //{
+        //    StringBasedOperation(xmlContent, Match);
+        //}
 
-        //Same as InnerXml.set
-        public void ReadContentFrom(XmlReader xmlReader)
-        {
-            if (xmlReader == null)
-            {
-                throw new ArgumentNullException("xmlReader");
-            }
-            CheckValid(true, Data.ELEM, Data.DOC);
-            int ipre = DeleteAllChildren(false);
-            DataInserter.Insert(xmlReader, database.Data, ipre, pre);
-            FinishUpdate();
-        }
+        ////Flushes the data and optionaly rebuilds indexes
+        //private void FinishUpdate()
+        //{
+        //    database.Data.flush();
+        //    if (database.Manager.OptimizeCollectionOnUpdate)
+        //    {
+        //        database.Optimize();
+        //    }
+        //}
 
-        public string OuterXml
-        {
-            get
-            {
-                CheckValid();
-                StringBuilder stringBuilder = new StringBuilder();
-                using (XmlWriter xmlWriter = XmlWriter.Create(stringBuilder, NxDatabase.WriterSettings))
-                {
-                    WriteTo(xmlWriter);
-                }
-                return stringBuilder.ToString();
-            }
-        }
+        //public string InnerXml
+        //{
+        //    get
+        //    {
+        //        CheckValid();
+        //        StringBuilder stringBuilder = new StringBuilder();
+        //        using (XmlWriter xmlWriter = XmlWriter.Create(stringBuilder, NxDatabase.WriterSettings))
+        //        {
+        //            WriteContentTo(xmlWriter);
+        //        }
+        //        return stringBuilder.ToString();
+        //    }
+        //    set
+        //    {
+        //        StringBasedOperation(value, ReadContentFrom);
+        //    }
+        //}
 
-        public string InnerText
-        {
-            get
-            {
-                using (StringWriter stringWriter = new StringWriter())
-                {
-                    WriteTextTo(stringWriter);
-                    stringWriter.Close();
-                    return stringWriter.ToString();
-                }
-            }
-            set
-            {
-                if(value == null)
-                {
-                    throw new ArgumentNullException("value");
-                }
-                if (CheckValid(Data.ELEM, Data.DOC))
-                {
-                    int ipre = DeleteAllChildren(false);
-                    DataInserter.Insert(XmlNodeType.Text, database.Data, ipre, pre, null, value);
-                    FinishUpdate();
-                }
-            }
-        }
+        ////Same as InnerXml.set
+        //public void ReadContentFrom(XmlReader xmlReader)
+        //{
+        //    if (xmlReader == null)
+        //    {
+        //        throw new ArgumentNullException("xmlReader");
+        //    }
+        //    CheckValid(true, Data.ELEM, Data.DOC);
+        //    int ipre = DeleteAllChildren(false);
+        //    DataInserter.Insert(xmlReader, database.Data, ipre, pre);
+        //    FinishUpdate();
+        //}
 
-        public TextReader InnerTextReader
-        {
-            get
-            {
-                CheckValid();
-                return new NxTextReader(database, pre, kind);
-            }
-        }
+        //public string OuterXml
+        //{
+        //    get
+        //    {
+        //        CheckValid();
+        //        StringBuilder stringBuilder = new StringBuilder();
+        //        using (XmlWriter xmlWriter = XmlWriter.Create(stringBuilder, NxDatabase.WriterSettings))
+        //        {
+        //            WriteTo(xmlWriter);
+        //        }
+        //        return stringBuilder.ToString();
+        //    }
+        //}
 
-        //Same as InnerText.get
-        public void WriteTextTo(TextWriter textWriter)
-        {
-            if (textWriter == null)
-            {
-                throw new ArgumentNullException("textWriter");
-            }
-            CheckValid();
-            using (TextWriterSerializer serializer = new TextWriterSerializer(textWriter))
-            {
-                serializer.node(database.Data, pre);
-            }
-        }
+        //public string InnerText
+        //{
+        //    get
+        //    {
+        //        using (StringWriter stringWriter = new StringWriter())
+        //        {
+        //            WriteTextTo(stringWriter);
+        //            stringWriter.Close();
+        //            return stringWriter.ToString();
+        //        }
+        //    }
+        //    set
+        //    {
+        //        if(value == null)
+        //        {
+        //            throw new ArgumentNullException("value");
+        //        }
+        //        if (CheckValid(Data.ELEM, Data.DOC))
+        //        {
+        //            int ipre = DeleteAllChildren(false);
+        //            DataInserter.Insert(XmlNodeType.Text, database.Data, ipre, pre, null, value);
+        //            FinishUpdate();
+        //        }
+        //    }
+        //}
 
-        //Same as OuterXml
-        public void WriteTo(XmlWriter xmlWriter)
-        {
-            if (xmlWriter == null)
-            {
-                throw new ArgumentNullException("xmlWriter");
-            }
-            if (CheckValid(Data.ELEM, Data.DOC))
-            {
-                using (XmlWriterSerializer serializer = new XmlWriterSerializer(xmlWriter, kind == Data.DOC))
-                {
-                    serializer.node(database.Data, pre);
-                }
-            }
-        }
+        //public TextReader InnerTextReader
+        //{
+        //    get
+        //    {
+        //        CheckValid();
+        //        return new NxTextReader(database, pre, kind);
+        //    }
+        //}
 
-        //Same as InnerXml
-        public void WriteContentTo(XmlWriter xmlWriter)
-        {
-            if (xmlWriter == null)
-            {
-                throw new ArgumentNullException("xmlWriter");
-            }
-            if (CheckValid(Data.ELEM, Data.DOC))
-            {
-                using (XmlWriterSerializer serializer = new XmlWriterSerializer(xmlWriter, false))
-                {
-                    foreach (int childPre in GetChildPres(database.Data, pre, kind, false))
-                    {
-                        serializer.node(database.Data, childPre);
-                    }
-                }
-            }
-        }
+        ////Same as InnerText.get
+        //public void WriteTextTo(TextWriter textWriter)
+        //{
+        //    if (textWriter == null)
+        //    {
+        //        throw new ArgumentNullException("textWriter");
+        //    }
+        //    CheckValid();
+        //    using (TextWriterSerializer serializer = new TextWriterSerializer(textWriter))
+        //    {
+        //        serializer.node(database.Data, pre);
+        //    }
+        //}
 
-        public void InsertAfter(XmlReader xmlReader, NxNode refNode)
-        {
-            if (xmlReader == null)
-            {
-                throw new ArgumentNullException("xmlReader");
-            }
-            if (refNode == null)
-            {
-                throw new ArgumentNullException("refNode");
-            }
-            CheckValid(true, Data.ELEM, Data.DOC);
-            refNode.CheckValid(true, Data.ELEM, Data.TEXT, Data.COMM, Data.PI);
-            if (database.Data.parent(refNode.pre, refNode.kind) != pre)
-            {
-                throw new ArgumentException("The specified node is not a direct descendant of this node");
-            }
-            int ipre = refNode.pre + database.Data.size(refNode.pre, refNode.kind);
-            DataInserter.Insert(xmlReader, database.Data, ipre, pre);
-            FinishUpdate();
-        }
+        ////Same as OuterXml
+        //public void WriteTo(XmlWriter xmlWriter)
+        //{
+        //    if (xmlWriter == null)
+        //    {
+        //        throw new ArgumentNullException("xmlWriter");
+        //    }
+        //    if (CheckValid(Data.ELEM, Data.DOC))
+        //    {
+        //        using (XmlWriterSerializer serializer = new XmlWriterSerializer(xmlWriter, kind == Data.DOC))
+        //        {
+        //            serializer.node(database.Data, pre);
+        //        }
+        //    }
+        //}
 
-        public void InsertAfter(XmlNodeType nodeType, string name, string value, NxNode refNode)
-        {
-            if (refNode == null)
-            {
-                throw new ArgumentNullException("refNode");
-            }
-            CheckValid(true, Data.ELEM, Data.DOC);
-            refNode.CheckValid(true, Data.ELEM, Data.TEXT, Data.COMM, Data.PI);
-            if (database.Data.parent(refNode.pre, refNode.kind) != pre)
-            {
-                throw new ArgumentException("The specified node is not a direct descendant of this node");
-            }
-            int ipre = refNode.pre + database.Data.size(refNode.pre, refNode.kind);
-            DataInserter.Insert(nodeType, database.Data, ipre, pre, name, value);
-            FinishUpdate();
-        }
+        ////Same as InnerXml
+        //public void WriteContentTo(XmlWriter xmlWriter)
+        //{
+        //    if (xmlWriter == null)
+        //    {
+        //        throw new ArgumentNullException("xmlWriter");
+        //    }
+        //    if (CheckValid(Data.ELEM, Data.DOC))
+        //    {
+        //        using (XmlWriterSerializer serializer = new XmlWriterSerializer(xmlWriter, false))
+        //        {
+        //            foreach (int childPre in GetChildPres(database.Data, pre, kind, false))
+        //            {
+        //                serializer.node(database.Data, childPre);
+        //            }
+        //        }
+        //    }
+        //}
 
-        public void InsertBefore(XmlReader xmlReader, NxNode refNode)
-        {
-            if (xmlReader == null)
-            {
-                throw new ArgumentNullException("xmlReader");
-            }
-            if (refNode == null)
-            {
-                throw new ArgumentNullException("refNode");
-            }
-            CheckValid(true, Data.ELEM, Data.DOC);
-            refNode.CheckValid(true, Data.ELEM, Data.TEXT, Data.COMM, Data.PI);
-            if (database.Data.parent(refNode.pre, refNode.kind) != pre)
-            {
-                throw new ArgumentException("The specified node is not a direct descendant of this node");
-            }
-            InsertBefore(database.Data, pre, xmlReader, refNode.pre);
-            FinishUpdate();
-        }
+        //public void InsertAfter(XmlReader xmlReader, NxNode refNode)
+        //{
+        //    if (xmlReader == null)
+        //    {
+        //        throw new ArgumentNullException("xmlReader");
+        //    }
+        //    if (refNode == null)
+        //    {
+        //        throw new ArgumentNullException("refNode");
+        //    }
+        //    CheckValid(true, Data.ELEM, Data.DOC);
+        //    refNode.CheckValid(true, Data.ELEM, Data.TEXT, Data.COMM, Data.PI);
+        //    if (database.Data.parent(refNode.pre, refNode.kind) != pre)
+        //    {
+        //        throw new ArgumentException("The specified node is not a direct descendant of this node");
+        //    }
+        //    int ipre = refNode.pre + database.Data.size(refNode.pre, refNode.kind);
+        //    DataInserter.Insert(xmlReader, database.Data, ipre, pre);
+        //    FinishUpdate();
+        //}
 
-        internal static void InsertBefore(Data data, int pre, XmlReader xmlReader, int refPre)
-        {
-            DataInserter.Insert(xmlReader, data, refPre, pre);
-        }
+        //public void InsertAfter(XmlNodeType nodeType, string name, string value, NxNode refNode)
+        //{
+        //    if (refNode == null)
+        //    {
+        //        throw new ArgumentNullException("refNode");
+        //    }
+        //    CheckValid(true, Data.ELEM, Data.DOC);
+        //    refNode.CheckValid(true, Data.ELEM, Data.TEXT, Data.COMM, Data.PI);
+        //    if (database.Data.parent(refNode.pre, refNode.kind) != pre)
+        //    {
+        //        throw new ArgumentException("The specified node is not a direct descendant of this node");
+        //    }
+        //    int ipre = refNode.pre + database.Data.size(refNode.pre, refNode.kind);
+        //    DataInserter.Insert(nodeType, database.Data, ipre, pre, name, value);
+        //    FinishUpdate();
+        //}
 
-        public void InsertBefore(XmlNodeType nodeType, string name, string value, NxNode refNode)
-        {
-            if (refNode == null)
-            {
-                throw new ArgumentNullException("refNode");
-            }
-            CheckValid(true, Data.ELEM, Data.DOC);
-            refNode.CheckValid(true, Data.ELEM, Data.TEXT, Data.COMM, Data.PI);
-            if (database.Data.parent(refNode.pre, refNode.kind) != pre)
-            {
-                throw new ArgumentException("The specified node is not a direct descendant of this node");
-            }
-            InsertBefore(database.Data, pre, nodeType, name, value, refNode.pre);
-            FinishUpdate();
-        }
+        //public void InsertBefore(XmlReader xmlReader, NxNode refNode)
+        //{
+        //    if (xmlReader == null)
+        //    {
+        //        throw new ArgumentNullException("xmlReader");
+        //    }
+        //    if (refNode == null)
+        //    {
+        //        throw new ArgumentNullException("refNode");
+        //    }
+        //    CheckValid(true, Data.ELEM, Data.DOC);
+        //    refNode.CheckValid(true, Data.ELEM, Data.TEXT, Data.COMM, Data.PI);
+        //    if (database.Data.parent(refNode.pre, refNode.kind) != pre)
+        //    {
+        //        throw new ArgumentException("The specified node is not a direct descendant of this node");
+        //    }
+        //    InsertBefore(database.Data, pre, xmlReader, refNode.pre);
+        //    FinishUpdate();
+        //}
 
-        internal static void InsertBefore(Data data, int pre, XmlNodeType nodeType, string name, string value, int refPre)
-        {
-            DataInserter.Insert(nodeType, data, refPre, pre, name, value);
-        }
+        //internal static void InsertBefore(Data data, int pre, XmlReader xmlReader, int refPre)
+        //{
+        //    DataInserter.Insert(xmlReader, data, refPre, pre);
+        //}
 
-        public void AppendChild(XmlReader xmlReader)
-        {
-            if (xmlReader == null)
-            {
-                throw new ArgumentNullException("xmlReader");
-            }
-            CheckValid(true, Data.ELEM, Data.DOC);
-            AppendChild(database.Data, pre, kind, xmlReader);
-            FinishUpdate();
-        }
+        //public void InsertBefore(XmlNodeType nodeType, string name, string value, NxNode refNode)
+        //{
+        //    if (refNode == null)
+        //    {
+        //        throw new ArgumentNullException("refNode");
+        //    }
+        //    CheckValid(true, Data.ELEM, Data.DOC);
+        //    refNode.CheckValid(true, Data.ELEM, Data.TEXT, Data.COMM, Data.PI);
+        //    if (database.Data.parent(refNode.pre, refNode.kind) != pre)
+        //    {
+        //        throw new ArgumentException("The specified node is not a direct descendant of this node");
+        //    }
+        //    InsertBefore(database.Data, pre, nodeType, name, value, refNode.pre);
+        //    FinishUpdate();
+        //}
 
-        internal static void AppendChild(Data data, int pre, int kind, XmlReader xmlReader)
-        {
-            int ipre = pre + data.size(pre, kind);
-            DataInserter.Insert(xmlReader, data, ipre, pre);
-        }
+        //internal static void InsertBefore(Data data, int pre, XmlNodeType nodeType, string name, string value, int refPre)
+        //{
+        //    DataInserter.Insert(nodeType, data, refPre, pre, name, value);
+        //}
 
-        public void AppendChild(XmlNodeType nodeType, string name, string value)
-        {
-            CheckValid(true, Data.ELEM, Data.DOC);
-            AppendChild(database.Data, pre, kind, nodeType, name, value);
-            FinishUpdate();
-        }
+        //public void AppendChild(XmlReader xmlReader)
+        //{
+        //    if (xmlReader == null)
+        //    {
+        //        throw new ArgumentNullException("xmlReader");
+        //    }
+        //    CheckValid(true, Data.ELEM, Data.DOC);
+        //    AppendChild(database.Data, pre, kind, xmlReader);
+        //    FinishUpdate();
+        //}
 
-        internal static void AppendChild(Data data, int pre, int kind, XmlNodeType nodeType, string name, string value)
-        {
-            int ipre = pre + data.size(pre, kind);
-            DataInserter.Insert(nodeType, data, ipre, pre, name, value);
-        }
+        //internal static void AppendChild(Data data, int pre, int kind, XmlReader xmlReader)
+        //{
+        //    int ipre = pre + data.size(pre, kind);
+        //    DataInserter.Insert(xmlReader, data, ipre, pre);
+        //}
 
-        public void PrependChild(XmlReader xmlReader)
-        {
-            if (xmlReader == null)
-            {
-                throw new ArgumentNullException("xmlReader");
-            }
-            CheckValid(true, Data.ELEM);
-            int ipre = pre + database.Data.attSize(pre, kind);
-            DataInserter.Insert(xmlReader, database.Data, ipre, pre);
-            FinishUpdate();
-        }
+        //public void AppendChild(XmlNodeType nodeType, string name, string value)
+        //{
+        //    CheckValid(true, Data.ELEM, Data.DOC);
+        //    AppendChild(database.Data, pre, kind, nodeType, name, value);
+        //    FinishUpdate();
+        //}
 
-        public void PrependChild(XmlNodeType nodeType, string name, string value)
-        {
-            CheckValid(true, Data.ELEM);
-            int ipre = pre + database.Data.attSize(pre, kind);
-            DataInserter.Insert(nodeType, database.Data, ipre, pre, name, value);
-            FinishUpdate();
-        }
+        //internal static void AppendChild(Data data, int pre, int kind, XmlNodeType nodeType, string name, string value)
+        //{
+        //    int ipre = pre + data.size(pre, kind);
+        //    DataInserter.Insert(nodeType, data, ipre, pre, name, value);
+        //}
 
-        private static void StringBasedOperation(string xmlContent, Action<XmlReader> action)
-        {
-            if (xmlContent == null)
-            {
-                throw new ArgumentNullException("xmlContent");
-            }
-            using (StringReader stringReader = new StringReader(xmlContent))
-            {
-                using (XmlReader xmlReader = XmlReader.Create(stringReader, NxDatabase.ReaderSettings))
-                {
-                    action(xmlReader);
-                }
-            }
-        }
+        //public void PrependChild(XmlReader xmlReader)
+        //{
+        //    if (xmlReader == null)
+        //    {
+        //        throw new ArgumentNullException("xmlReader");
+        //    }
+        //    CheckValid(true, Data.ELEM);
+        //    int ipre = pre + database.Data.attSize(pre, kind);
+        //    DataInserter.Insert(xmlReader, database.Data, ipre, pre);
+        //    FinishUpdate();
+        //}
 
-        private static void StringBasedOperation(string xmlContent, NxNode refNode, Action<XmlReader, NxNode> action)
-        {
-            if (xmlContent == null)
-            {
-                throw new ArgumentNullException("xmlContent");
-            }
-            using (StringReader stringReader = new StringReader(xmlContent))
-            {
-                using (XmlReader xmlReader = XmlReader.Create(stringReader, NxDatabase.ReaderSettings))
-                {
-                    action(xmlReader, refNode);
-                }
-            }
-        }
+        //public void PrependChild(XmlNodeType nodeType, string name, string value)
+        //{
+        //    CheckValid(true, Data.ELEM);
+        //    int ipre = pre + database.Data.attSize(pre, kind);
+        //    DataInserter.Insert(nodeType, database.Data, ipre, pre, name, value);
+        //    FinishUpdate();
+        //}
 
-        public void InsertAfter(string xmlContent, NxNode refNode)
-        {
-            StringBasedOperation(xmlContent, refNode, InsertAfter);
-        }
+        //private static void StringBasedOperation(string xmlContent, Action<XmlReader> action)
+        //{
+        //    if (xmlContent == null)
+        //    {
+        //        throw new ArgumentNullException("xmlContent");
+        //    }
+        //    using (StringReader stringReader = new StringReader(xmlContent))
+        //    {
+        //        using (XmlReader xmlReader = XmlReader.Create(stringReader, NxDatabase.ReaderSettings))
+        //        {
+        //            action(xmlReader);
+        //        }
+        //    }
+        //}
 
-        public void InsertBefore(string xmlContent, NxNode refNode)
-        {
-            StringBasedOperation(xmlContent, refNode, InsertBefore);
-        }
+        //private static void StringBasedOperation(string xmlContent, NxNode refNode, Action<XmlReader, NxNode> action)
+        //{
+        //    if (xmlContent == null)
+        //    {
+        //        throw new ArgumentNullException("xmlContent");
+        //    }
+        //    using (StringReader stringReader = new StringReader(xmlContent))
+        //    {
+        //        using (XmlReader xmlReader = XmlReader.Create(stringReader, NxDatabase.ReaderSettings))
+        //        {
+        //            action(xmlReader, refNode);
+        //        }
+        //    }
+        //}
 
-        public void AppendChild(string xmlContent)
-        {
-            StringBasedOperation(xmlContent, AppendChild);
-        }
+        //public void InsertAfter(string xmlContent, NxNode refNode)
+        //{
+        //    StringBasedOperation(xmlContent, refNode, InsertAfter);
+        //}
 
-        public void PrependChild(string xmlContent)
-        {
-            StringBasedOperation(xmlContent, PrependChild);
-        }
+        //public void InsertBefore(string xmlContent, NxNode refNode)
+        //{
+        //    StringBasedOperation(xmlContent, refNode, InsertBefore);
+        //}
 
+        //public void AppendChild(string xmlContent)
+        //{
+        //    StringBasedOperation(xmlContent, AppendChild);
+        //}
+
+        //public void PrependChild(string xmlContent)
+        //{
+        //    StringBasedOperation(xmlContent, PrependChild);
+        //}
+
+        /// <summary>
+        /// Gets or sets the value. Returns an empty string if no value.
+        /// </summary>
+        /// <value>
+        /// Document/Element: inner text
+        /// Text/Comment: text content
+        /// Attribute: value
+        /// Processing Instruction: text content (without the target)
+        /// </value>
         public string Value
         {
             get
             {
-                if( CheckValid(Data.TEXT, Data.ATTR, Data.COMM, Data.PI) )
-                {
-                    return GetValue(database.Data, pre, kind);
-                }
-                return null;
+                CheckValid();
+                return _aNode.atom().Token();
             }
             set
             {
-                if (value == null)
-                {
-                    throw new ArgumentNullException("value");
-                }
-                CheckValid(true, Data.TEXT, Data.ATTR, Data.COMM, Data.PI);
-                SetValue(database.Data, pre, kind, value);
-                FinishUpdate();
+                throw new NotImplementedException();
+                //if (value == null)
+                //{
+                //    throw new ArgumentNullException("value");
+                //}
+                //CheckValid(true, Data.TEXT, Data.ATTR, Data.COMM, Data.PI);
+                //SetValue(database.Data, pre, kind, value);
+                //FinishUpdate();
             }
         }
 
-        internal static string GetValue(Data data, int pre, int kind)
-        {
-            return Token.@string(data.text(pre, kind != Data.ATTR));
-        }
+        //internal static string GetValue(Data data, int pre, int kind)
+        //{
+        //    return Token.@string(data.text(pre, kind != Data.ATTR));
+        //}
 
-        internal static void SetValue(Data data, int pre, int kind, string value)
-        {
-            data.replace(pre, kind, Token.token(value));
-        }
+        //internal static void SetValue(Data data, int pre, int kind, string value)
+        //{
+        //    data.replace(pre, kind, Token.token(value));
+        //}
 
+        //public string Name
+        //{
+        //    get
+        //    {
+        //        if( CheckValid(Data.ELEM, Data.ATTR, Data.PI) )
+        //        {
+        //            return GetName(database.Data, pre, kind);
+        //        }
+        //        return String.Empty;
+        //    }
+        //    set
+        //    {
+        //        if (value == null)
+        //        {
+        //            throw new ArgumentNullException("value");
+        //        }
+        //        CheckValid(true, Data.ELEM, Data.ATTR, Data.PI);
+        //        if (!XmlReader.IsName(value))
+        //        {
+        //            throw new XmlException("Invalid XML name");
+        //        }
+        //        byte[] name = Token.token(value);
+        //        byte[] uri = value.IndexOf(':') > 0
+        //            ? database.Data._field_ns.uri(database.Data._field_ns.uri(name, pre))
+        //            : new byte[]{};
+        //        database.Data.rename(pre, kind, Token.token(value), uri);
+        //        FinishUpdate();
+        //    }
+        //}
+
+        //internal static string GetName(Data data, int pre, int kind)
+        //{
+        //    return Token.@string(data.name(pre, kind));
+        //}
+
+        /// <summary>
+        /// Gets the name of this node. Returns an empty string if not an element or attribute.
+        /// </summary>
         public string Name
         {
             get
             {
-                if( CheckValid(Data.ELEM, Data.ATTR, Data.PI) )
+                CheckValid();
+                if(CheckType(org.basex.query.item.NodeType.ELM,
+                    org.basex.query.item.NodeType.ATT))
                 {
-                    return GetName(database.Data, pre, kind);
-                }
-                return String.Empty;
-            }
-            set
-            {
-                if (value == null)
-                {
-                    throw new ArgumentNullException("value");
-                }
-                CheckValid(true, Data.ELEM, Data.ATTR, Data.PI);
-                if (!XmlReader.IsName(value))
-                {
-                    throw new XmlException("Invalid XML name");
-                }
-                byte[] name = Token.token(value);
-                byte[] uri = value.IndexOf(':') > 0
-                    ? database.Data._field_ns.uri(database.Data._field_ns.uri(name, pre))
-                    : new byte[]{};
-                database.Data.rename(pre, kind, Token.token(value), uri);
-                FinishUpdate();
-            }
-        }
-
-        internal static string GetName(Data data, int pre, int kind)
-        {
-            return Token.@string(data.name(pre, kind));
-        }
-
-        public string LocalName
-        {
-            get
-            {
-                if (CheckValid(Data.ELEM, Data.ATTR, Data.PI))
-                {
-                    byte[] name = database.Data.name(pre, kind);
-                    byte[] localName = Token.ln(name);
-                    if (localName.Length > 0)
-                    {
-                        return Token.@string(localName);
-                    }
-                    return Token.@string(name);
+                    return _aNode.nname().Token();
                 }
                 return String.Empty;
             }
         }
 
-        public string Prefix
-        {
-            get
-            {
-                if (CheckValid(Data.ELEM, Data.ATTR, Data.PI))
-                {
-                    return Token.@string(Token.pref(database.Data.name(pre, kind)));
-                }
-                return String.Empty;
-            }
-        }
+        //public string LocalName
+        //{
+        //    get
+        //    {
+        //        if (CheckValid(Data.ELEM, Data.ATTR, Data.PI))
+        //        {
+        //            byte[] name = database.Data.name(pre, kind);
+        //            byte[] localName = Token.ln(name);
+        //            if (localName.Length > 0)
+        //            {
+        //                return Token.@string(localName);
+        //            }
+        //            return Token.@string(name);
+        //        }
+        //        return String.Empty;
+        //    }
+        //}
 
-        public string NamespaceURI
-        {
-            get
-            {
-                if (CheckValid(Data.ELEM, Data.ATTR, Data.PI))
-                {
-                    byte[] name = database.Data.name(pre, kind);
-                    byte[] pref = Token.pref(name);
-                    if(pref.Length > 0)
-                    {
-                        return Token.@string(database.Data._field_ns.uri(database.Data._field_ns.uri(name, pre)));
-                    }
-                }
-                return String.Empty;
-            }
-        }
+        //public string Prefix
+        //{
+        //    get
+        //    {
+        //        if (CheckValid(Data.ELEM, Data.ATTR, Data.PI))
+        //        {
+        //            return Token.@string(Token.pref(database.Data.name(pre, kind)));
+        //        }
+        //        return String.Empty;
+        //    }
+        //}
+
+        //public string NamespaceURI
+        //{
+        //    get
+        //    {
+        //        if (CheckValid(Data.ELEM, Data.ATTR, Data.PI))
+        //        {
+        //            byte[] name = database.Data.name(pre, kind);
+        //            byte[] pref = Token.pref(name);
+        //            if(pref.Length > 0)
+        //            {
+        //                return Token.@string(database.Data._field_ns.uri(database.Data._field_ns.uri(name, pre)));
+        //            }
+        //        }
+        //        return String.Empty;
+        //    }
+        //}
 
         #endregion
 
         #region Equality/Hashing
 
-        public bool Equals(NxNode other)
-        {
-            if( other == null )
-            {
-                return false;
-            }
-            return database.Equals(other.Database) && id == other.Id;
-        }
+        //public bool Equals(NxNode other)
+        //{
+        //    if( other == null )
+        //    {
+        //        return false;
+        //    }
+        //    return database.Equals(other.Database) && id == other.Id;
+        //}
 
-        public override bool Equals(object other)
-        {
-            NxNode node = other as NxNode;
-            if( node != null )
-            {
-                return Equals(node);
-            }
-            return false;
-        }
+        //public override bool Equals(object other)
+        //{
+        //    NxNode node = other as NxNode;
+        //    if( node != null )
+        //    {
+        //        return Equals(node);
+        //    }
+        //    return false;
+        //}
 
-        public override int GetHashCode()
-        {
-            int result = 17;
-            result = 37 * result + id.GetHashCode();
-            result = 37 * result + database.GetHashCode();
-            return result;
-        }
+        //public override int GetHashCode()
+        //{
+        //    int result = 17;
+        //    result = 37 * result + id.GetHashCode();
+        //    result = 37 * result + database.GetHashCode();
+        //    return result;
+        //}
 
         #endregion
-        */
     }
 }

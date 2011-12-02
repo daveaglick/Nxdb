@@ -20,7 +20,7 @@ namespace NxdbTests
 
         public void Verify(NxDatabase database)
         {
-            CollectionAssert.AreEquivalent(Names, database.Documents);  //Ordering doesn't matter - database reorders documents on certain operations
+            CollectionAssert.AreEquivalent(Names, database.DocumentNames);  //Ordering doesn't matter - database reorders documents on certain operations
 
             //TODO: Verify content of all documents
         }
