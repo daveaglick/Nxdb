@@ -352,6 +352,11 @@ namespace Nxdb
             return null;
         }
 
+        internal static NodeCache GetNodeCache(params ANode[] nodes)
+        {
+            return new NodeCache(nodes, nodes.Length);
+        }
+
         internal static NodeCache GetNodeCache(XmlReader reader)
         {
             List<ANode> nodes = new List<ANode>();

@@ -198,6 +198,7 @@ namespace NxdbTests
             {
                 Common.Populate(database, "A", "B", "C", "D");
 
+                //Valid node insertion with text merge
                 NxNode node = database.GetDocument("B").Child(0).Child(1).Child(1);
                 Assert.AreEqual(1, node.Children.Count());
                 using (TextReader text = new StringReader("abc<def>ghi</def>jkl"))
@@ -210,6 +211,60 @@ namespace NxdbTests
                     }
                 }
                 Assert.AreEqual(3, node.Children.Count());
+                Assert.AreEqual("Bbbabc", node.Child(0).Value);
+                Assert.AreEqual("def", node.Child(1).Name);
+                Assert.AreEqual("jkl", node.Child(2).Value);
+
+                //Insertion on a non-element should cause exception
+                NxNode attribute = database.GetDocument("B").Child(0).Child(1).Attribute("e");
+                using (TextReader text = new StringReader("abc<def>ghi</def>jkl"))
+                {
+                    XmlReaderSettings settings = new XmlReaderSettings();
+                    settings.ConformanceLevel = ConformanceLevel.Auto;
+                    using (XmlReader reader = XmlReader.Create(text, settings))
+                    {
+                        Assert.Throws<InvalidOperationException>(() => attribute.Append(reader));
+                    }
+                }
+            }
+        }
+
+        [Test]
+        public void Prepend()
+        {
+            Common.Reset();
+            using (NxDatabase database = new NxDatabase(Common.DatabaseName))
+            {
+                Common.Populate(database, "A", "B", "C", "D");
+
+                //Valid node insertion with text merge
+                NxNode node = database.GetDocument("B").Child(0).Child(1).Child(1);
+                Assert.AreEqual(1, node.Children.Count());
+                using (TextReader text = new StringReader("abc<def>ghi</def>jkl"))
+                {
+                    XmlReaderSettings settings = new XmlReaderSettings();
+                    settings.ConformanceLevel = ConformanceLevel.Auto;
+                    using (XmlReader reader = XmlReader.Create(text, settings))
+                    {
+                        node.Prepend(reader);
+                    }
+                }
+                Assert.AreEqual(3, node.Children.Count());
+                Assert.AreEqual("abc", node.Child(0).Value);
+                Assert.AreEqual("def", node.Child(1).Name);
+                Assert.AreEqual("jklBbb", node.Child(2).Value);
+
+                //Insertion on a non-element should cause exception
+                NxNode attribute = database.GetDocument("B").Child(0).Child(1).Attribute("e");
+                using (TextReader text = new StringReader("abc<def>ghi</def>jkl"))
+                {
+                    XmlReaderSettings settings = new XmlReaderSettings();
+                    settings.ConformanceLevel = ConformanceLevel.Auto;
+                    using (XmlReader reader = XmlReader.Create(text, settings))
+                    {
+                        Assert.Throws<InvalidOperationException>(() => attribute.Prepend(reader));
+                    }
+                }
             }
         }
 

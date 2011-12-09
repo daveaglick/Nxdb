@@ -257,7 +257,7 @@ namespace Nxdb
             }
         }
 
-        private void CheckValid(bool requireDatabase = false)
+        private void CheckValid(bool requireDatabase = false, params NodeType[] types)
         {
             if( !Valid )
             {
@@ -268,6 +268,16 @@ namespace Nxdb
             {
                 throw new InvalidOperationException("This operation requires a database node");
             }
+
+            if(types.Length > 0 && !CheckType(types))
+            {
+                throw new InvalidOperationException("Node type is not valid for this operation");
+            }
+        }
+
+        private void CheckValid(params NodeType[] types)
+        {
+            CheckValid(false, types);
         }
 
         private bool CheckType(params NodeType[] types)
@@ -323,7 +333,7 @@ namespace Nxdb
         {
             get
             {
-                CheckValid();
+                CheckValid(org.basex.query.item.NodeType.ELM, org.basex.query.item.NodeType.DOC);
                 return EnumerateNodes(_aNode.children());
             }
         }
@@ -437,7 +447,7 @@ namespace Nxdb
         {
             get
             {
-                CheckValid(true);
+                CheckValid(true, org.basex.query.item.NodeType.ELM);
                 return EnumerateNodes(_aNode.attributes());
             }
         }
@@ -450,7 +460,7 @@ namespace Nxdb
 
         public NxNode Attribute(string name)
         {
-            CheckValid();
+            CheckValid(org.basex.query.item.NodeType.ELM);
             if (name == null) throw new ArgumentNullException("name");
             if (name == String.Empty) throw new ArgumentException("name");
 
@@ -461,7 +471,7 @@ namespace Nxdb
         //Returns String.Empty if the attribute doesn't exist
         public string AttributeValue(string name)
         {
-            CheckValid();
+            CheckValid(org.basex.query.item.NodeType.ELM);
             if (name == null) throw new ArgumentNullException("name");
             if (name == String.Empty) throw new ArgumentException("name");
 
@@ -471,7 +481,7 @@ namespace Nxdb
         
         public void RemoveAllAttributes()
         {
-            CheckValid(true);
+            CheckValid(true, org.basex.query.item.NodeType.ELM);
 
             using (new UpdateContext())
             {
@@ -484,7 +494,7 @@ namespace Nxdb
 
         public void RemoveAttribute(string name)
         {
-            CheckValid(true);
+            CheckValid(true, org.basex.query.item.NodeType.ELM);
             if (name == null) throw new ArgumentNullException("name");
             if (name == String.Empty) throw new ArgumentException("name");
 
@@ -500,7 +510,7 @@ namespace Nxdb
 
         public void InsertAttribute(string name, string value)
         {
-            CheckValid(true);
+            CheckValid(true, org.basex.query.item.NodeType.ELM);
             if (name == null) throw new ArgumentNullException("name");
             if (value == null) throw new ArgumentNullException("value");
             if (name == String.Empty) throw new ArgumentException("name");
@@ -508,7 +518,7 @@ namespace Nxdb
             using (new UpdateContext())
             {
                 Update(new InsertAttribute(_dbNode.pre, _database.Data, null,
-                    GetNodeCache(new FAttr(new QNm(name.Token()), value.Token()))));
+                    NxDatabase.GetNodeCache(new FAttr(new QNm(name.Token()), value.Token()))));
             }
         }
 
@@ -520,12 +530,6 @@ namespace Nxdb
         private void Update(UpdatePrimitive update)
         {
             UpdateContext.AddUpdate(update, _database.Context);
-        }
-
-        //Helper to generate a NodeCache from a series of ANodes
-        private NodeCache GetNodeCache(params ANode[] nodes)
-        {
-            return new NodeCache(nodes, nodes.Length);
         }
 
         /// <summary>
@@ -549,7 +553,7 @@ namespace Nxdb
         /// <param name="node">The node to remove.</param>
         public void RemoveChild(NxNode node)
         {
-            CheckValid(true);
+            CheckValid(true, org.basex.query.item.NodeType.ELM, org.basex.query.item.NodeType.DOC);
             if (node == null) throw new ArgumentNullException("node");
             if (node._dbNode == null || !node.Database.Equals(_database)) throw new ArgumentException("node must be from the same database");
             if ( !node._aNode.parent().@is(_aNode) ) throw new ArgumentException("node is not a child of this node");
@@ -562,7 +566,7 @@ namespace Nxdb
 
         public void Append(XmlReader reader)
         {
-            CheckValid(true);
+            CheckValid(true, org.basex.query.item.NodeType.ELM, org.basex.query.item.NodeType.DOC);
             if (reader == null) throw new ArgumentNullException("reader");
 
             NodeCache nodeCache = NxDatabase.GetNodeCache(reader);
@@ -571,6 +575,21 @@ namespace Nxdb
                 using (new UpdateContext())
                 {
                     Update(new InsertInto(_dbNode.pre, _database.Data, null, nodeCache, true));
+                }
+            }
+        }
+
+        public void Prepend(XmlReader reader)
+        {
+            CheckValid(true, org.basex.query.item.NodeType.ELM, org.basex.query.item.NodeType.DOC);
+            if (reader == null) throw new ArgumentNullException("reader");
+
+            NodeCache nodeCache = NxDatabase.GetNodeCache(reader);
+            if (nodeCache != null)
+            {
+                using (new UpdateContext())
+                {
+                    Update(new InsertIntoFirst(_dbNode.pre, _database.Data, null, nodeCache));
                 }
             }
         }
