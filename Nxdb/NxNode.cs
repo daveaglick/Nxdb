@@ -333,7 +333,7 @@ namespace Nxdb
         {
             get
             {
-                CheckValid(org.basex.query.item.NodeType.ELM, org.basex.query.item.NodeType.DOC);
+                CheckValid();
                 return EnumerateNodes(_aNode.children());
             }
         }
@@ -440,7 +440,7 @@ namespace Nxdb
         #region Attributes
 
         /// <summary>
-        /// Gets the attributes. Note that per the XML standard, the ordering of attributes is
+        /// Gets the attributes. Per the XML standard, the ordering of attributes is
         /// undefined and should not be considered relevant or consistent.
         /// </summary>
         public IEnumerable<NxNode> Attributes
@@ -532,6 +532,15 @@ namespace Nxdb
             UpdateContext.AddUpdate(update, _database.Context);
         }
 
+        //Helper to check a child reference node before use
+        private void CheckNode(NxNode node)
+        {
+            node.CheckValid(true);
+            if (node == null) throw new ArgumentNullException("node");
+            if (node._dbNode == null || !node.Database.Equals(_database)) throw new ArgumentException("node must be from the same database");
+            if (!node._aNode.parent().@is(_aNode)) throw new ArgumentException("node is not a child of this node");
+        }
+
         /// <summary>
         /// Removes all child nodes AND attributes.
         /// </summary>
@@ -554,9 +563,7 @@ namespace Nxdb
         public void RemoveChild(NxNode node)
         {
             CheckValid(true, org.basex.query.item.NodeType.ELM, org.basex.query.item.NodeType.DOC);
-            if (node == null) throw new ArgumentNullException("node");
-            if (node._dbNode == null || !node.Database.Equals(_database)) throw new ArgumentException("node must be from the same database");
-            if ( !node._aNode.parent().@is(_aNode) ) throw new ArgumentException("node is not a child of this node");
+            CheckNode(node);
 
             using (new UpdateContext())
             {
@@ -590,6 +597,38 @@ namespace Nxdb
                 using (new UpdateContext())
                 {
                     Update(new InsertIntoFirst(_dbNode.pre, _database.Data, null, nodeCache));
+                }
+            }
+        }
+
+        public void InsertBefore(XmlReader reader)
+        {
+            CheckValid(true, org.basex.query.item.NodeType.ELM, org.basex.query.item.NodeType.TXT,
+                org.basex.query.item.NodeType.COM, org.basex.query.item.NodeType.PI);
+            if (reader == null) throw new ArgumentNullException("reader");
+
+            NodeCache nodeCache = NxDatabase.GetNodeCache(reader);
+            if (nodeCache != null)
+            {
+                using (new UpdateContext())
+                {
+                    Update(new InsertBefore(_dbNode.pre, _database.Data, null, nodeCache));
+                }
+            }
+        }
+
+        public void InsertAfter(XmlReader reader)
+        {
+            CheckValid(true, org.basex.query.item.NodeType.ELM, org.basex.query.item.NodeType.TXT,
+                org.basex.query.item.NodeType.COM, org.basex.query.item.NodeType.PI);
+            if (reader == null) throw new ArgumentNullException("reader");
+
+            NodeCache nodeCache = NxDatabase.GetNodeCache(reader);
+            if (nodeCache != null)
+            {
+                using (new UpdateContext())
+                {
+                    Update(new InsertAfter(_dbNode.pre, _database.Data, null, nodeCache));
                 }
             }
         }

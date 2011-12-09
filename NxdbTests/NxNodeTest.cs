@@ -269,6 +269,60 @@ namespace NxdbTests
         }
 
         [Test]
+        public void InsertAfter()
+        {
+            Common.Reset();
+            using (NxDatabase database = new NxDatabase(Common.DatabaseName))
+            {
+                Common.Populate(database, "A", "B", "C", "D");
+
+                //Valid node insertion with text merge
+                NxNode node = database.GetDocument("B").Child(0).Child(1).Child(1).Child(0);
+                using (TextReader text = new StringReader("abc<def>ghi</def>jkl"))
+                {
+                    XmlReaderSettings settings = new XmlReaderSettings();
+                    settings.ConformanceLevel = ConformanceLevel.Auto;
+                    using (XmlReader reader = XmlReader.Create(text, settings))
+                    {
+                        node.InsertAfter(reader);
+                    }
+                }
+                node = database.GetDocument("B").Child(0).Child(1).Child(1);
+                Assert.AreEqual(3, node.Children.Count());
+                Assert.AreEqual("Bbbabc", node.Child(0).Value);
+                Assert.AreEqual("def", node.Child(1).Name);
+                Assert.AreEqual("jkl", node.Child(2).Value);
+            }
+        }
+
+        [Test]
+        public void InsertBefore()
+        {
+            Common.Reset();
+            using (NxDatabase database = new NxDatabase(Common.DatabaseName))
+            {
+                Common.Populate(database, "A", "B", "C", "D");
+
+                //Valid node insertion with text merge
+                NxNode node = database.GetDocument("B").Child(0).Child(1).Child(1).Child(0);
+                using (TextReader text = new StringReader("abc<def>ghi</def>jkl"))
+                {
+                    XmlReaderSettings settings = new XmlReaderSettings();
+                    settings.ConformanceLevel = ConformanceLevel.Auto;
+                    using (XmlReader reader = XmlReader.Create(text, settings))
+                    {
+                        node.InsertBefore(reader);
+                    }
+                }
+                node = database.GetDocument("B").Child(0).Child(1).Child(1);
+                Assert.AreEqual(3, node.Children.Count());
+                Assert.AreEqual("abc", node.Child(0).Value);
+                Assert.AreEqual("def", node.Child(1).Name);
+                Assert.AreEqual("jklBbb", node.Child(2).Value);
+            }
+        }
+
+        [Test]
         public void Name()
         {
             Common.Reset();
