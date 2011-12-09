@@ -19,10 +19,12 @@ using org.basex.core.cmd;
 using org.basex.data;
 using org.basex.io;
 using org.basex.query.item;
+using org.basex.query.iter;
 using org.basex.util;
 using org.basex.build;
 using org.basex.util.list;
 using org.xmldb.api;
+using Exception = System.Exception;
 using File = java.io.File;
 using String = System.String;
 using StringReader = java.io.StringReader;
@@ -148,6 +150,7 @@ namespace Nxdb
         
         public bool Add(string name, string content)
         {
+            //TODO: Use the streaming version that takes an XmlReader - it appears to be faster
             return Run(new Add(name, content));
         }
 
@@ -163,6 +166,7 @@ namespace Nxdb
 
         public bool Replace(string name, string content)
         {
+            //TODO: Use the streaming version that takes an XmlReader - it appears to be faster
             return Run(new Replace(name, content));
         }
 
@@ -177,6 +181,25 @@ namespace Nxdb
         }
 
         //More direct access
+
+        public void Add(string name, XmlReader reader)
+        {
+            if (name == null) throw new ArgumentNullException("name");
+            if (name == String.Empty) throw new ArgumentException("name");
+            if (reader == null) throw new ArgumentNullException("reader");
+            using (new UpdateContext())
+            {
+                Data data = GetData(name, reader);
+                if(data != null)
+                {
+                    Data.insert(Data.meta.size, -1, data);
+                    Context.update();
+                    Data.flush();
+                    //TODO: Drop the temp database if using DiskData (but how to know here?!)
+                    data.close();
+                }
+            }
+        }
 
         internal Context Context
         {
@@ -285,6 +308,117 @@ namespace Nxdb
             }
 
             return obj;
+        }
+
+        //Gets a Data instance for a given content stream
+        internal Data GetData(string name, string content)
+        {
+            using (TextReader text = new System.IO.StringReader(content))
+            {
+                using (XmlReader reader = XmlReader.Create(text))
+                {
+                    return GetData(name, reader);
+                }
+            }
+        }
+
+        internal Data GetData(string name, XmlReader reader)
+        {
+            if (name == null) throw new ArgumentNullException("name");
+            if (name == String.Empty) throw new ArgumentException("name");
+            if (reader == null) throw new ArgumentNullException("reader");
+            Builder builder = new MemBuilder(name, new XmlReaderParser(name, reader), Context.prop);
+            //TODO: Use DiskData for larger documents (but how to tell if a stream is going to be large?!)
+            Data data = null;
+            try
+            {
+                data = builder.build();
+                if (data.meta.size > 1)
+                {
+                    builder.close();
+                    return data;
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);  //TODO: Replace this with some kind of logging mechanism
+            }
+            finally
+            {
+                try { builder.close(); } catch { }
+                if (data != null) try { data.close(); } catch { }
+                //TODO: Drop the temp database if using DiskData
+            }
+            return null;
+        }
+
+        internal static NodeCache GetNodeCache(XmlReader reader)
+        {
+            List<ANode> nodes = new List<ANode>();
+            Stack<FElem> parents = new Stack<FElem>();
+            try
+            {
+                while (reader.Read())
+                {
+                    switch (reader.NodeType)
+                    {
+                        case XmlNodeType.Element:
+                            //Create the element and add it to the parent or list
+                            FElem elem = new FElem(new QNm(reader.Name.Token()));
+                            AddNodeToNodeCache(elem, nodes, parents);
+
+                            //Add attributes
+                            if (reader.HasAttributes)
+                            {
+                                while (reader.MoveToNextAttribute())
+                                {
+                                    elem.add(new FAttr(new QNm(reader.Name.Token()), reader.Value.Token()));
+                                }
+                                reader.MoveToElement();
+                            }
+
+                            //Push to the parents stack if not empty
+                            if (!reader.IsEmptyElement)
+                            {
+                                parents.Push(elem);
+                            }
+
+                            break;
+                        case XmlNodeType.EndElement:
+                            parents.Pop();
+                            break;
+                        case XmlNodeType.Comment:
+                            AddNodeToNodeCache(new FComm(reader.Value.Token()), nodes, parents);
+                            break;
+                        case XmlNodeType.Text:
+                        case XmlNodeType.SignificantWhitespace:
+                        case XmlNodeType.Whitespace:
+                            AddNodeToNodeCache(new FTxt(reader.Value.Token()), nodes, parents);
+                            break;
+                        case XmlNodeType.ProcessingInstruction:
+                            AddNodeToNodeCache(new FPI(new QNm(reader.Name.Token()), reader.Value.Token()), nodes, parents);
+                            break;
+                    }
+                }
+                return new NodeCache(nodes.ToArray(), nodes.Count);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        //Helper method for the GetNodeCache method
+        private static void AddNodeToNodeCache(FNode node, List<ANode> nodes, Stack<FElem> parents)
+        {
+            if (parents.Count > 0)
+            {
+                parents.Peek().add(node);
+            }
+            else
+            {
+                nodes.Add(node);
+            }
         }
 
         //A cache of all constructed DOM nodes for this collection

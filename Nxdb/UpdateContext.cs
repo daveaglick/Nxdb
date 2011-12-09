@@ -10,6 +10,8 @@ using org.basex.query.up.primitives;
 
 namespace Nxdb
 {
+    //TODO: How should this interact with updating queries? How should queries trigger optimization?
+    //TODO: Should UpdateContext cache/compare database time to see if update actually occured?
     public class UpdateContext : IDisposable
     {
         private static int _counter = 0;

@@ -61,6 +61,10 @@ namespace Nxdb
             _aNode = _dbNode;
             _id = id;
             _time = database.GetTime();
+            if (!CheckType(org.basex.query.item.NodeType.ELM, org.basex.query.item.NodeType.TXT,
+                org.basex.query.item.NodeType.ATT, org.basex.query.item.NodeType.DOC,
+                org.basex.query.item.NodeType.COM, org.basex.query.item.NodeType.PI))
+                throw new ArgumentException("Invalid node type");
         }
 
         internal NxNode(NxDatabase database, DBNode node)
@@ -72,6 +76,10 @@ namespace Nxdb
             _aNode = _dbNode;
             _id = database.GetId(node.pre);
             _time = database.GetTime();
+            if (!CheckType(org.basex.query.item.NodeType.ELM, org.basex.query.item.NodeType.TXT,
+                org.basex.query.item.NodeType.ATT, org.basex.query.item.NodeType.DOC,
+                org.basex.query.item.NodeType.COM, org.basex.query.item.NodeType.PI))
+                throw new ArgumentException("Invalid node type");
         }
 
         internal NxNode(NxDatabase database, ANode node)
@@ -94,6 +102,10 @@ namespace Nxdb
                 _id = -1;
             }
             _time = database.GetTime();
+            if (!CheckType(org.basex.query.item.NodeType.ELM, org.basex.query.item.NodeType.TXT,
+                org.basex.query.item.NodeType.ATT, org.basex.query.item.NodeType.DOC,
+                org.basex.query.item.NodeType.COM, org.basex.query.item.NodeType.PI))
+                throw new ArgumentException("Invalid node type");
         }
         
         #region Dom
@@ -307,7 +319,7 @@ namespace Nxdb
             }
         }
 
-        public IEnumerable<NxNode> ChildNodes
+        public IEnumerable<NxNode> Children
         {
             get
             {
@@ -316,16 +328,22 @@ namespace Nxdb
             }
         }
 
-        public bool HasChildren
+        public NxNode Child(int index)
         {
-            get
-            { 
-                CheckValid();
-                return _aNode.hasChildren();
-            }
+            return Children.ElementAtOrDefault(index);
         }
 
-        public IEnumerable<NxNode> FollowingSiblingNodes
+        public IEnumerable<NxNode> ChildElements
+        {
+            get { return Children.Where(c => c._aNode.ndType() == org.basex.query.item.NodeType.ELM); }
+        }
+
+        public NxNode ChildElement(int index)
+        {
+            return ChildElements.ElementAtOrDefault(index);
+        }
+
+        public IEnumerable<NxNode> FollowingSiblings
         {
             get
             {
@@ -334,7 +352,7 @@ namespace Nxdb
             }
         }
 
-        public IEnumerable<NxNode> PrecedingSiblingNodes
+        public IEnumerable<NxNode> PrecedingSiblings
         {
             get
             {
@@ -343,7 +361,7 @@ namespace Nxdb
             }
         }
 
-        public IEnumerable<NxNode> FollowingNodes
+        public IEnumerable<NxNode> Following
         {
             get
             {
@@ -352,7 +370,7 @@ namespace Nxdb
             }
         }
 
-        public IEnumerable<NxNode> PrecedingNodes
+        public IEnumerable<NxNode> Preceding
         {
             get
             {
@@ -361,7 +379,7 @@ namespace Nxdb
             }
         }
 
-        public NxNode ParentNode
+        public NxNode Parent
         {
             get
             {
@@ -371,7 +389,7 @@ namespace Nxdb
             }
         }
 
-        public IEnumerable<NxNode> AncestorNodes
+        public IEnumerable<NxNode> Ancestors
         {
             get
             {
@@ -380,7 +398,7 @@ namespace Nxdb
             }
         }
 
-        public IEnumerable<NxNode> AncestorOrSelfNodes
+        public IEnumerable<NxNode> AncestorsOrSelf
         {
             get
             {
@@ -389,7 +407,7 @@ namespace Nxdb
             }
         }
 
-        public IEnumerable<NxNode> DescendantNodes
+        public IEnumerable<NxNode> Descendants
         {
             get
             {
@@ -398,7 +416,7 @@ namespace Nxdb
             }
         }
 
-        public IEnumerable<NxNode> DescendantOrSelfNodes
+        public IEnumerable<NxNode> DescendantsOrSelf
         {
             get
             {
@@ -411,6 +429,10 @@ namespace Nxdb
 
         #region Attributes
 
+        /// <summary>
+        /// Gets the attributes. Note that per the XML standard, the ordering of attributes is
+        /// undefined and should not be considered relevant or consistent.
+        /// </summary>
         public IEnumerable<NxNode> Attributes
         {
             get
@@ -420,30 +442,30 @@ namespace Nxdb
             }
         }
 
-        private ANode GetAttributeANode(string name)
+        private ANode AttributeANode(string name)
         {
             QNm qnm = new QNm(name.Token());
             return EnumerateANodes(_aNode.attributes()).FirstOrDefault(n => n.qname().eq(qnm));
         }
 
-        public NxNode GetAttributeNode(string name)
+        public NxNode Attribute(string name)
         {
             CheckValid();
             if (name == null) throw new ArgumentNullException("name");
             if (name == String.Empty) throw new ArgumentException("name");
 
-            ANode node = GetAttributeANode(name);
+            ANode node = AttributeANode(name);
             return node == null ? null : new NxNode(_database, node);
         }
 
         //Returns String.Empty if the attribute doesn't exist
-        public string GetAttribute(string name)
+        public string AttributeValue(string name)
         {
             CheckValid();
             if (name == null) throw new ArgumentNullException("name");
             if (name == String.Empty) throw new ArgumentException("name");
 
-            ANode node = GetAttributeANode(name);
+            ANode node = AttributeANode(name);
             return node == null ? String.Empty : node.atom().Token();
         }
         
@@ -466,7 +488,7 @@ namespace Nxdb
             if (name == null) throw new ArgumentNullException("name");
             if (name == String.Empty) throw new ArgumentException("name");
 
-            DBNode node = GetAttributeANode(name) as DBNode;
+            DBNode node = AttributeANode(name) as DBNode;
             if (node != null)
             {
                 using (new UpdateContext())
@@ -521,6 +543,10 @@ namespace Nxdb
             }
         }
 
+        /// <summary>
+        /// Removes a specific child node (including attribute nodes).
+        /// </summary>
+        /// <param name="node">The node to remove.</param>
         public void RemoveChild(NxNode node)
         {
             CheckValid(true);
@@ -534,28 +560,21 @@ namespace Nxdb
             }
         }
 
-        ////Removes a specific child (including attributes)
-        //public void RemoveChild(NxNode refNode)
-        //{
-        //    if (refNode == null)
-        //    {
-        //        throw new ArgumentNullException("refNode");
-        //    }
-        //    CheckValid(true, Data.ELEM, Data.DOC);
-        //    refNode.CheckValid();
-        //    if (database.Data.parent(refNode.pre, refNode.kind) != pre)
-        //    {
-        //        throw new ArgumentException("The specified node is not a direct descendant of this node");
-        //    }
-        //    RemoveChild(database.Data, refNode.pre);
-        //    FinishUpdate();
-        //}
+        public void Append(XmlReader reader)
+        {
+            CheckValid(true);
+            if (reader == null) throw new ArgumentNullException("reader");
 
-        //internal static void RemoveChild(Data data, int refPre)
-        //{
-        //    data.delete(refPre);
-        //}
-
+            NodeCache nodeCache = NxDatabase.GetNodeCache(reader);
+            if (nodeCache != null)
+            {
+                using (new UpdateContext())
+                {
+                    Update(new InsertInto(_dbNode.pre, _database.Data, null, nodeCache, true));
+                }
+            }
+        }
+        
         //public void ReplaceChild(XmlReader xmlReader, NxNode refNode)
         //{
         //    if (refNode == null)
