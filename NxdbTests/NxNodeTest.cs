@@ -160,7 +160,7 @@ namespace NxdbTests
         }
 
         [Test]
-        public void RemoveChild()
+        public void Remove()
         {
             Common.Reset();
             using (NxDatabase database = new NxDatabase(Common.DatabaseName))
@@ -168,23 +168,24 @@ namespace NxdbTests
                 Common.Populate(database, "A", "B", "C", "D");
 
                 NxNode node = database.GetDocument("B").Child(0).Child(1);
-
-                NxNode invalid = database.GetDocument("C").Child(0).Child(1).Child(1);
-                Assert.Throws<ArgumentException>(() => node.RemoveChild(invalid));
-
+                
                 NxNode child = database.GetDocument("B").Child(0).Child(1).Child(1);
-                node.RemoveChild(child);
+                child.Remove();
+                Assert.IsFalse(child.Valid);
+                Assert.IsNull(database.GetDocument("B").Child(0).Child(1).Child(1));
                 CollectionAssert.AreEqual(new []{ "BBA" }, node.Children.Select(n => n.Name));
 
                 NxNode attribute = database.GetDocument("B").Child(0).Child(1).Attribute("e");
-                node.RemoveChild(attribute);
+                attribute.Remove();
+                Assert.IsFalse(attribute.Valid);
+                Assert.IsNull(database.GetDocument("B").Child(0).Child(1).Attribute("e"));
                 CollectionAssert.AreEquivalent(new []{ "d" }, node.Attributes.Select(n => n.Name));
 
                 //Text merge node removal
                 database.Add("E", "<E>abcd<F>efgh</F>ijkl</E>");
                 NxNode root = database.GetDocument("E").Child(0);
                 Assert.AreEqual(3, root.Children.Count());
-                root.RemoveChild(root.Child(1));
+                root.Child(1).Remove();
                 Assert.AreEqual(1, root.Children.Count());
                 Assert.AreEqual("abcdijkl", root.Child(0).Value);
             }

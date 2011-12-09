@@ -532,15 +532,6 @@ namespace Nxdb
             UpdateContext.AddUpdate(update, _database.Context);
         }
 
-        //Helper to check a child reference node before use
-        private void CheckNode(NxNode node)
-        {
-            node.CheckValid(true);
-            if (node == null) throw new ArgumentNullException("node");
-            if (node._dbNode == null || !node.Database.Equals(_database)) throw new ArgumentException("node must be from the same database");
-            if (!node._aNode.parent().@is(_aNode)) throw new ArgumentException("node is not a child of this node");
-        }
-
         /// <summary>
         /// Removes all child nodes AND attributes.
         /// </summary>
@@ -555,20 +546,21 @@ namespace Nxdb
                 }
             }
         }
-
+        
         /// <summary>
-        /// Removes a specific child node (including attribute nodes).
+        /// Removes this node from the database and immediatly invalidates it.
         /// </summary>
-        /// <param name="node">The node to remove.</param>
-        public void RemoveChild(NxNode node)
+        public void Remove()
         {
-            CheckValid(true, org.basex.query.item.NodeType.ELM, org.basex.query.item.NodeType.DOC);
-            CheckNode(node);
+            CheckValid(true);
 
             using (new UpdateContext())
             {
-                Update(new DeleteNode(node._dbNode.pre, _database.Data, null));
+                Update(new DeleteNode(_dbNode.pre, _database.Data, null));
             }
+
+            _aNode = null;
+            _dbNode = null;
         }
 
         public void Append(XmlReader reader)
