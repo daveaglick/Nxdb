@@ -359,6 +359,61 @@ namespace NxdbTests
         }
 
         [Test]
+        public void GetOuterXml()
+        {
+            Common.Reset();
+            using (NxDatabase database = new NxDatabase(Common.DatabaseName))
+            {
+                Common.Populate(database, "A", "B", "C", "D");
+
+                //Serialization process puts out all quotes as double-quotes
+                //Need to convert single-quotes to double-quotes for comparison
+
+                NxNode doc = database.GetDocument("B");
+                Assert.AreEqual(Common.GenerateXmlContent("B").Replace('\'', '"'), doc.OuterXml);
+
+                NxNode node = database.GetDocument("C").Child(0).Child(1);
+                Assert.AreEqual("<CB d=\"Cbd\" e=\"Cbe\"><CBA>Cba</CBA><CBB a=\"Cbba\" b=\"Cbbb\" c=\"Cbbc\">Cbb</CBB></CB>", node.OuterXml);
+            }
+        }
+
+        [Test]
+        public void GetInnerText()
+        {
+            Common.Reset();
+            using (NxDatabase database = new NxDatabase(Common.DatabaseName))
+            {
+                Common.Populate(database, "A", "B", "C", "D");
+
+                NxNode doc = database.GetDocument("B");
+                Assert.AreEqual("BaBbaBbb", doc.InnerText);
+
+                using (TextReader reader = doc.InnerTextReader)
+                {
+                    Assert.AreEqual("BaBbaBbb", reader.ReadToEnd());
+                }
+
+                NxNode node = database.GetDocument("C").Child(0).Child(1);
+                Assert.AreEqual("CbaCbb", node.InnerText);
+            }
+        }
+
+        [Test]
+        public void SetInnerText()
+        {
+            Common.Reset();
+            using (NxDatabase database = new NxDatabase(Common.DatabaseName))
+            {
+                Common.Populate(database, "A", "B", "C", "D");
+
+                NxNode node = database.GetDocument("C").Child(0).Child(1).Child(1);
+                node.InnerText = "1234";
+                NxNode doc = database.GetDocument("C");
+                Assert.AreEqual(Common.GenerateXmlContent("C").Replace(">Cbb<", ">1234<").Replace('\'', '"'), doc.OuterXml);
+            }
+        }
+
+        [Test]
         public void Name()
         {
             Common.Reset();

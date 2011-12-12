@@ -118,7 +118,7 @@ namespace Nxdb
                 }
                 return new NodeCache(nodes.ToArray(), nodes.Count);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return null;
             }

@@ -666,7 +666,14 @@ namespace Nxdb
             }
             set
             {
-                XmlReaderAction(value, ReadInnerXml);
+                if (value == null) throw new ArgumentNullException("value");
+                using (StringReader stringReader = new StringReader(value))
+                {
+                    using (XmlReader xmlReader = XmlReader.Create(stringReader, Helper.ReaderSettings))
+                    {
+                        ReadInnerXml(xmlReader);
+                    }
+                }
             }
         }
         
@@ -687,7 +694,88 @@ namespace Nxdb
         {
             if (xmlReader == null) throw new ArgumentNullException("xmlReader");
             CheckValid(true, org.basex.query.item.NodeType.ELM, org.basex.query.item.NodeType.DOC);
-            NodeCache nodeCache = Helper.GetNodeCache(xmlReader);
+            ReplaceChildren(Helper.GetNodeCache(xmlReader));
+        }
+
+        //Validity check is performed in streaming methods
+        public string OuterXml
+        {
+            get
+            {
+                StringBuilder builder = new StringBuilder();
+                using (XmlWriter xmlWriter = XmlWriter.Create(builder, Helper.WriterSettings))
+                {
+                    WriteOuterXml(xmlWriter);
+                }
+                return builder.ToString();
+            }
+        }
+
+        public void WriteOuterXml(XmlWriter xmlWriter)
+        {
+            if (xmlWriter == null) throw new ArgumentNullException("xmlWriter");
+            CheckValid(org.basex.query.item.NodeType.ELM, org.basex.query.item.NodeType.DOC);
+            using (XmlWriterSerializer serializer = new XmlWriterSerializer(xmlWriter, false))
+            {
+                _aNode.serialize(serializer);
+            }
+        }
+
+        //Validity check is performed in streaming methods
+        public string InnerText
+        {
+            get
+            {
+                using (StringWriter stringWriter = new StringWriter())
+                {
+                    WriteInnerText(stringWriter);
+                    stringWriter.Close();
+                    return stringWriter.ToString();
+                }
+            }
+            set
+            {
+                if (value == null) throw new ArgumentNullException("value");
+                using (StringReader stringReader = new StringReader(value))
+                {
+                    ReadInnerText(stringReader);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets a TextReader that can be used to stream inner text content for this node.
+        /// </summary>
+        public TextReader InnerTextReader
+        {
+            get
+            {
+                CheckValid(org.basex.query.item.NodeType.ELM, org.basex.query.item.NodeType.DOC);
+                return new InnerTextReader(EnumerateANodes(_aNode.descendant())
+                    .Where(n => n.ndType() == org.basex.query.item.NodeType.TXT).GetEnumerator());
+            }
+        }
+
+        public void WriteInnerText(TextWriter textWriter)
+        {
+            if (textWriter == null) throw new ArgumentNullException("textWriter");
+            CheckValid(org.basex.query.item.NodeType.ELM, org.basex.query.item.NodeType.DOC);
+            using (TextWriterSerializer serializer = new TextWriterSerializer(textWriter))
+            {
+                _aNode.serialize(serializer);
+            }
+        }
+
+        public void ReadInnerText(TextReader textReader)
+        {
+            if (textReader == null) throw new ArgumentNullException("textReader");
+            CheckValid(true, org.basex.query.item.NodeType.ELM, org.basex.query.item.NodeType.DOC);
+            ReplaceChildren(Helper.GetNodeCache(new ANode[]{new FTxt(textReader.ReadToEnd().Token())}));
+        }
+
+        //Used by ReadInnerXml() and ReadInnerText(), deletes all the child nodes and adds the nodeCache nodes, does nothing if nodeCache is null
+        private void ReplaceChildren(NodeCache nodeCache)
+        {
             if (nodeCache != null)
             {
                 using (new UpdateContext())
@@ -703,269 +791,6 @@ namespace Nxdb
                 }
             }
         }
-
-        //public string OuterXml
-        //{
-        //    get
-        //    {
-        //        CheckValid();
-        //        StringBuilder stringBuilder = new StringBuilder();
-        //        using (XmlWriter xmlWriter = XmlWriter.Create(stringBuilder, NxDatabase.WriterSettings))
-        //        {
-        //            WriteTo(xmlWriter);
-        //        }
-        //        return stringBuilder.ToString();
-        //    }
-        //}
-
-        //public string InnerText
-        //{
-        //    get
-        //    {
-        //        using (StringWriter stringWriter = new StringWriter())
-        //        {
-        //            WriteTextTo(stringWriter);
-        //            stringWriter.Close();
-        //            return stringWriter.ToString();
-        //        }
-        //    }
-        //    set
-        //    {
-        //        if(value == null)
-        //        {
-        //            throw new ArgumentNullException("value");
-        //        }
-        //        if (CheckValid(Data.ELEM, Data.DOC))
-        //        {
-        //            int ipre = DeleteAllChildren(false);
-        //            DataInserter.Insert(XmlNodeType.Text, database.Data, ipre, pre, null, value);
-        //            FinishUpdate();
-        //        }
-        //    }
-        //}
-
-        //public TextReader InnerTextReader
-        //{
-        //    get
-        //    {
-        //        CheckValid();
-        //        return new NxTextReader(database, pre, kind);
-        //    }
-        //}
-
-        ////Same as InnerText.get
-        //public void WriteTextTo(TextWriter textWriter)
-        //{
-        //    if (textWriter == null)
-        //    {
-        //        throw new ArgumentNullException("textWriter");
-        //    }
-        //    CheckValid();
-        //    using (TextWriterSerializer serializer = new TextWriterSerializer(textWriter))
-        //    {
-        //        serializer.node(database.Data, pre);
-        //    }
-        //}
-
-        ////Same as OuterXml
-        //public void WriteTo(XmlWriter xmlWriter)
-        //{
-        //    if (xmlWriter == null)
-        //    {
-        //        throw new ArgumentNullException("xmlWriter");
-        //    }
-        //    if (CheckValid(Data.ELEM, Data.DOC))
-        //    {
-        //        using (XmlWriterSerializer serializer = new XmlWriterSerializer(xmlWriter, kind == Data.DOC))
-        //        {
-        //            serializer.node(database.Data, pre);
-        //        }
-        //    }
-        //}
-        
-        //public void InsertAfter(XmlReader xmlReader, NxNode refNode)
-        //{
-        //    if (xmlReader == null)
-        //    {
-        //        throw new ArgumentNullException("xmlReader");
-        //    }
-        //    if (refNode == null)
-        //    {
-        //        throw new ArgumentNullException("refNode");
-        //    }
-        //    CheckValid(true, Data.ELEM, Data.DOC);
-        //    refNode.CheckValid(true, Data.ELEM, Data.TEXT, Data.COMM, Data.PI);
-        //    if (database.Data.parent(refNode.pre, refNode.kind) != pre)
-        //    {
-        //        throw new ArgumentException("The specified node is not a direct descendant of this node");
-        //    }
-        //    int ipre = refNode.pre + database.Data.size(refNode.pre, refNode.kind);
-        //    DataInserter.Insert(xmlReader, database.Data, ipre, pre);
-        //    FinishUpdate();
-        //}
-
-        //public void InsertAfter(XmlNodeType nodeType, string name, string value, NxNode refNode)
-        //{
-        //    if (refNode == null)
-        //    {
-        //        throw new ArgumentNullException("refNode");
-        //    }
-        //    CheckValid(true, Data.ELEM, Data.DOC);
-        //    refNode.CheckValid(true, Data.ELEM, Data.TEXT, Data.COMM, Data.PI);
-        //    if (database.Data.parent(refNode.pre, refNode.kind) != pre)
-        //    {
-        //        throw new ArgumentException("The specified node is not a direct descendant of this node");
-        //    }
-        //    int ipre = refNode.pre + database.Data.size(refNode.pre, refNode.kind);
-        //    DataInserter.Insert(nodeType, database.Data, ipre, pre, name, value);
-        //    FinishUpdate();
-        //}
-
-        //public void InsertBefore(XmlReader xmlReader, NxNode refNode)
-        //{
-        //    if (xmlReader == null)
-        //    {
-        //        throw new ArgumentNullException("xmlReader");
-        //    }
-        //    if (refNode == null)
-        //    {
-        //        throw new ArgumentNullException("refNode");
-        //    }
-        //    CheckValid(true, Data.ELEM, Data.DOC);
-        //    refNode.CheckValid(true, Data.ELEM, Data.TEXT, Data.COMM, Data.PI);
-        //    if (database.Data.parent(refNode.pre, refNode.kind) != pre)
-        //    {
-        //        throw new ArgumentException("The specified node is not a direct descendant of this node");
-        //    }
-        //    InsertBefore(database.Data, pre, xmlReader, refNode.pre);
-        //    FinishUpdate();
-        //}
-
-        //internal static void InsertBefore(Data data, int pre, XmlReader xmlReader, int refPre)
-        //{
-        //    DataInserter.Insert(xmlReader, data, refPre, pre);
-        //}
-
-        //public void InsertBefore(XmlNodeType nodeType, string name, string value, NxNode refNode)
-        //{
-        //    if (refNode == null)
-        //    {
-        //        throw new ArgumentNullException("refNode");
-        //    }
-        //    CheckValid(true, Data.ELEM, Data.DOC);
-        //    refNode.CheckValid(true, Data.ELEM, Data.TEXT, Data.COMM, Data.PI);
-        //    if (database.Data.parent(refNode.pre, refNode.kind) != pre)
-        //    {
-        //        throw new ArgumentException("The specified node is not a direct descendant of this node");
-        //    }
-        //    InsertBefore(database.Data, pre, nodeType, name, value, refNode.pre);
-        //    FinishUpdate();
-        //}
-
-        //internal static void InsertBefore(Data data, int pre, XmlNodeType nodeType, string name, string value, int refPre)
-        //{
-        //    DataInserter.Insert(nodeType, data, refPre, pre, name, value);
-        //}
-
-        //public void AppendChild(XmlReader xmlReader)
-        //{
-        //    if (xmlReader == null)
-        //    {
-        //        throw new ArgumentNullException("xmlReader");
-        //    }
-        //    CheckValid(true, Data.ELEM, Data.DOC);
-        //    AppendChild(database.Data, pre, kind, xmlReader);
-        //    FinishUpdate();
-        //}
-
-        //internal static void AppendChild(Data data, int pre, int kind, XmlReader xmlReader)
-        //{
-        //    int ipre = pre + data.size(pre, kind);
-        //    DataInserter.Insert(xmlReader, data, ipre, pre);
-        //}
-
-        //public void AppendChild(XmlNodeType nodeType, string name, string value)
-        //{
-        //    CheckValid(true, Data.ELEM, Data.DOC);
-        //    AppendChild(database.Data, pre, kind, nodeType, name, value);
-        //    FinishUpdate();
-        //}
-
-        //internal static void AppendChild(Data data, int pre, int kind, XmlNodeType nodeType, string name, string value)
-        //{
-        //    int ipre = pre + data.size(pre, kind);
-        //    DataInserter.Insert(nodeType, data, ipre, pre, name, value);
-        //}
-
-        //public void PrependChild(XmlReader xmlReader)
-        //{
-        //    if (xmlReader == null)
-        //    {
-        //        throw new ArgumentNullException("xmlReader");
-        //    }
-        //    CheckValid(true, Data.ELEM);
-        //    int ipre = pre + database.Data.attSize(pre, kind);
-        //    DataInserter.Insert(xmlReader, database.Data, ipre, pre);
-        //    FinishUpdate();
-        //}
-
-        //public void PrependChild(XmlNodeType nodeType, string name, string value)
-        //{
-        //    CheckValid(true, Data.ELEM);
-        //    int ipre = pre + database.Data.attSize(pre, kind);
-        //    DataInserter.Insert(nodeType, database.Data, ipre, pre, name, value);
-        //    FinishUpdate();
-        //}
-
-        //private static void StringBasedOperation(string xmlContent, Action<XmlReader> action)
-        //{
-        //    if (xmlContent == null)
-        //    {
-        //        throw new ArgumentNullException("xmlContent");
-        //    }
-        //    using (StringReader stringReader = new StringReader(xmlContent))
-        //    {
-        //        using (XmlReader xmlReader = XmlReader.Create(stringReader, NxDatabase.ReaderSettings))
-        //        {
-        //            action(xmlReader);
-        //        }
-        //    }
-        //}
-
-        //private static void StringBasedOperation(string xmlContent, NxNode refNode, Action<XmlReader, NxNode> action)
-        //{
-        //    if (xmlContent == null)
-        //    {
-        //        throw new ArgumentNullException("xmlContent");
-        //    }
-        //    using (StringReader stringReader = new StringReader(xmlContent))
-        //    {
-        //        using (XmlReader xmlReader = XmlReader.Create(stringReader, NxDatabase.ReaderSettings))
-        //        {
-        //            action(xmlReader, refNode);
-        //        }
-        //    }
-        //}
-
-        //public void InsertAfter(string xmlContent, NxNode refNode)
-        //{
-        //    StringBasedOperation(xmlContent, refNode, InsertAfter);
-        //}
-
-        //public void InsertBefore(string xmlContent, NxNode refNode)
-        //{
-        //    StringBasedOperation(xmlContent, refNode, InsertBefore);
-        //}
-
-        //public void AppendChild(string xmlContent)
-        //{
-        //    StringBasedOperation(xmlContent, AppendChild);
-        //}
-
-        //public void PrependChild(string xmlContent)
-        //{
-        //    StringBasedOperation(xmlContent, PrependChild);
-        //}
 
         /// <summary>
         /// Gets or sets the value. Returns an empty string if no value.

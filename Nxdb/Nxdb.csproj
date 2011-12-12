@@ -166,11 +166,11 @@
     <Compile Include="NxQuery.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="NxTextReader.cs">
+    <Compile Include="Io\InnerTextReader.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TextWriterSerializer.cs">
+    <Compile Include="Io\TextWriterSerializer.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="UpdateContext.cs" />
