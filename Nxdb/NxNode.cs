@@ -626,18 +626,6 @@ namespace Nxdb
             }
         }
 
-        //public void Match(XmlReader xmlReader)
-        //{
-        //    CheckValid(true, Data.ELEM);
-        //    DataMatcher.Match(xmlReader, database.Data, pre);
-        //    FinishUpdate();
-        //}
-
-        //public void Match(string xmlContent)
-        //{
-        //    StringBasedOperation(xmlContent, Match);
-        //}
-
         //Small helper to perform an action using an XmlReader sourced from a string
         //Needs to be self-contained to properly manage disposing/using blocks
         private static void XmlReaderAction(string xmlContent, Action<XmlReader> action)
@@ -721,6 +709,19 @@ namespace Nxdb
             }
         }
 
+        /// <summary>
+        /// Gets or sets the inner text for document or element nodes.
+        /// Only valid for document and element nodes.
+        /// </summary>
+        /// <value>
+        /// The new inner text.
+        /// </value>
+        /// <exception cref="ArgumentNullException">
+        /// Setting the value with null.
+        /// </exception>
+        /// <exception cref="InvalidOperationException">
+        /// Node is not a document or element node. Node is no longer valid. Setting the value of a non-database node.
+        /// </exception>
         //Validity check is performed in streaming methods
         public string InnerText
         {
@@ -794,43 +795,38 @@ namespace Nxdb
 
         /// <summary>
         /// Gets or sets the value. Returns an empty string if no value.
-        /// </summary>
-        /// <value>
-        /// Document/Element: inner text
+        /// Document/Element: same as InnerText
         /// Text/Comment: text content
         /// Attribute: value
         /// Processing Instruction: text content (without the target)
-        /// </value>
+        /// </summary>
         public string Value
         {
             get
             {
-                CheckValid();
-                return _aNode.atom().Token();
+                return CheckType(org.basex.query.item.NodeType.ELM, org.basex.query.item.NodeType.DOC)
+                    ? InnerText : _aNode.atom().Token();
             }
             set
             {
-                throw new NotImplementedException();
-                //if (value == null)
-                //{
-                //    throw new ArgumentNullException("value");
-                //}
-                //CheckValid(true, Data.TEXT, Data.ATTR, Data.COMM, Data.PI);
-                //SetValue(database.Data, pre, kind, value);
-                //FinishUpdate();
+                if (value == null) throw new ArgumentNullException("value");
+                CheckValid(true);
+                if (CheckType(org.basex.query.item.NodeType.ELM, org.basex.query.item.NodeType.DOC))
+                {
+                    //If an element or document, set the inner text
+                    ReplaceChildren(Helper.GetNodeCache(new ANode[]{new FTxt(value.Token())}));
+                }
+                else
+                {
+                    //Otherwise, use the XQuery Update set value primitive
+                    using (new UpdateContext())
+                    {
+                        Update(new ReplaceValue(_dbNode.pre, _database.Data, null, value.Token()));
+                    }
+                }
             }
         }
-
-        //internal static string GetValue(Data data, int pre, int kind)
-        //{
-        //    return Token.@string(data.text(pre, kind != Data.ATTR));
-        //}
-
-        //internal static void SetValue(Data data, int pre, int kind, string value)
-        //{
-        //    data.replace(pre, kind, Token.token(value));
-        //}
-
+        
         //public string Name
         //{
         //    get
@@ -874,12 +870,8 @@ namespace Nxdb
             get
             {
                 CheckValid();
-                if(CheckType(org.basex.query.item.NodeType.ELM,
-                    org.basex.query.item.NodeType.ATT))
-                {
-                    return _aNode.nname().Token();
-                }
-                return String.Empty;
+                return CheckType(org.basex.query.item.NodeType.ELM, org.basex.query.item.NodeType.ATT)
+                    ? _aNode.nname().Token() : String.Empty;
             }
         }
 

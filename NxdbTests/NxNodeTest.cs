@@ -440,7 +440,7 @@ namespace NxdbTests
         }
 
         [Test]
-        public void Value()
+        public void GetValue()
         {
             Common.Reset();
             using (NxDatabase database = new NxDatabase(Common.DatabaseName))
@@ -463,6 +463,38 @@ namespace NxdbTests
 
                 //TODO: comment
             }
+        }
+
+        [Test]
+        public void SetValue()
+        {
+            Common.Reset();
+            using (NxDatabase database = new NxDatabase(Common.DatabaseName))
+            {
+                Common.Populate(database, "A", "B", "C", "D");
+
+                NxNode document = database.GetDocument("A");
+                document.Value = "123";
+                Assert.AreEqual(1, document.Children.Count());
+                Assert.AreEqual("123", document.InnerXml);
+
+                NxNode element = database.GetDocument("B").Child(0).Child(1);
+                element.Value = "456";
+                Assert.AreEqual("<BB d=\"Bbd\" e=\"Bbe\">456</BB>", element.OuterXml);
+
+                NxNode attribute = database.GetDocument("C").Child(0).Child(0).Attributes.First();
+                attribute.Value = "789";
+                Assert.AreEqual("789", database.GetDocument("C").Child(0).Child(0).AttributeValue(attribute.Name));
+
+                NxNode text = database.GetDocument("D").Child(0).Child(0).Child(0);
+                text.Value = "54321";
+                Assert.AreEqual(Common.GenerateXmlContent("D").Replace(">Da<", ">54321<").Replace('\'', '"'), database.GetDocument("D").OuterXml);
+
+                //TODO: processing instruction
+
+                //TODO: comment
+            }
+            
         }
     }
 }
