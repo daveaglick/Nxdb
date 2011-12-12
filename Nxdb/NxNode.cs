@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Xml;
 using Nxdb.Dom;
+using Nxdb.Io;
 using org.basex.build;
 using org.basex.data;
 using org.basex.query.item;
@@ -518,7 +519,7 @@ namespace Nxdb
             using (new UpdateContext())
             {
                 Update(new InsertAttribute(_dbNode.pre, _database.Data, null,
-                    NxDatabase.GetNodeCache(new FAttr(new QNm(name.Token()), value.Token()))));
+                    Helper.GetNodeCache(new FAttr(new QNm(name.Token()), value.Token()))));
             }
         }
 
@@ -563,12 +564,12 @@ namespace Nxdb
             _dbNode = null;
         }
 
-        public void Append(XmlReader reader)
+        public void Append(XmlReader xmlReader)
         {
             CheckValid(true, org.basex.query.item.NodeType.ELM, org.basex.query.item.NodeType.DOC);
-            if (reader == null) throw new ArgumentNullException("reader");
+            if (xmlReader == null) throw new ArgumentNullException("xmlReader");
 
-            NodeCache nodeCache = NxDatabase.GetNodeCache(reader);
+            NodeCache nodeCache = Helper.GetNodeCache(xmlReader);
             if (nodeCache != null)
             {
                 using (new UpdateContext())
@@ -578,12 +579,12 @@ namespace Nxdb
             }
         }
 
-        public void Prepend(XmlReader reader)
+        public void Prepend(XmlReader xmlReader)
         {
             CheckValid(true, org.basex.query.item.NodeType.ELM, org.basex.query.item.NodeType.DOC);
-            if (reader == null) throw new ArgumentNullException("reader");
+            if (xmlReader == null) throw new ArgumentNullException("xmlReader");
 
-            NodeCache nodeCache = NxDatabase.GetNodeCache(reader);
+            NodeCache nodeCache = Helper.GetNodeCache(xmlReader);
             if (nodeCache != null)
             {
                 using (new UpdateContext())
@@ -593,13 +594,13 @@ namespace Nxdb
             }
         }
 
-        public void InsertBefore(XmlReader reader)
+        public void InsertBefore(XmlReader xmlReader)
         {
             CheckValid(true, org.basex.query.item.NodeType.ELM, org.basex.query.item.NodeType.TXT,
                 org.basex.query.item.NodeType.COM, org.basex.query.item.NodeType.PI);
-            if (reader == null) throw new ArgumentNullException("reader");
+            if (xmlReader == null) throw new ArgumentNullException("xmlReader");
 
-            NodeCache nodeCache = NxDatabase.GetNodeCache(reader);
+            NodeCache nodeCache = Helper.GetNodeCache(xmlReader);
             if (nodeCache != null)
             {
                 using (new UpdateContext())
@@ -609,13 +610,13 @@ namespace Nxdb
             }
         }
 
-        public void InsertAfter(XmlReader reader)
+        public void InsertAfter(XmlReader xmlReader)
         {
             CheckValid(true, org.basex.query.item.NodeType.ELM, org.basex.query.item.NodeType.TXT,
                 org.basex.query.item.NodeType.COM, org.basex.query.item.NodeType.PI);
-            if (reader == null) throw new ArgumentNullException("reader");
+            if (xmlReader == null) throw new ArgumentNullException("xmlReader");
 
-            NodeCache nodeCache = NxDatabase.GetNodeCache(reader);
+            NodeCache nodeCache = Helper.GetNodeCache(xmlReader);
             if (nodeCache != null)
             {
                 using (new UpdateContext())
@@ -624,29 +625,6 @@ namespace Nxdb
                 }
             }
         }
-        
-        //public void ReplaceChild(XmlReader xmlReader, NxNode refNode)
-        //{
-        //    if (refNode == null)
-        //    {
-        //        throw new ArgumentNullException("refNode");
-        //    }
-        //    CheckValid(true, Data.ELEM, Data.DOC);
-        //    refNode.CheckValid(true, Data.ELEM, Data.TEXT, Data.COMM, Data.PI);
-        //    if (database.Data.parent(refNode.pre, refNode.kind) != pre)
-        //    {
-        //        throw new ArgumentException("The specified node is not a direct descendant of this node");
-        //    }
-        //    int ipre = refNode.pre + database.Data.size(refNode.pre, refNode.kind);
-        //    DataInserter.Insert(xmlReader, database.Data, ipre, pre);
-        //    database.Data.delete(refNode.pre);
-        //    FinishUpdate();
-        //}
-
-        //public void ReplaceChild(string xmlContent, NxNode refNode)
-        //{
-        //    StringBasedOperation(xmlContent, refNode, ReplaceChild);
-        //}
 
         //public void Match(XmlReader xmlReader)
         //{
@@ -660,46 +638,71 @@ namespace Nxdb
         //    StringBasedOperation(xmlContent, Match);
         //}
 
-        ////Flushes the data and optionaly rebuilds indexes
-        //private void FinishUpdate()
-        //{
-        //    database.Data.flush();
-        //    if (database.Manager.OptimizeCollectionOnUpdate)
-        //    {
-        //        database.Optimize();
-        //    }
-        //}
+        //Small helper to perform an action using an XmlReader sourced from a string
+        //Needs to be self-contained to properly manage disposing/using blocks
+        private static void XmlReaderAction(string xmlContent, Action<XmlReader> action)
+        {
+            if (xmlContent == null) throw new ArgumentNullException("xmlContent");
+            using (StringReader stringReader = new StringReader(xmlContent))
+            {
+                using(XmlReader xmlReader = XmlReader.Create(stringReader, Helper.ReaderSettings) )
+                {
+                    action(xmlReader);
+                }
+            }
+        }
 
-        //public string InnerXml
-        //{
-        //    get
-        //    {
-        //        CheckValid();
-        //        StringBuilder stringBuilder = new StringBuilder();
-        //        using (XmlWriter xmlWriter = XmlWriter.Create(stringBuilder, NxDatabase.WriterSettings))
-        //        {
-        //            WriteContentTo(xmlWriter);
-        //        }
-        //        return stringBuilder.ToString();
-        //    }
-        //    set
-        //    {
-        //        StringBasedOperation(value, ReadContentFrom);
-        //    }
-        //}
+        //Validity check is performed in streaming methods
+        public string InnerXml
+        {
+            get
+            {
+                StringBuilder builder = new StringBuilder();
+                using (XmlWriter xmlWriter = XmlWriter.Create(builder, Helper.WriterSettings))
+                {
+                    WriteInnerXml(xmlWriter);
+                }
+                return builder.ToString();
+            }
+            set
+            {
+                XmlReaderAction(value, ReadInnerXml);
+            }
+        }
+        
+        public void WriteInnerXml(XmlWriter xmlWriter)
+        {
+            if (xmlWriter == null) throw new ArgumentNullException("xmlWriter");
+            CheckValid(org.basex.query.item.NodeType.ELM, org.basex.query.item.NodeType.DOC);
+            using(XmlWriterSerializer serializer = new XmlWriterSerializer(xmlWriter, false))
+            {
+                foreach(ANode node in EnumerateANodes(_aNode.children()))
+                {
+                    node.serialize(serializer);
+                }
+            }
+        }
 
-        ////Same as InnerXml.set
-        //public void ReadContentFrom(XmlReader xmlReader)
-        //{
-        //    if (xmlReader == null)
-        //    {
-        //        throw new ArgumentNullException("xmlReader");
-        //    }
-        //    CheckValid(true, Data.ELEM, Data.DOC);
-        //    int ipre = DeleteAllChildren(false);
-        //    DataInserter.Insert(xmlReader, database.Data, ipre, pre);
-        //    FinishUpdate();
-        //}
+        public void ReadInnerXml(XmlReader xmlReader)
+        {
+            if (xmlReader == null) throw new ArgumentNullException("xmlReader");
+            CheckValid(true, org.basex.query.item.NodeType.ELM, org.basex.query.item.NodeType.DOC);
+            NodeCache nodeCache = Helper.GetNodeCache(xmlReader);
+            if (nodeCache != null)
+            {
+                using (new UpdateContext())
+                {
+                    //Remove all child elements
+                    foreach (DBNode node in EnumerateANodes(_aNode.children()).OfType<DBNode>())
+                    {
+                        Update(new DeleteNode(node.pre, _database.Data, null));
+                    }
+
+                    //Append the new content
+                    Update(new InsertInto(_dbNode.pre, _database.Data, null, nodeCache, true));
+                }
+            }
+        }
 
         //public string OuterXml
         //{
@@ -779,26 +782,7 @@ namespace Nxdb
         //        }
         //    }
         //}
-
-        ////Same as InnerXml
-        //public void WriteContentTo(XmlWriter xmlWriter)
-        //{
-        //    if (xmlWriter == null)
-        //    {
-        //        throw new ArgumentNullException("xmlWriter");
-        //    }
-        //    if (CheckValid(Data.ELEM, Data.DOC))
-        //    {
-        //        using (XmlWriterSerializer serializer = new XmlWriterSerializer(xmlWriter, false))
-        //        {
-        //            foreach (int childPre in GetChildPres(database.Data, pre, kind, false))
-        //            {
-        //                serializer.node(database.Data, childPre);
-        //            }
-        //        }
-        //    }
-        //}
-
+        
         //public void InsertAfter(XmlReader xmlReader, NxNode refNode)
         //{
         //    if (xmlReader == null)

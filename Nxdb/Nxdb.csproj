@@ -118,7 +118,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="HelperExtensions.cs" />
+    <Compile Include="Helper.cs" />
     <Compile Include="IterEnum.cs" />
     <Compile Include="DataInserter.cs">
       <SubType>Code</SubType>
@@ -174,7 +174,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="UpdateContext.cs" />
-    <Compile Include="XmlWriterSerializer.cs">
+    <Compile Include="Io\XmlWriterSerializer.cs">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>

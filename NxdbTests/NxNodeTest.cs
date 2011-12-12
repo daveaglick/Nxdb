@@ -324,6 +324,41 @@ namespace NxdbTests
         }
 
         [Test]
+        public void GetInnerXml()
+        {
+            Common.Reset();
+            using (NxDatabase database = new NxDatabase(Common.DatabaseName))
+            {
+                Common.Populate(database, "A", "B", "C", "D");
+
+                //Serialization process puts out all quotes as double-quotes
+                //Need to convert single-quotes to double-quotes for comparison
+
+                NxNode doc = database.GetDocument("B");
+                Assert.AreEqual(Common.GenerateXmlContent("B").Replace('\'', '"'), doc.InnerXml);
+
+                NxNode node = database.GetDocument("C").Child(0).Child(1);
+                Assert.AreEqual("<CBA>Cba</CBA><CBB a=\"Cbba\" b=\"Cbbb\" c=\"Cbbc\">Cbb</CBB>", node.InnerXml);
+            }
+        }
+
+        [Test]
+        public void SetInnerXml()
+        {
+            Common.Reset();
+            using (NxDatabase database = new NxDatabase(Common.DatabaseName))
+            {
+                Common.Populate(database, "A", "B", "C", "D");
+
+                NxNode node = database.GetDocument("B").Child(0).Child(1).Child(1);
+                Assert.AreEqual(1, node.Children.Count());
+                node.InnerXml = "abc<def a='b'>ghi</def>jkl";
+                Assert.AreEqual(3, node.Children.Count());
+                Assert.AreEqual("abc<def a=\"b\">ghi</def>jkl", node.InnerXml);
+            }
+        }
+
+        [Test]
         public void Name()
         {
             Common.Reset();
