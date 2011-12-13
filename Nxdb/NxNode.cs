@@ -13,6 +13,7 @@ using org.basex.query.item;
 using org.basex.query.iter;
 using org.basex.query.up.primitives;
 using org.basex.util;
+using ItemNodeType = org.basex.query.item.NodeType;
 
 namespace Nxdb
 {
@@ -25,17 +26,17 @@ namespace Nxdb
             get { return _database; }
         }
 
-        private ANode _aNode;  //This should be updated before every use by calling Valid.get or CheckValid(), null = invalidated
-        private DBNode _dbNode; //This should be set if the node is a DBNode, null = not a DBNode
+        private ANode _aNode;  // This should be updated before every use by calling Valid.get or CheckValid(), null = invalidated
+        private DBNode _dbNode; // This should be set if the node is a DBNode, null = not a DBNode
 
-        //The unique immutable ID for the node, -1 if not database node
+        // The unique immutable ID for the node, -1 if not database node
         private readonly int _id;
         public int Id
         {
             get { return _id; }
         }
 
-        //Exposing "pre" as "Index" for API consumers, -1 if not database node
+        // Exposing "pre" as "Index" for API consumers, -1 if not database node
         public int Index
         {
             get
@@ -45,7 +46,7 @@ namespace Nxdb
             }
         }
 
-        //Cache the last modified time to avoid checking pre against id on every operation
+        // Cache the last modified time to avoid checking pre against id on every operation
         private long _time;
 
         internal NxNode(NxDatabase database, int pre)
@@ -62,9 +63,9 @@ namespace Nxdb
             _aNode = _dbNode;
             _id = id;
             _time = database.GetTime();
-            if (!CheckType(org.basex.query.item.NodeType.ELM, org.basex.query.item.NodeType.TXT,
-                org.basex.query.item.NodeType.ATT, org.basex.query.item.NodeType.DOC,
-                org.basex.query.item.NodeType.COM, org.basex.query.item.NodeType.PI))
+            if (!CheckType(ItemNodeType.ELM, ItemNodeType.TXT,
+                ItemNodeType.ATT, ItemNodeType.DOC,
+                ItemNodeType.COM, ItemNodeType.PI))
                 throw new ArgumentException("Invalid node type");
         }
 
@@ -77,9 +78,9 @@ namespace Nxdb
             _aNode = _dbNode;
             _id = database.GetId(node.pre);
             _time = database.GetTime();
-            if (!CheckType(org.basex.query.item.NodeType.ELM, org.basex.query.item.NodeType.TXT,
-                org.basex.query.item.NodeType.ATT, org.basex.query.item.NodeType.DOC,
-                org.basex.query.item.NodeType.COM, org.basex.query.item.NodeType.PI))
+            if (!CheckType(ItemNodeType.ELM, ItemNodeType.TXT,
+                ItemNodeType.ATT, ItemNodeType.DOC,
+                ItemNodeType.COM, ItemNodeType.PI))
                 throw new ArgumentException("Invalid node type");
         }
 
@@ -91,21 +92,21 @@ namespace Nxdb
             _dbNode = node as DBNode;
             if(_dbNode != null)
             {
-                //If this is a DBNode, we need a copy
+                // If this is a DBNode, we need a copy
                 _dbNode = _dbNode.copy();
                 _aNode = _dbNode;
                 _id = database.GetId(_dbNode.pre);
             }
             else
             {
-                //Otherwise, just use the original ANode
+                // Otherwise, just use the original ANode
                 _aNode = node;
                 _id = -1;
             }
             _time = database.GetTime();
-            if (!CheckType(org.basex.query.item.NodeType.ELM, org.basex.query.item.NodeType.TXT,
-                org.basex.query.item.NodeType.ATT, org.basex.query.item.NodeType.DOC,
-                org.basex.query.item.NodeType.COM, org.basex.query.item.NodeType.PI))
+            if (!CheckType(ItemNodeType.ELM, ItemNodeType.TXT,
+                ItemNodeType.ATT, ItemNodeType.DOC,
+                ItemNodeType.COM, ItemNodeType.PI))
                 throw new ArgumentException("Invalid node type");
         }
         
@@ -117,27 +118,27 @@ namespace Nxdb
             {
                 CheckValid();
                 NodeType nodeType = _aNode.ndType();
-                if (nodeType == org.basex.query.item.NodeType.ELM)
+                if (nodeType == ItemNodeType.ELM)
                 {
                     return XmlNodeType.Element;
                 }
-                if (nodeType == org.basex.query.item.NodeType.TXT)
+                if (nodeType == ItemNodeType.TXT)
                 {
                     return XmlNodeType.Text;
                 }
-                if (nodeType == org.basex.query.item.NodeType.ATT)
+                if (nodeType == ItemNodeType.ATT)
                 {
                     return XmlNodeType.Attribute;
                 }
-                if(nodeType == org.basex.query.item.NodeType.DOC)
+                if(nodeType == ItemNodeType.DOC)
                 {
                     return XmlNodeType.Document;
                 }
-                if (nodeType == org.basex.query.item.NodeType.COM)
+                if (nodeType == ItemNodeType.COM)
                 {
                     return XmlNodeType.Comment;
                 }
-                if (nodeType == org.basex.query.item.NodeType.PI)
+                if (nodeType == ItemNodeType.PI)
                 {
                     return XmlNodeType.ProcessingInstruction;
                 }
@@ -145,15 +146,15 @@ namespace Nxdb
             }
         }
 
-        //Get the System.XmlNode representation and cache it for future reference
-        //TODO: Uncomment DOM objects in the switch statement
+        // Get the System.XmlNode representation and cache it for future reference
+        // TODO: Uncomment DOM objects in the switch statement
         public XmlNode XmlNode
         {
             get
             {
                 CheckValid();
 
-                //Has it already been cached?
+                // Has it already been cached?
                 WeakReference weakNode;
                 XmlNode xmlNode = null;
                 if(_database.DomCache.TryGetValue(_id, out weakNode))
@@ -161,32 +162,32 @@ namespace Nxdb
                     xmlNode = (XmlNode)weakNode.Target;
                 }
 
-                //If not found in the cache
+                // If not found in the cache
                 if (xmlNode == null)
                 {
-                    //Create the appropriate node type
+                    // Create the appropriate node type
                     NodeType nodeType = _aNode.ndType();
-                    if (nodeType == org.basex.query.item.NodeType.ELM)
+                    if (nodeType == ItemNodeType.ELM)
                     {
                         //xmlNode = new NxElement(this);
                     }
-                    else if (nodeType == org.basex.query.item.NodeType.TXT)
+                    else if (nodeType == ItemNodeType.TXT)
                     {
                         //xmlNode = new NxText(this);
                     }
-                    else if (nodeType == org.basex.query.item.NodeType.ATT)
+                    else if (nodeType == ItemNodeType.ATT)
                     {
                         //xmlNode = new NxAttribute(this);
                     }
-                    else if (nodeType == org.basex.query.item.NodeType.DOC)
+                    else if (nodeType == ItemNodeType.DOC)
                     {
                         //xmlNode = new NxDocument(this);
                     }
-                    else if (nodeType == org.basex.query.item.NodeType.COM)
+                    else if (nodeType == ItemNodeType.COM)
                     {
                         //xmlNode = new NxComment(this);
                     }
-                    else if (nodeType == org.basex.query.item.NodeType.PI)
+                    else if (nodeType == ItemNodeType.PI)
                     {
                         //xmlNode = new NxProcessingInstruction(this);
                     }
@@ -195,7 +196,7 @@ namespace Nxdb
                         throw new InvalidOperationException("Unexpected node type");
                     }
 
-                    //Cache for later
+                    // Cache for later
                     _database.DomCache[_id] = new WeakReference(xmlNode);
                 }
 
@@ -203,7 +204,7 @@ namespace Nxdb
             }
         }
 
-        //Checks if the input NxNode is null and if so, returns null - used from Dom implementations
+        // Checks if the input NxNode is null and if so, returns null - used from Dom implementations
         internal static XmlNode GetXmlNode(NxNode node)
         {
             return node == null ? null : node.XmlNode;
@@ -213,34 +214,34 @@ namespace Nxdb
         
         #region Validity
 
-        //Verify the id and pre values still match, and if they don't update the pre
-        //Should be checked before every operation (and if invalid, don't perform the operation)
-        //Need to check because nodes may have been modified explicilty (through methods) or implicitly (XQuery Update)
-        //Returns true if this NxNode is valid (it exists in the database), false otherwise
+        // Verify the id and pre values still match, and if they don't update the pre
+        // Should be checked before every operation (and if invalid, don't perform the operation)
+        // Need to check because nodes may have been modified explicilty (through methods) or implicitly (XQuery Update)
+        // Returns true if this NxNode is valid (it exists in the database), false otherwise
         public bool Valid
         {
             get
             {
-                //If we no longer have a node, then we've been invalidated
+                // If we no longer have a node, then we've been invalidated
                 if( _aNode == null )
                 {
                     return false;
                 }
 
-                //If we're not a database node, then always valid
+                // If we're not a database node, then always valid
                 if( _dbNode == null )
                 {
                     return true;
                 }
 
-                //Check if the database has been modified since the last validity check
+                // Check if the database has been modified since the last validity check
                 long time = _database.GetTime();
                 if (_time != time)
                 {
                     _time = time;
 
-                    //First check if the pre value is too large (the database shrunk),
-                    //then check if the current pre still refers to the same id (do second since it requires disk access)
+                    // First check if the pre value is too large (the database shrunk),
+                    // then check if the current pre still refers to the same id (do second since it requires disk access)
                     if (_dbNode.pre >= _database.GetSize() || _id != _database.GetId(_dbNode.pre))
                     {
                         int pre = _database.GetPre(_id);
@@ -312,8 +313,8 @@ namespace Nxdb
 
         #region Axis Traversal
 
-        //Provides typed enumeration for BaseX NodeIter, which are limited to ANode results
-        //and thus the enumeration results are guaranteed to produce NxNode objects
+        // Provides typed enumeration for BaseX NodeIter, which are limited to ANode results
+        // and thus the enumeration results are guaranteed to produce NxNode objects
         private IEnumerable<NxNode> EnumerateNodes(NodeIter iter)
         {
             IterEnum iterEnum = new IterEnum(_database, iter);
@@ -346,7 +347,7 @@ namespace Nxdb
 
         public IEnumerable<NxNode> ChildElements
         {
-            get { return Children.Where(c => c._aNode.ndType() == org.basex.query.item.NodeType.ELM); }
+            get { return Children.Where(c => c._aNode.ndType() == ItemNodeType.ELM); }
         }
 
         public NxNode ChildElement(int index)
@@ -448,7 +449,7 @@ namespace Nxdb
         {
             get
             {
-                CheckValid(true, org.basex.query.item.NodeType.ELM);
+                CheckValid(true, ItemNodeType.ELM);
                 return EnumerateNodes(_aNode.attributes());
             }
         }
@@ -461,7 +462,7 @@ namespace Nxdb
 
         public NxNode Attribute(string name)
         {
-            CheckValid(org.basex.query.item.NodeType.ELM);
+            CheckValid(ItemNodeType.ELM);
             if (name == null) throw new ArgumentNullException("name");
             if (name == String.Empty) throw new ArgumentException("name");
 
@@ -469,10 +470,10 @@ namespace Nxdb
             return node == null ? null : new NxNode(_database, node);
         }
 
-        //Returns String.Empty if the attribute doesn't exist
+        // Returns String.Empty if the attribute doesn't exist
         public string AttributeValue(string name)
         {
-            CheckValid(org.basex.query.item.NodeType.ELM);
+            CheckValid(ItemNodeType.ELM);
             if (name == null) throw new ArgumentNullException("name");
             if (name == String.Empty) throw new ArgumentException("name");
 
@@ -482,7 +483,7 @@ namespace Nxdb
         
         public void RemoveAllAttributes()
         {
-            CheckValid(true, org.basex.query.item.NodeType.ELM);
+            CheckValid(true, ItemNodeType.ELM);
 
             using (new UpdateContext())
             {
@@ -495,7 +496,7 @@ namespace Nxdb
 
         public void RemoveAttribute(string name)
         {
-            CheckValid(true, org.basex.query.item.NodeType.ELM);
+            CheckValid(true, ItemNodeType.ELM);
             if (name == null) throw new ArgumentNullException("name");
             if (name == String.Empty) throw new ArgumentException("name");
 
@@ -511,7 +512,7 @@ namespace Nxdb
 
         public void InsertAttribute(string name, string value)
         {
-            CheckValid(true, org.basex.query.item.NodeType.ELM);
+            CheckValid(true, ItemNodeType.ELM);
             if (name == null) throw new ArgumentNullException("name");
             if (value == null) throw new ArgumentNullException("value");
             if (name == String.Empty) throw new ArgumentException("name");
@@ -527,7 +528,7 @@ namespace Nxdb
 
         #region Reading/Writing
 
-        //Helper to add an update primitive to the open update context with the current database context
+        // Helper to add an update primitive to the open update context with the current database context
         private void Update(UpdatePrimitive update)
         {
             UpdateContext.AddUpdate(update, _database.Context);
@@ -540,7 +541,7 @@ namespace Nxdb
         {
             using (new UpdateContext())
             {
-                RemoveAllAttributes();  //Contains the call to CheckValid()
+                RemoveAllAttributes();  // Contains the call to CheckValid()
                 foreach (DBNode node in EnumerateANodes(_aNode.children()).OfType<DBNode>())
                 {
                     Update(new DeleteNode(node.pre, _database.Data, null));
@@ -566,7 +567,7 @@ namespace Nxdb
 
         public void Append(XmlReader xmlReader)
         {
-            CheckValid(true, org.basex.query.item.NodeType.ELM, org.basex.query.item.NodeType.DOC);
+            CheckValid(true, ItemNodeType.ELM, ItemNodeType.DOC);
             if (xmlReader == null) throw new ArgumentNullException("xmlReader");
 
             NodeCache nodeCache = Helper.GetNodeCache(xmlReader);
@@ -581,7 +582,7 @@ namespace Nxdb
 
         public void Prepend(XmlReader xmlReader)
         {
-            CheckValid(true, org.basex.query.item.NodeType.ELM, org.basex.query.item.NodeType.DOC);
+            CheckValid(true, ItemNodeType.ELM, ItemNodeType.DOC);
             if (xmlReader == null) throw new ArgumentNullException("xmlReader");
 
             NodeCache nodeCache = Helper.GetNodeCache(xmlReader);
@@ -596,8 +597,8 @@ namespace Nxdb
 
         public void InsertBefore(XmlReader xmlReader)
         {
-            CheckValid(true, org.basex.query.item.NodeType.ELM, org.basex.query.item.NodeType.TXT,
-                org.basex.query.item.NodeType.COM, org.basex.query.item.NodeType.PI);
+            CheckValid(true, ItemNodeType.ELM, ItemNodeType.TXT,
+                ItemNodeType.COM, ItemNodeType.PI);
             if (xmlReader == null) throw new ArgumentNullException("xmlReader");
 
             NodeCache nodeCache = Helper.GetNodeCache(xmlReader);
@@ -612,8 +613,8 @@ namespace Nxdb
 
         public void InsertAfter(XmlReader xmlReader)
         {
-            CheckValid(true, org.basex.query.item.NodeType.ELM, org.basex.query.item.NodeType.TXT,
-                org.basex.query.item.NodeType.COM, org.basex.query.item.NodeType.PI);
+            CheckValid(true, ItemNodeType.ELM, ItemNodeType.TXT,
+                ItemNodeType.COM, ItemNodeType.PI);
             if (xmlReader == null) throw new ArgumentNullException("xmlReader");
 
             NodeCache nodeCache = Helper.GetNodeCache(xmlReader);
@@ -625,22 +626,8 @@ namespace Nxdb
                 }
             }
         }
-
-        //Small helper to perform an action using an XmlReader sourced from a string
-        //Needs to be self-contained to properly manage disposing/using blocks
-        private static void XmlReaderAction(string xmlContent, Action<XmlReader> action)
-        {
-            if (xmlContent == null) throw new ArgumentNullException("xmlContent");
-            using (StringReader stringReader = new StringReader(xmlContent))
-            {
-                using(XmlReader xmlReader = XmlReader.Create(stringReader, Helper.ReaderSettings) )
-                {
-                    action(xmlReader);
-                }
-            }
-        }
-
-        //Validity check is performed in streaming methods
+        
+        // Validity check is performed in streaming methods
         public string InnerXml
         {
             get
@@ -668,7 +655,7 @@ namespace Nxdb
         public void WriteInnerXml(XmlWriter xmlWriter)
         {
             if (xmlWriter == null) throw new ArgumentNullException("xmlWriter");
-            CheckValid(org.basex.query.item.NodeType.ELM, org.basex.query.item.NodeType.DOC);
+            CheckValid(ItemNodeType.ELM, ItemNodeType.DOC);
             using(XmlWriterSerializer serializer = new XmlWriterSerializer(xmlWriter, false))
             {
                 foreach(ANode node in EnumerateANodes(_aNode.children()))
@@ -681,11 +668,11 @@ namespace Nxdb
         public void ReadInnerXml(XmlReader xmlReader)
         {
             if (xmlReader == null) throw new ArgumentNullException("xmlReader");
-            CheckValid(true, org.basex.query.item.NodeType.ELM, org.basex.query.item.NodeType.DOC);
+            CheckValid(true, ItemNodeType.ELM, ItemNodeType.DOC);
             ReplaceChildren(Helper.GetNodeCache(xmlReader));
         }
 
-        //Validity check is performed in streaming methods
+        // Validity check is performed in streaming methods
         public string OuterXml
         {
             get
@@ -702,7 +689,7 @@ namespace Nxdb
         public void WriteOuterXml(XmlWriter xmlWriter)
         {
             if (xmlWriter == null) throw new ArgumentNullException("xmlWriter");
-            CheckValid(org.basex.query.item.NodeType.ELM, org.basex.query.item.NodeType.DOC);
+            CheckValid(ItemNodeType.ELM, ItemNodeType.DOC);
             using (XmlWriterSerializer serializer = new XmlWriterSerializer(xmlWriter, false))
             {
                 _aNode.serialize(serializer);
@@ -722,7 +709,7 @@ namespace Nxdb
         /// <exception cref="InvalidOperationException">
         /// Node is not a document or element node. Node is no longer valid. Setting the value of a non-database node.
         /// </exception>
-        //Validity check is performed in streaming methods
+        // Validity check is performed in streaming methods
         public string InnerText
         {
             get
@@ -751,16 +738,16 @@ namespace Nxdb
         {
             get
             {
-                CheckValid(org.basex.query.item.NodeType.ELM, org.basex.query.item.NodeType.DOC);
+                CheckValid(ItemNodeType.ELM, ItemNodeType.DOC);
                 return new InnerTextReader(EnumerateANodes(_aNode.descendant())
-                    .Where(n => n.ndType() == org.basex.query.item.NodeType.TXT).GetEnumerator());
+                    .Where(n => n.ndType() == ItemNodeType.TXT).GetEnumerator());
             }
         }
 
         public void WriteInnerText(TextWriter textWriter)
         {
             if (textWriter == null) throw new ArgumentNullException("textWriter");
-            CheckValid(org.basex.query.item.NodeType.ELM, org.basex.query.item.NodeType.DOC);
+            CheckValid(ItemNodeType.ELM, ItemNodeType.DOC);
             using (TextWriterSerializer serializer = new TextWriterSerializer(textWriter))
             {
                 _aNode.serialize(serializer);
@@ -770,24 +757,25 @@ namespace Nxdb
         public void ReadInnerText(TextReader textReader)
         {
             if (textReader == null) throw new ArgumentNullException("textReader");
-            CheckValid(true, org.basex.query.item.NodeType.ELM, org.basex.query.item.NodeType.DOC);
+            CheckValid(true, ItemNodeType.ELM, ItemNodeType.DOC);
             ReplaceChildren(Helper.GetNodeCache(new ANode[]{new FTxt(textReader.ReadToEnd().Token())}));
         }
 
-        //Used by ReadInnerXml() and ReadInnerText(), deletes all the child nodes and adds the nodeCache nodes, does nothing if nodeCache is null
+        // Used by ReadInnerXml(), ReadInnerText(), and Value.set
+        // Deletes all the child nodes and adds the nodeCache nodes, does nothing if nodeCache is null
         private void ReplaceChildren(NodeCache nodeCache)
         {
             if (nodeCache != null)
             {
                 using (new UpdateContext())
                 {
-                    //Remove all child elements
+                    // Remove all child elements
                     foreach (DBNode node in EnumerateANodes(_aNode.children()).OfType<DBNode>())
                     {
                         Update(new DeleteNode(node.pre, _database.Data, null));
                     }
 
-                    //Append the new content
+                    // Append the new content
                     Update(new InsertInto(_dbNode.pre, _database.Data, null, nodeCache, true));
                 }
             }
@@ -804,21 +792,21 @@ namespace Nxdb
         {
             get
             {
-                return CheckType(org.basex.query.item.NodeType.ELM, org.basex.query.item.NodeType.DOC)
+                return CheckType(ItemNodeType.ELM, ItemNodeType.DOC)
                     ? InnerText : _aNode.atom().Token();
             }
             set
             {
                 if (value == null) throw new ArgumentNullException("value");
                 CheckValid(true);
-                if (CheckType(org.basex.query.item.NodeType.ELM, org.basex.query.item.NodeType.DOC))
+                if (CheckType(ItemNodeType.ELM, ItemNodeType.DOC))
                 {
-                    //If an element or document, set the inner text
+                    // If an element or document, set the inner text
                     ReplaceChildren(Helper.GetNodeCache(new ANode[]{new FTxt(value.Token())}));
                 }
                 else
                 {
-                    //Otherwise, use the XQuery Update set value primitive
+                    // Otherwise, use the XQuery Update set value primitive
                     using (new UpdateContext())
                     {
                         Update(new ReplaceValue(_dbNode.pre, _database.Data, null, value.Token()));
@@ -826,102 +814,64 @@ namespace Nxdb
                 }
             }
         }
-        
-        //public string Name
-        //{
-        //    get
-        //    {
-        //        if( CheckValid(Data.ELEM, Data.ATTR, Data.PI) )
-        //        {
-        //            return GetName(database.Data, pre, kind);
-        //        }
-        //        return String.Empty;
-        //    }
-        //    set
-        //    {
-        //        if (value == null)
-        //        {
-        //            throw new ArgumentNullException("value");
-        //        }
-        //        CheckValid(true, Data.ELEM, Data.ATTR, Data.PI);
-        //        if (!XmlReader.IsName(value))
-        //        {
-        //            throw new XmlException("Invalid XML name");
-        //        }
-        //        byte[] name = Token.token(value);
-        //        byte[] uri = value.IndexOf(':') > 0
-        //            ? database.Data._field_ns.uri(database.Data._field_ns.uri(name, pre))
-        //            : new byte[]{};
-        //        database.Data.rename(pre, kind, Token.token(value), uri);
-        //        FinishUpdate();
-        //    }
-        //}
-
-        //internal static string GetName(Data data, int pre, int kind)
-        //{
-        //    return Token.@string(data.name(pre, kind));
-        //}
 
         /// <summary>
-        /// Gets the name of this node. Returns an empty string if not an element or attribute.
+        /// Gets or sets the fully-qualified name of this node.
+        /// Get name returns an empty string if not an element or attribute.
+        /// Set name changes the name for elements, attributes, or processing instructions.
         /// </summary>
         public string Name
         {
             get
             {
                 CheckValid();
-                return CheckType(org.basex.query.item.NodeType.ELM, org.basex.query.item.NodeType.ATT)
+                return CheckType(ItemNodeType.ELM, ItemNodeType.ATT)
                     ? _aNode.nname().Token() : String.Empty;
+            }
+            set
+            {
+                if (value == null) throw new ArgumentNullException("value");
+                CheckValid(true);
+                if (CheckType(ItemNodeType.ELM, ItemNodeType.ATT, ItemNodeType.PI))
+                {
+                    using (new UpdateContext())
+                    {
+                        Update(new RenameNode(_dbNode.pre, _database.Data, null, new QNm(value.Token())));
+                    }
+                }
             }
         }
 
-        //public string LocalName
-        //{
-        //    get
-        //    {
-        //        if (CheckValid(Data.ELEM, Data.ATTR, Data.PI))
-        //        {
-        //            byte[] name = database.Data.name(pre, kind);
-        //            byte[] localName = Token.ln(name);
-        //            if (localName.Length > 0)
-        //            {
-        //                return Token.@string(localName);
-        //            }
-        //            return Token.@string(name);
-        //        }
-        //        return String.Empty;
-        //    }
-        //}
+        public string LocalName
+        {
+            get
+            { 
+                CheckValid();
+                return CheckType(ItemNodeType.ELM, ItemNodeType.ATT, ItemNodeType.PI)
+                    ? _aNode.qname().ln().Token() : String.Empty;
+            }
+        }
 
-        //public string Prefix
-        //{
-        //    get
-        //    {
-        //        if (CheckValid(Data.ELEM, Data.ATTR, Data.PI))
-        //        {
-        //            return Token.@string(Token.pref(database.Data.name(pre, kind)));
-        //        }
-        //        return String.Empty;
-        //    }
-        //}
+        public string Prefix
+        {
+            get
+            {
+                CheckValid();
+                return CheckType(ItemNodeType.ELM, ItemNodeType.ATT, ItemNodeType.PI)
+                    ? _aNode.qname().pref().Token() : String.Empty;
+            }
+        }
 
-        //public string NamespaceURI
-        //{
-        //    get
-        //    {
-        //        if (CheckValid(Data.ELEM, Data.ATTR, Data.PI))
-        //        {
-        //            byte[] name = database.Data.name(pre, kind);
-        //            byte[] pref = Token.pref(name);
-        //            if(pref.Length > 0)
-        //            {
-        //                return Token.@string(database.Data._field_ns.uri(database.Data._field_ns.uri(name, pre)));
-        //            }
-        //        }
-        //        return String.Empty;
-        //    }
-        //}
-
+        public string NamespaceUri
+        {
+            get
+            {
+                CheckValid();
+                return CheckType(ItemNodeType.ELM, ItemNodeType.ATT, ItemNodeType.PI)
+                    ? _aNode.qname().uri().atom().Token() : String.Empty;
+            }
+        }
+        
         #endregion
 
         #region Equality/Hashing

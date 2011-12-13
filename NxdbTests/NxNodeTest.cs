@@ -414,7 +414,7 @@ namespace NxdbTests
         }
 
         [Test]
-        public void Name()
+        public void GetName()
         {
             Common.Reset();
             using (NxDatabase database = new NxDatabase(Common.DatabaseName))
@@ -440,6 +440,41 @@ namespace NxdbTests
         }
 
         [Test]
+        public void SetName()
+        {
+            Common.Reset();
+            using (NxDatabase database = new NxDatabase(Common.DatabaseName))
+            {
+                Common.Populate(database, "A", "B", "C", "D");
+                
+                NxNode element = database.GetDocument("C").Child(0).Child(1);
+                Assert.AreEqual("CB", element.Name);
+                element.Name = "XYZ";
+                Assert.AreEqual("XYZ", element.Name);
+
+                NxNode attribute = database.GetDocument("A").Child(0).Child(0).Attributes.First();
+                Assert.AreEqual("a", attribute.Name);
+                attribute.Name = "xyz";
+                Assert.AreEqual("xyz", attribute.Name);
+
+                NxNode text = database.GetDocument("D").Child(0).Child(0).Child(0);
+                Assert.IsEmpty(text.Name);
+                text.Name = "abc";
+                Assert.IsEmpty(text.Name);
+
+                //TODO: processing instruction
+
+                //TODO: comment
+            }
+        }
+
+        [Test]
+        public void QName()
+        {
+            //TODO
+        }
+
+        [Test]
         public void GetValue()
         {
             Common.Reset();
@@ -459,9 +494,9 @@ namespace NxdbTests
                 NxNode text = database.GetDocument("D").Child(0).Child(0).Child(0);
                 Assert.AreEqual("Da", text.Value);
 
-                //TODO: processing instruction
+                // TODO: processing instruction
 
-                //TODO: comment
+                // TODO: comment
             }
         }
 
@@ -490,9 +525,9 @@ namespace NxdbTests
                 text.Value = "54321";
                 Assert.AreEqual(Common.GenerateXmlContent("D").Replace(">Da<", ">54321<").Replace('\'', '"'), database.GetDocument("D").OuterXml);
 
-                //TODO: processing instruction
+                // TODO: processing instruction
 
-                //TODO: comment
+                // TODO: comment
             }
             
         }

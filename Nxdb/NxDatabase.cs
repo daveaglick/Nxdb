@@ -32,11 +32,11 @@ using Type = org.basex.query.item.Type;
 
 namespace Nxdb
 {
-    //Represents a single BaseX database into which all documents should be stored
-    //Unlike the previous versions, it's recommended just one overall NxDatabase be used
-    //and querying between them is not supported
-    //The documents in the database can be grouped using paths in the document name,
-    //i.e.: "folderA/docA.xml", "folderA/docB.xml", "folderB/docC.xml"
+    // Represents a single BaseX database into which all documents should be stored
+    // Unlike the previous versions, it's recommended just one overall NxDatabase be used
+    // and querying between them is not supported
+    // The documents in the database can be grouped using paths in the document name,
+    // i.e.: "folderA/docA.xml", "folderA/docB.xml", "folderB/docC.xml"
     public class NxDatabase : IDisposable
     {
         private static string _home = null;
@@ -48,13 +48,13 @@ namespace Nxdb
 
             _home = path;
 
-            //Create the home path
+            // Create the home path
             if (!Directory.Exists(path))
             {
                 Directory.CreateDirectory(path);
             }
 
-            //Set the home path so the BaseX preference file will go there (rather than user path)
+            // Set the home path so the BaseX preference file will go there (rather than user path)
             Prop.HOME = Path.Combine(_home, "pref");
         }
 
@@ -68,16 +68,16 @@ namespace Nxdb
 
         private static Context GetContext()
         {
-            //Set a default home if one hasn't been provided yet
+            // Set a default home if one hasn't been provided yet
             if (_home == null)
             {
                 SetHome(Path.Combine(Environment.CurrentDirectory, "Nxdb"));
             }
 
-            //Now we can create the context since the path for preferences has been set
+            // Now we can create the context since the path for preferences has been set
             Context context = new Context();
 
-            //Now set the database path
+            // Now set the database path
             context.mprop.set(MainProp.DBPATH, _home);
 
             return context;
@@ -92,10 +92,10 @@ namespace Nxdb
             
             _context = GetContext();
 
-            //Open/create the requested database
+            // Open/create the requested database
             if(!Run(new Open(name)))
             {
-                //Unable to open it, try creating
+                // Unable to open it, try creating
                 if (!Run(new CreateDB(name)))
                 {
                     throw new ArgumentException();
@@ -108,9 +108,9 @@ namespace Nxdb
             Run(new Close());
         }
 
-        //BaseX commands can be run in one of two ways:
-        //1) An instance of the command class can be created and passed to the following Run() method
-        //2) When the above won't work, a Func or Action can be used to wrap a command and run it
+        // BaseX commands can be run in one of two ways:
+        // 1) An instance of the command class can be created and passed to the following Run() method
+        // 2) When the above won't work, a Func or Action can be used to wrap a command and run it
 
         internal static bool Run(Command command, Context context)
         {
@@ -145,8 +145,8 @@ namespace Nxdb
             return Run(new FuncCommand(action));
         }
 
-        //The following perform the same operation as their equivalent BaseX command:
-        //http://docs.basex.org/wiki/Commands
+        // The following perform the same operation as their equivalent BaseX command:
+        // http://docs.basex.org/wiki/Commands
         
         public bool Add(string name, string content)
         {
@@ -166,7 +166,7 @@ namespace Nxdb
 
         public bool Replace(string name, string content)
         {
-            //TODO: Use the streaming version that takes an XmlReader - it appears to be faster
+            // TODO: Use the streaming version that takes an XmlReader - it appears to be faster
             return Run(new Replace(name, content));
         }
 
@@ -180,7 +180,7 @@ namespace Nxdb
             return Run(new OptimizeAll());
         }
 
-        //More direct access
+        // More direct access
 
         public void Add(string name, XmlReader reader)
         {
@@ -263,23 +263,23 @@ namespace Nxdb
             return Data.meta.size;
         }
 
-        //This is used to get an atomic type object or a node object from a database item
+        // This is used to get an atomic type object or a node object from a database item
         internal object GetObjectForItem(Item item)
         {
-            //Check for a null item
+            // Check for a null item
             if (item == null) return null;
 
-            //Is it a node?
+            // Is it a node?
             ANode node = item as ANode;
             if (node != null)
             {
                 return new NxNode(this, node);
             }
             
-            //Get the Java object
+            // Get the Java object
             object obj = item.toJava();
 
-            //Clean up non-.NET values
+            // Clean up non-.NET values
             if(obj is BigInteger)
             {
                 BigInteger bigInteger = (BigInteger) obj;
@@ -293,7 +293,7 @@ namespace Nxdb
             else if (obj is XMLGregorianCalendar)
             {
                 XMLGregorianCalendar date = (XMLGregorianCalendar) obj;
-                date.normalize();   //Normalizes the date to UTC
+                date.normalize();   // Normalizes the date to UTC
                 obj = XmlConvert.ToDateTime(date.toXMLFormat(), XmlDateTimeSerializationMode.Utc);
             }
             else if(obj is Duration)
@@ -310,7 +310,7 @@ namespace Nxdb
             return obj;
         }
 
-        //Gets a Data instance for a given content stream
+        // Gets a Data instance for a given content stream
         internal Data GetData(string name, string content)
         {
             using (TextReader text = new System.IO.StringReader(content))
@@ -328,7 +328,7 @@ namespace Nxdb
             if (name == String.Empty) throw new ArgumentException("name");
             if (reader == null) throw new ArgumentNullException("reader");
             Builder builder = new MemBuilder(name, new XmlReaderParser(name, reader), Context.prop);
-            //TODO: Use DiskData for larger documents (but how to tell if a stream is going to be large?!)
+            // TODO: Use DiskData for larger documents (but how to tell if a stream is going to be large?!)
             Data data = null;
             try
             {
@@ -341,21 +341,21 @@ namespace Nxdb
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(ex.Message);  //TODO: Replace this with some kind of logging mechanism
+                Debug.WriteLine(ex.Message);  // TODO: Replace this with some kind of logging mechanism
             }
             finally
             {
                 try { builder.close(); } catch { }
                 if (data != null) try { data.close(); } catch { }
-                //TODO: Drop the temp database if using DiskData
+                // TODO: Drop the temp database if using DiskData
             }
             return null;
         }
 
-        //A cache of all constructed DOM nodes for this collection
-        //Needed because .NET XML DOM consumers probably expect one object per node instead of the on the fly creation that Nxdb uses
-        //This ensures reference equality for equivalent NxNodes
-        //Key = node Id, Value = WeakReference to XmlNode instance
+        // A cache of all constructed DOM nodes for this collection
+        // Needed because .NET XML DOM consumers probably expect one object per node instead of the on the fly creation that Nxdb uses
+        // This ensures reference equality for equivalent NxNodes
+        // Key = node Id, Value = WeakReference to XmlNode instance
         private readonly Dictionary<int, WeakReference> _domCache = new Dictionary<int, WeakReference>();
 
         internal Dictionary<int, WeakReference> DomCache
