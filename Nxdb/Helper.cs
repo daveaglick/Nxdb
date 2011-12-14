@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml;
+using java.math;
+using javax.xml.datatype;
+using javax.xml.@namespace;
 using org.basex.query.item;
 using org.basex.query.iter;
 using org.basex.util;
@@ -135,6 +138,53 @@ namespace Nxdb
             {
                 nodes.Add(node);
             }
+        }
+
+        // This is used to get an atomic type object or a node object from a database item
+        internal static object GetObjectForItem(Item item, Database database)
+        {
+            // Check for a null item
+            if (item == null) return null;
+
+            // Is it a node?
+            ANode node = item as ANode;
+            if (node != null)
+            {
+                return Node.GetNode(node, database);
+            }
+            
+            // Get the Java object
+            object obj = item.toJava();
+
+            // Clean up non-.NET values
+            if(obj is BigInteger)
+            {
+                BigInteger bigInteger = (BigInteger) obj;
+                obj = Convert.ToDecimal(bigInteger.toString());
+            }
+            else if(obj is BigDecimal)
+            {
+                BigDecimal bigDecimal = (BigDecimal) obj;
+                obj = Convert.ToDecimal(bigDecimal.toString());
+            }
+            else if (obj is XMLGregorianCalendar)
+            {
+                XMLGregorianCalendar date = (XMLGregorianCalendar) obj;
+                date.normalize();   // Normalizes the date to UTC
+                obj = XmlConvert.ToDateTime(date.toXMLFormat(), XmlDateTimeSerializationMode.Utc);
+            }
+            else if(obj is Duration)
+            {
+                Duration duration = (Duration) obj;
+                obj = XmlConvert.ToTimeSpan(duration.toString());
+            }
+            else if(obj is QName)
+            {
+                QName qname = (QName) obj;
+                obj = new XmlQualifiedName(qname.getLocalPart(), qname.getNamespaceURI());
+            }
+
+            return obj;
         }
     }
 }

@@ -8,17 +8,18 @@ using org.basex.query.iter;
 
 namespace Nxdb
 {
-    //Provides an enumerator for the BaseX Iter class
+    // Provides an enumerator for the BaseX Iter class
     internal class IterEnum : IEnumerator<object>, IEnumerable<object>
     {
-        private readonly NxDatabase _database;
         private Iter _iter;
+        private readonly Database _database;
         private Item _current = null;
 
-        public IterEnum(NxDatabase database, Iter iter)
+        public IterEnum(Iter iter, Database database)
         {
-            _database = database;
+            if (iter == null) throw new ArgumentNullException("iter");
             _iter = iter;
+            _database = database;
         }
 
         public void Dispose()
@@ -48,7 +49,7 @@ namespace Nxdb
             get
             {
                 if (_iter == null) throw new ObjectDisposedException("IterEnum");
-                return _database.GetObjectForItem(_current);
+                return Helper.GetObjectForItem(_current, _database);
             }
         }
 

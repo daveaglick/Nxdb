@@ -57,7 +57,7 @@ namespace Nxdb
                     //Loop through each context used and optimize
                     foreach (Context context in Contexts.Keys)
                     {
-                        NxDatabase.Run(new Optimize(), context);
+                        Database.Run(new Optimize(), context);
                     }
                 }
 

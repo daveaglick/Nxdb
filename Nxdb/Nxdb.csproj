@@ -118,6 +118,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Attribute.cs" />
+    <Compile Include="Comment.cs" />
+    <Compile Include="Document.cs" />
+    <Compile Include="Element.cs" />
     <Compile Include="Helper.cs" />
     <Compile Include="IterEnum.cs" />
     <Compile Include="DataInserter.cs">
@@ -156,11 +160,12 @@
     <Compile Include="Io\LsbReader.cs" />
     <Compile Include="Io\LsbWriter.cs" />
     <Compile Include="Io\XmlReaderParser.cs" />
-    <Compile Include="NxDatabase.cs">
+    <Compile Include="Database.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="NxManager.cs" />
-    <Compile Include="NxNode.cs">
+    <Compile Include="Node.cs" />
+    <Compile Include="NxNodeOld.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="NxQuery.cs">
@@ -169,10 +174,12 @@
     <Compile Include="Io\InnerTextReader.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="ProcessingInstruction.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Io\TextWriterSerializer.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Text.cs" />
     <Compile Include="UpdateContext.cs" />
     <Compile Include="Io\XmlWriterSerializer.cs">
       <SubType>Code</SubType>

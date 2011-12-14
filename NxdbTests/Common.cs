@@ -20,7 +20,7 @@ namespace NxdbTests
         {
             //Set the home path (and clear any previous test data)
             Reset();
-            NxDatabase.SetHome(Path);
+            Database.SetHome(Path);
         }
 
         [TearDown]
@@ -59,7 +59,7 @@ namespace NxdbTests
             return String.Format("<{0}><{0}A a='{0}aa'>{0}a</{0}A><{0}B d='{0}bd' e='{0}be'><{0}BA>{0}ba</{0}BA><{0}BB a='{0}bba' b='{0}bbb' c='{0}bbc'>{0}bb</{0}BB></{0}B></{0}>", name);
         }
 
-        public static Documents Populate(NxDatabase database, params string[] names)
+        public static Documents Populate(Database database, params string[] names)
         {
             Documents documents = new Documents(new List<string>(names), new List<string>());
             foreach (string name in names)

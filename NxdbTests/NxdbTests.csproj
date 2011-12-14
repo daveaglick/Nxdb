@@ -48,8 +48,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Documents.cs" />
-    <Compile Include="NxDatabaseTest.cs" />
-    <Compile Include="NxNodeTest.cs" />
+    <Compile Include="DatabaseTest.cs" />
+    <Compile Include="NxNodeOldTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Common.cs" />
   </ItemGroup>

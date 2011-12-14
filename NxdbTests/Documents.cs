@@ -18,7 +18,7 @@ namespace NxdbTests
             Content = content;
         }
 
-        public void Verify(NxDatabase database)
+        public void Verify(Database database)
         {
             CollectionAssert.AreEquivalent(Names, database.DocumentNames);  //Ordering doesn't matter - database reorders documents on certain operations
 
