@@ -2,28 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Xml;
 using org.basex.query.item;
 using org.basex.query.iter;
 using org.basex.query.up.primitives;
 
 namespace Nxdb
 {
-    /// <summary>
-    /// Base class for nodes that are part of a tree (all except attributes).
-    /// </summary>
-    public abstract class TreeNode : Node
-    {
-        protected TreeNode(ANode aNode, Database database, int kind) : base(aNode, database, kind) { }
-    }
-
-    /// <summary>
-    /// Base class for nodes that can contain other nodes (document and element).
-    /// </summary>
-    public abstract class ContainerNode : TreeNode
-    {
-        protected ContainerNode(ANode aNode, Database database, int kind) : base(aNode, database, kind) { }
-    }
-
     // TODO: Implement IEquatable<Node>
     public abstract class Node //: IEquatable<Node>
     {
@@ -173,17 +158,25 @@ namespace Nxdb
         /// </summary>
         public int Id
         {
-            get { return _id; }
+            get
+            {
+                Check();
+                return _id;
+            }
         }
 
         /// <summary>
-        /// Gets the database index for the node or -1 if this is not a database node or if the
-        /// node has become invalid. The database index potentially changes with every database
+        /// Gets the database index for the node or -1 if this is not a database node.
+        /// The database index potentially changes with every database
         /// update, so this value may be different between calls.
         /// </summary>
         public int Index
         {
-            get { return Valid && DbNode != null ? DbNode.pre : -1; }
+            get
+            {
+                Check();
+                return DbNode != null ? DbNode.pre : -1;
+            }
         }
 
         #endregion
@@ -227,7 +220,7 @@ namespace Nxdb
                         int pre = _database.GetPre(_id);
                         if (pre == -1)
                         {
-                            _time = long.MinValue;
+                            Invalidate();
                             return false;
                         }
                         DbNode.set(pre, _kind);    // Assume that the kind is the same since we found the same ID
@@ -238,10 +231,17 @@ namespace Nxdb
             }
         }
 
-        // Checks that this is a database node, and if not throws an exception
-        protected void RequireDatabase()
+        protected void Invalidate()
         {
-            if(DbNode == null) throw new NotSupportedException("this operation is only supported for database nodes");
+            _time = long.MinValue;
+        }
+
+        // Checks node validity and optionally checks if this is a database node
+        protected void Check(bool requireDatabase = false)
+        {
+            if (!Valid) throw new InvalidOperationException("the node is no longer valid");
+            if (requireDatabase && DbNode == null)
+                throw new NotSupportedException("this operation is only supported for database nodes");
         }
 
         #endregion
@@ -252,7 +252,8 @@ namespace Nxdb
         // and thus the enumeration results are guaranteed to produce NxNode objects
         protected IEnumerable<T> EnumerateNodes<T>(NodeIter iter)
         {
-            return Valid ? new IterEnum(iter, Database).Cast<T>() : Enumerable.Empty<T>();
+            Check();
+            return new IterEnum(iter, Database).Cast<T>();
         }
 
         // Enumerate the BaseX ANodes in a NodeIter
@@ -267,8 +268,8 @@ namespace Nxdb
         }
 
         /// <summary>
-        /// Gets the children of this node. An empty sequence will be returned if the node is
-        /// invalid or if the node does not support children (such as attribute nodes).
+        /// Gets the children of this node. An empty sequence will be returned if the node
+        /// does not support children (such as attribute nodes).
         /// Attributes are not included as part of this sequence and must be enumerated with
         /// the Attributes property.
         /// </summary>
@@ -281,8 +282,8 @@ namespace Nxdb
         /// Gets the child node at a specified index.
         /// </summary>
         /// <param name="index">The index of the child to return.</param>
-        /// <returns>The child node at the specified index or null if the node is invalid, no
-        /// child node could be found, or if the node does not support children (such as
+        /// <returns>The child node at the specified index or null if no
+        /// child node could be found or if the node does not support children (such as
         /// attribute nodes).</returns>
         public TreeNode Child(int index)
         {
@@ -292,7 +293,7 @@ namespace Nxdb
         /// <summary>
         /// Gets the attributes. Per the XML standard, the ordering of attributes is
         /// undefined and should not be considered relevant or consistent. An empty
-        /// sequence will be returned if the node is invalid or is not an Element.
+        /// sequence will be returned if the node is not an element.
         /// </summary>
         public IEnumerable<Attribute> Attributes
         {
@@ -300,8 +301,7 @@ namespace Nxdb
         }
 
         /// <summary>
-        /// Gets the following sibling nodes. An empty sequence will be returned if the
-        /// node is invalid..
+        /// Gets the following sibling nodes.
         /// </summary>
         public IEnumerable<TreeNode> FollowingSiblings
         {
@@ -309,8 +309,7 @@ namespace Nxdb
         }
 
         /// <summary>
-        /// Gets the preceding sibling nodes. An empty sequence will be returned if the
-        /// node is invalid.
+        /// Gets the preceding sibling nodes.
         /// </summary>
         public IEnumerable<TreeNode> PrecedingSiblings
         {
@@ -318,8 +317,7 @@ namespace Nxdb
         }
         
         /// <summary>
-        /// Gets the following nodes. An empty sequence will be returned if the
-        /// node is invalid.
+        /// Gets the following nodes.
         /// </summary>
         public IEnumerable<TreeNode> Following
         {
@@ -327,8 +325,7 @@ namespace Nxdb
         }
 
         /// <summary>
-        /// Gets the preceding nodes. An empty sequence will be returned if the
-        /// node is invalid.
+        /// Gets the preceding nodes.
         /// </summary>
         public IEnumerable<TreeNode> Preceding
         {
@@ -336,30 +333,27 @@ namespace Nxdb
         }
 
         /// <summary>
-        /// Gets the parent node. The return value will be null if the node is
-        /// invalid or does not have a parent node (such as a stand-alone result node).
-        /// Unlike XML DOM implementations, the parent of an Attribute is the container
-        /// Element. Also, the parent of a document root Element is the Document.
+        /// Gets the parent node. The return value will be null if the node
+        /// does not have a parent node (such as a stand-alone result node).
+        /// Unlike XML DOM implementations, the parent of an attribute is the container
+        /// element. Also, the parent of a document root element is the document.
         /// </summary>
         public ContainerNode Parent
         {
             get
             {
-                if (Valid)
+                Check();
+                ANode parent = ANode.parent();
+                if (parent != null)
                 {
-                    ANode parent = ANode.parent();
-                    if (parent != null)
-                    {
-                        return (ContainerNode)GetNode(parent, Database);
-                    }
+                    return (ContainerNode)GetNode(parent, Database);
                 }
                 return null;
             }
         }
 
         /// <summary>
-        /// Gets the ancestor nodes. An empty sequence will be returned if the
-        /// node is invalid.
+        /// Gets the ancestor nodes.
         /// </summary>
         public IEnumerable<ContainerNode> Ancestors
         {
@@ -367,8 +361,7 @@ namespace Nxdb
         }
 
         /// <summary>
-        /// Gets the ancestor nodes and current node. An empty sequence will
-        /// be returned if the node is invalid.
+        /// Gets the ancestor nodes and current node.
         /// </summary>
         public IEnumerable<TreeNode> AncestorsOrSelf
         {
@@ -376,8 +369,7 @@ namespace Nxdb
         }
 
         /// <summary>
-        /// Gets the descendant nodes. An empty sequence will be returned if the
-        /// node is invalid or is not a ContainerNode.
+        /// Gets the descendant nodes.
         /// </summary>
         public IEnumerable<TreeNode> Descendants
         {
@@ -385,8 +377,7 @@ namespace Nxdb
         }
 
         /// <summary>
-        /// Gets the descendant nodes and current node. An empty sequence will
-        /// be returned if the node is invalid.
+        /// Gets the descendant nodes and current node.
         /// </summary>
         public IEnumerable<TreeNode> DescendantsOrSelf
         {
@@ -403,8 +394,104 @@ namespace Nxdb
             UpdateContext.AddUpdate(update, _database.Context);
         }
 
-        #endregion
+        /// <summary>
+        /// Removes this node from the database and invalidates it.
+        /// </summary>
+        public void Remove()
+        {
+            Check(true);
+            using (new UpdateContext())
+            {
+                Update(new DeleteNode(DbNode.pre, Database.Data, null));
+            }
+            Invalidate();
+        }
+
+        /// <summary>
+        /// Gets or sets the value. Returns an empty string if no value.
+        /// Document/Element: same as InnerText
+        /// Text/Comment: text content
+        /// Attribute: value
+        /// Processing Instruction: text content (without the target)
+        /// </summary>
+        public virtual string Value
+        {
+            get
+            {
+                Check();
+                return ANode.atom().Token();
+            }
+            set
+            {
+                if (value == null) throw new ArgumentNullException("value");
+                Check(true);
+                using (new UpdateContext())
+                {
+                    Update(new ReplaceValue(DbNode.pre, Database.Data, null, value.Token()));
+                }
+            }
+        }
+
+        ///// <summary>
+        ///// Gets or sets the fully-qualified name of this node.
+        ///// Get name returns an empty string if not an element or attribute.
+        ///// Set name changes the name for elements, attributes, or processing instructions.
+        ///// </summary>
+        //public string Name
+        //{
+        //    get
+        //    {
+        //        CheckValid();
+        //        return CheckType(ItemNodeType.ELM, ItemNodeType.ATT)
+        //            ? _aNode.nname().Token() : String.Empty;
+        //    }
+        //    set
+        //    {
+        //        if (value == null) throw new ArgumentNullException("value");
+        //        CheckValid(true);
+        //        if (CheckType(ItemNodeType.ELM, ItemNodeType.ATT, ItemNodeType.PI))
+        //        {
+        //            using (new UpdateContext())
+        //            {
+        //                Update(new RenameNode(_dbNode.pre, _database.Data, null, new QNm(value.Token())));
+        //            }
+        //        }
+        //    }
+        //}
+
+        //public string LocalName
+        //{
+        //    get
+        //    {
+        //        CheckValid();
+        //        return CheckType(ItemNodeType.ELM, ItemNodeType.ATT, ItemNodeType.PI)
+        //            ? _aNode.qname().ln().Token() : String.Empty;
+        //    }
+        //}
+
+        //public string Prefix
+        //{
+        //    get
+        //    {
+        //        CheckValid();
+        //        return CheckType(ItemNodeType.ELM, ItemNodeType.ATT, ItemNodeType.PI)
+        //            ? _aNode.qname().pref().Token() : String.Empty;
+        //    }
+        //}
+
+        //public string NamespaceUri
+        //{
+        //    get
+        //    {
+        //        CheckValid();
+        //        return CheckType(ItemNodeType.ELM, ItemNodeType.ATT, ItemNodeType.PI)
+        //            ? _aNode.qname().uri().atom().Token() : String.Empty;
+        //    }
+        //}
 
         // TODO: Add a property for BaseUri
+
+        #endregion
+
     }
 }

@@ -31,12 +31,9 @@ namespace Nxdb
         {
             if (name == null) throw new ArgumentNullException("name");
             if (name == String.Empty) throw new ArgumentException("name");
-            if (Valid)
-            {
-                ANode node = AttributeANode(name);
-                return node == null ? null : new Attribute(node, Database);
-            }
-            return null;
+            Check();
+            ANode node = AttributeANode(name);
+            return node == null ? null : new Attribute(node, Database);
         }
 
         /// <summary>
@@ -51,12 +48,9 @@ namespace Nxdb
         {
             if (name == null) throw new ArgumentNullException("name");
             if (name == String.Empty) throw new ArgumentException("name");
-            if (Valid)
-            {
-                ANode node = AttributeANode(name);
-                return node == null ? String.Empty : node.atom().Token();
-            }
-            return String.Empty;
+            Check();
+            ANode node = AttributeANode(name);
+            return node == null ? String.Empty : node.atom().Token();
         }
 
         /// <summary>
@@ -66,15 +60,12 @@ namespace Nxdb
         /// <exception cref="NotSupportedException">The node is not a database node.</exception>
         public void RemoveAllAttributes()
         {
-            if (Valid)
+            Check(true);
+            using (new UpdateContext())
             {
-                RequireDatabase();
-                using (new UpdateContext())
+                foreach (DBNode node in EnumerateANodes(ANode.attributes()).Cast<DBNode>())
                 {
-                    foreach (DBNode node in EnumerateANodes(ANode.attributes()).Cast<DBNode>())
-                    {
-                        Update(new DeleteNode(node.pre, Database.Data, null));
-                    }
+                    Update(new DeleteNode(node.pre, Database.Data, null));
                 }
             }
         }
@@ -89,16 +80,13 @@ namespace Nxdb
         {
             if (name == null) throw new ArgumentNullException("name");
             if (name == String.Empty) throw new ArgumentException("name");
-            if(Valid)
+            Check(true);
+            DBNode node = AttributeANode(name) as DBNode;
+            if (node != null)
             {
-                RequireDatabase();
-                DBNode node = AttributeANode(name) as DBNode;
-                if (node != null)
+                using (new UpdateContext())
                 {
-                    using (new UpdateContext())
-                    {
-                        Update(new DeleteNode(node.pre, Database.Data, null));
-                    }
+                    Update(new DeleteNode(node.pre, Database.Data, null));
                 }
             }
         }
@@ -113,6 +101,7 @@ namespace Nxdb
             if (name == null) throw new ArgumentNullException("name");
             if (value == null) throw new ArgumentNullException("value");
             if (name == String.Empty) throw new ArgumentException("name");
+            Check();
             FAttr attr = new FAttr(new QNm(name.Token()), value.Token());
             if(DbNode != null)
             {
@@ -124,6 +113,19 @@ namespace Nxdb
             else if(FNode != null)
             {
                 FNode.add(attr);
+            }
+        }
+
+        #endregion
+
+        #region Content
+
+        public override void RemoveAll()
+        {
+            using(new UpdateContext())
+            {
+                RemoveAllAttributes();
+                base.RemoveAll();
             }
         }
 

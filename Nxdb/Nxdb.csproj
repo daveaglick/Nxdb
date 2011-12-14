@@ -120,6 +120,7 @@
   <ItemGroup>
     <Compile Include="Attribute.cs" />
     <Compile Include="Comment.cs" />
+    <Compile Include="ContainerNode.cs" />
     <Compile Include="Document.cs" />
     <Compile Include="Element.cs" />
     <Compile Include="Helper.cs" />
@@ -180,6 +181,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Text.cs" />
+    <Compile Include="TreeNode.cs" />
     <Compile Include="UpdateContext.cs" />
     <Compile Include="Io\XmlWriterSerializer.cs">
       <SubType>Code</SubType>
