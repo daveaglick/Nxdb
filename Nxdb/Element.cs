@@ -12,6 +12,11 @@ namespace Nxdb
     {
         internal Element(ANode aNode, Database database) : base(aNode, database, Data.ELEM) { }
 
+        public override System.Xml.XmlNodeType NodeType
+        {
+            get { return System.Xml.XmlNodeType.Element; }
+        }
+
         #region Attributes
         
         // Gets a specific attribute ANode for a given attribute name
