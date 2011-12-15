@@ -166,9 +166,6 @@
     </Compile>
     <Compile Include="NxManager.cs" />
     <Compile Include="Node.cs" />
-    <Compile Include="NxNodeOld.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="NxQuery.cs">
       <SubType>Code</SubType>
     </Compile>

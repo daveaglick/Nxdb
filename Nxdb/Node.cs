@@ -9,8 +9,7 @@ using org.basex.query.up.primitives;
 
 namespace Nxdb
 {
-    // TODO: Implement IEquatable<Node>
-    public abstract class Node //: IEquatable<Node>
+    public abstract class Node : IEquatable<Node>
     {
         private readonly Database _database = null; // The database this node belongs to or null if not a database node
         private readonly ANode _aNode;  // This should be updated before every use by calling Valid.get
@@ -432,64 +431,185 @@ namespace Nxdb
             }
         }
 
-        ///// <summary>
-        ///// Gets or sets the fully-qualified name of this node.
-        ///// Get name returns an empty string if not an element or attribute.
-        ///// Set name changes the name for elements, attributes, or processing instructions.
-        ///// </summary>
-        //public string Name
-        //{
-        //    get
-        //    {
-        //        CheckValid();
-        //        return CheckType(ItemNodeType.ELM, ItemNodeType.ATT)
-        //            ? _aNode.nname().Token() : String.Empty;
-        //    }
-        //    set
-        //    {
-        //        if (value == null) throw new ArgumentNullException("value");
-        //        CheckValid(true);
-        //        if (CheckType(ItemNodeType.ELM, ItemNodeType.ATT, ItemNodeType.PI))
-        //        {
-        //            using (new UpdateContext())
-        //            {
-        //                Update(new RenameNode(_dbNode.pre, _database.Data, null, new QNm(value.Token())));
-        //            }
-        //        }
-        //    }
-        //}
+        /// <summary>
+        /// Gets or sets the fully-qualified name of this node for elements, attributes,
+        /// and processing instructions. Returns an empty string for all others.
+        /// </summary>
+        public virtual string Name
+        {
+            get
+            {
+                Check();
+                return String.Empty;
+            }
+            set
+            {
+                if (value == null) throw new ArgumentNullException("value");
+                Check(true);
+            }
+        }
 
-        //public string LocalName
-        //{
-        //    get
-        //    {
-        //        CheckValid();
-        //        return CheckType(ItemNodeType.ELM, ItemNodeType.ATT, ItemNodeType.PI)
-        //            ? _aNode.qname().ln().Token() : String.Empty;
-        //    }
-        //}
+        // Contains the implementation - should be called only by Element, Attribute, and ProcessingInstruction
+        protected string NameImpl
+        {
+            get
+            {
+                Check();
+                return ANode.nname().Token();
+            }
+            set
+            {
+                if (value == null) throw new ArgumentNullException("value");
+                Check(true);
+                using (new UpdateContext())
+                {
+                    Update(new RenameNode(_dbNode.pre, _database.Data, null, new QNm(value.Token())));
+                }
+            }
+        }
 
-        //public string Prefix
-        //{
-        //    get
-        //    {
-        //        CheckValid();
-        //        return CheckType(ItemNodeType.ELM, ItemNodeType.ATT, ItemNodeType.PI)
-        //            ? _aNode.qname().pref().Token() : String.Empty;
-        //    }
-        //}
+        /// <summary>
+        /// Gets the local name of this node for elements, attributes,
+        /// and processing instructions. Returns an empty string for all others.
+        /// </summary>
+        public virtual string LocalName
+        {
+            get
+            {
+                Check();
+                return String.Empty;
+            }
+        }
 
-        //public string NamespaceUri
-        //{
-        //    get
-        //    {
-        //        CheckValid();
-        //        return CheckType(ItemNodeType.ELM, ItemNodeType.ATT, ItemNodeType.PI)
-        //            ? _aNode.qname().uri().atom().Token() : String.Empty;
-        //    }
-        //}
+        // Contains the implementation - should be called only by Element, Attribute, and ProcessingInstruction
+        protected string LocalNameImpl
+        {
+            get
+            {
+                Check();
+                return ANode.qname().ln().Token();
+            }
+        }
 
-        // TODO: Add a property for BaseUri
+        /// <summary>
+        /// Gets the prefix of this node for elements, attributes,
+        /// and processing instructions. Returns an empty string for all others.
+        /// </summary>
+        public virtual string Prefix
+        {
+            get
+            {
+                Check();
+                return String.Empty;
+            }
+        }
+
+        // Contains the implementation - should be called only by Element, Attribute, and ProcessingInstruction
+        protected string PrefixImpl
+        {
+            get
+            {
+                Check();
+                return ANode.qname().pref().Token();
+            }
+        }
+
+        /// <summary>
+        /// Gets the namespace of this node for elements, attributes,
+        /// and processing instructions. Returns an empty string for all others.
+        /// </summary>
+        public virtual string NamespaceUri
+        {
+            get
+            {
+                Check();
+                return String.Empty;
+            }
+        }
+
+        // Contains the implementation - should be called only by Element, Attribute, and ProcessingInstruction
+        protected string NamespaceUriImpl
+        {
+            get
+            {
+                Check();
+                return ANode.qname().uri().atom().Token();
+            }
+        }
+
+        /// <summary>
+        /// Gets the base URI of this node or an empty string if none is available.
+        /// </summary>
+        public string BaseUri
+        {
+            get
+            {
+                Check();
+                return ANode.baseURI().Token();
+            }
+        }
+
+        #endregion
+
+        #region Equality
+
+        /// <summary>
+        /// Indicates whether the current object is equal to another object of the same type. For database nodes,
+        /// two objects are equal if they represent the same node in the database. For non-database nodes,
+        /// two objects are equal if they hold a reference to the same underlying node. Invalid nodes always
+        /// compare as unequal.
+        /// </summary>
+        /// <param name="other">An object to compare with this object.</param>
+        /// <returns>
+        /// true if the current object is equal to the <paramref name="other"/> parameter; otherwise, false.
+        /// </returns>
+        public bool Equals(Node other)
+        {
+            //Do a validity check without throwing exceptions (Equals should never throw exceptions)
+            if (other == null || !Valid || !other.Valid)
+            {
+                return false;
+            }
+            if(DbNode != null)
+            {
+                return _database.Equals(other._database) && _id == other._id;
+            }
+            return ANode.Equals(ANode);
+        }
+
+        /// <summary>
+        /// Determines whether the specified <see cref="System.Object"/> is equal to this instance.
+        /// </summary>
+        /// <param name="other">The <see cref="System.Object"/> to compare with this instance.</param>
+        /// <returns>
+        ///   <c>true</c> if the specified <see cref="System.Object"/> is equal to this instance; otherwise, <c>false</c>.
+        /// </returns>
+        public override bool Equals(object other)
+        {
+            Node node = other as Node;
+            return node != null && Equals(node);
+        }
+
+        /// <summary>
+        /// Returns a hash code for this instance.
+        /// </summary>
+        /// <returns>
+        /// A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table. 
+        /// </returns>
+        public override int GetHashCode()
+        {
+            int result = 17;
+            if(DbNode != null)
+            {
+                result = 37 * result + _id.GetHashCode();   
+                result = 37 * result + _database.GetHashCode(); 
+            }
+            else
+            {
+                result = 37 * ANode.GetHashCode();
+            }
+            return result;
+        }
 
         #endregion
 

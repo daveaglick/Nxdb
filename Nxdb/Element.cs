@@ -129,6 +129,27 @@ namespace Nxdb
             }
         }
 
+        public override string Name
+        {
+            get { return NameImpl; }
+            set { NameImpl = value; }
+        }
+
+        public override string LocalName
+        {
+            get { return LocalNameImpl; }
+        }
+
+        public override string Prefix
+        {
+            get { return PrefixImpl; }
+        }
+
+        public override string NamespaceUri
+        {
+            get { return NamespaceUriImpl; }
+        }
+
         #endregion
     }
 }

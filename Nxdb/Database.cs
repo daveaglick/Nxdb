@@ -37,7 +37,7 @@ namespace Nxdb
     // and querying between them is not supported
     // The documents in the database can be grouped using paths in the document name,
     // i.e.: "folderA/docA.xml", "folderA/docB.xml", "folderB/docC.xml"
-    public class Database : IDisposable
+    public class Database : IDisposable, IEquatable<Database>
     {
         private static string _home = null;
 
@@ -106,6 +106,49 @@ namespace Nxdb
         public void Dispose()
         {
             Run(new Close());
+        }
+
+        /// <summary>
+        /// Indicates whether the current database is equal to another database.
+        /// </summary>
+        /// <param name="other">A database to compare with this one.</param>
+        /// <returns>
+        /// true if the current database is equal to the <paramref name="other"/> parameter; otherwise, false.
+        /// </returns>
+        public bool Equals(Database other)
+        {
+            if(other == null)
+            {
+                return false;
+            }
+            return Data.Equals(other.Data);
+        }
+
+        /// <summary>
+        /// Determines whether the specified <see cref="System.Object"/> is equal to this instance.
+        /// </summary>
+        /// <param name="obj">The <see cref="System.Object"/> to compare with this instance.</param>
+        /// <returns>
+        ///   <c>true</c> if the specified <see cref="System.Object"/> is equal to this instance; otherwise, <c>false</c>.
+        /// </returns>
+        /// <exception cref="T:System.NullReferenceException">
+        /// The <paramref name="obj"/> parameter is null.
+        ///   </exception>
+        public override bool Equals(object obj)
+        {
+            Database other = obj as Database;
+            return other != null && Equals(other);
+        }
+
+        /// <summary>
+        /// Returns a hash code for this instance.
+        /// </summary>
+        /// <returns>
+        /// A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table. 
+        /// </returns>
+        public override int GetHashCode()
+        {
+            return Data.GetHashCode();
         }
 
         // BaseX commands can be run in one of two ways:
@@ -211,13 +254,13 @@ namespace Nxdb
             get { return _context.data(); }
         }
 
-        public NxNodeOld GetDocument(string name)
+        public Document GetDocument(string name)
         {
             int pre = Data.doc(name);
-            return pre == -1 ? null : new NxNodeOld(this, pre);
+            return pre == -1 ? null : (Document)Node.GetNode(pre, this);
         }
 
-        public IEnumerable<NxNodeOld> Documents
+        public IEnumerable<Document> Documents
         {
             get
             {
@@ -225,7 +268,7 @@ namespace Nxdb
                 for(int c = 0 ; c < il.size() ; c++ )
                 {
                     int pre = il.get(c);
-                    yield return new NxNodeOld(this, pre);
+                    yield return (Document)Node.GetNode(pre, this);
                 }
             }
         }
