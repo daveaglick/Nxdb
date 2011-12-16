@@ -10,7 +10,7 @@ using Nxdb;
 namespace NxdbTests
 {
     [TestFixture]
-    public class NxNodeOldTest
+    public class NodeTest
     {
         [Test]
         public void Validity()
@@ -20,8 +20,8 @@ namespace NxdbTests
             {
                 Common.Populate(database, "A", "B", "C", "D");
 
-                NxNodeOld invalid = database.GetDocument("B").Child(0).Child(1);
-                NxNodeOld valid = database.GetDocument("C").Child(0).Child(1);
+                Node invalid = database.GetDocument("B").Child(0).Child(1);
+                Node valid = database.GetDocument("C").Child(0).Child(1);
                 int validId = valid.Id;
                 database.Delete("B");
                 Assert.IsFalse(invalid.Valid);
@@ -38,16 +38,16 @@ namespace NxdbTests
             {
                 Common.Populate(database, "A", "B", "C", "D");
                 
-                NxNodeOld document = database.GetDocument("B");
+                Node document = database.GetDocument("B");
                 Assert.AreEqual(XmlNodeType.Document, document.NodeType);
 
-                NxNodeOld element = database.GetDocument("C").Child(0).Child(1);
+                Node element = database.GetDocument("C").Child(0).Child(1);
                 Assert.AreEqual(XmlNodeType.Element, element.NodeType);
 
-                NxNodeOld attribute = database.GetDocument("A").Child(0).Child(0).Attributes.First();
+                Node attribute = database.GetDocument("A").Child(0).Child(0).Attributes.First();
                 Assert.AreEqual(XmlNodeType.Attribute, attribute.NodeType);
 
-                NxNodeOld text = database.GetDocument("D").Child(0).Child(0).Child(0);
+                Node text = database.GetDocument("D").Child(0).Child(0).Child(0);
                 Assert.AreEqual(XmlNodeType.Text, text.NodeType);
 
                 //TODO: processing instruction
@@ -64,7 +64,7 @@ namespace NxdbTests
             {
                 Common.Populate(database, "A", "B", "C", "D");
 
-                NxNodeOld node = database.GetDocument("B").Child(0).Child(1).Child(1);
+                Node node = database.GetDocument("B").Child(0).Child(1).Child(1);
                 CollectionAssert.AreEquivalent(new []{"Bbba", "Bbbb", "Bbbc"}, node.Attributes.Select(n => n.Value));
             }
         }
@@ -77,7 +77,7 @@ namespace NxdbTests
             {
                 Common.Populate(database, "A", "B", "C", "D");
 
-                NxNodeOld node = database.GetDocument("B").Child(0).Child(1).Child(1);
+                Element node = (Element)database.GetDocument("B").Child(0).Child(1).Child(1);
                 Assert.AreEqual("Bbbb", node.AttributeValue("b"));
                 Assert.IsEmpty(node.AttributeValue("invalid"));
             }
@@ -91,7 +91,7 @@ namespace NxdbTests
             {
                 Common.Populate(database, "A", "B", "C", "D");
 
-                NxNodeOld node = database.GetDocument("B").Child(0).Child(1).Child(1);
+                Element node = (Element)database.GetDocument("B").Child(0).Child(1).Child(1);
                 Assert.AreEqual("Bbbc", node.Attribute("c").Value);
                 Assert.IsNull(node.Attribute("invalid"));
             }
@@ -105,7 +105,7 @@ namespace NxdbTests
             {
                 Common.Populate(database, "A", "B", "C", "D");
 
-                NxNodeOld node = database.GetDocument("B").Child(0).Child(1).Child(1);
+                Element node = (Element)database.GetDocument("B").Child(0).Child(1).Child(1);
                 Assert.AreEqual(3, node.Attributes.Count());
                 node.RemoveAllAttributes();
                 Assert.AreEqual(0, node.Attributes.Count());
@@ -120,7 +120,7 @@ namespace NxdbTests
             {
                 Common.Populate(database, "A", "B", "C", "D");
 
-                NxNodeOld node = database.GetDocument("B").Child(0).Child(1).Child(1);
+                Element node = (Element)database.GetDocument("B").Child(0).Child(1).Child(1);
                 node.RemoveAttribute("b");
                 CollectionAssert.AreEquivalent(new[] { "Bbba", "Bbbc" }, node.Attributes.Select(n => n.Value));
             }
@@ -134,7 +134,7 @@ namespace NxdbTests
             {
                 Common.Populate(database, "A", "B", "C", "D");
 
-                NxNodeOld node = database.GetDocument("B").Child(0).Child(1).Child(1);
+                Element node = (Element)database.GetDocument("B").Child(0).Child(1).Child(1);
                 node.InsertAttribute("appendName", "appendValue");
                 CollectionAssert.AreEquivalent(new[] { "Bbba", "Bbbb", "Bbbc", "appendValue" }, node.Attributes.Select(n => n.Value));
             }
@@ -148,7 +148,7 @@ namespace NxdbTests
             {
                 Common.Populate(database, "A", "B", "C", "D");
 
-                NxNodeOld node = database.GetDocument("B").Child(0).Child(1);
+                Element node = (Element)database.GetDocument("B").Child(0).Child(1);
                 Assert.AreEqual(2, node.Attributes.Count());
                 Assert.AreEqual(2, node.Children.Count());
                 CollectionAssert.AreEquivalent(new []{ "d", "e" }, node.Attributes.Select(n => n.Name));
@@ -167,23 +167,23 @@ namespace NxdbTests
             {
                 Common.Populate(database, "A", "B", "C", "D");
 
-                NxNodeOld node = database.GetDocument("B").Child(0).Child(1);
+                Node node = database.GetDocument("B").Child(0).Child(1);
                 
-                NxNodeOld child = database.GetDocument("B").Child(0).Child(1).Child(1);
+                Node child = database.GetDocument("B").Child(0).Child(1).Child(1);
                 child.Remove();
                 Assert.IsFalse(child.Valid);
                 Assert.IsNull(database.GetDocument("B").Child(0).Child(1).Child(1));
                 CollectionAssert.AreEqual(new []{ "BBA" }, node.Children.Select(n => n.Name));
 
-                NxNodeOld attribute = database.GetDocument("B").Child(0).Child(1).Attribute("e");
+                Node attribute = ((Element)database.GetDocument("B").Child(0).Child(1)).Attribute("e");
                 attribute.Remove();
                 Assert.IsFalse(attribute.Valid);
-                Assert.IsNull(database.GetDocument("B").Child(0).Child(1).Attribute("e"));
+                Assert.IsNull(((Element)database.GetDocument("B").Child(0).Child(1)).Attribute("e"));
                 CollectionAssert.AreEquivalent(new []{ "d" }, node.Attributes.Select(n => n.Name));
 
                 //Text merge node removal
                 database.Add("E", "<E>abcd<F>efgh</F>ijkl</E>");
-                NxNodeOld root = database.GetDocument("E").Child(0);
+                Node root = database.GetDocument("E").Child(0);
                 Assert.AreEqual(3, root.Children.Count());
                 root.Child(1).Remove();
                 Assert.AreEqual(1, root.Children.Count());
@@ -200,7 +200,7 @@ namespace NxdbTests
                 Common.Populate(database, "A", "B", "C", "D");
 
                 //Valid node insertion with text merge
-                NxNodeOld node = database.GetDocument("B").Child(0).Child(1).Child(1);
+                Element node = (Element)database.GetDocument("B").Child(0).Child(1).Child(1);
                 Assert.AreEqual(1, node.Children.Count());
                 using (TextReader text = new StringReader("abc<def>ghi</def>jkl"))
                 {
@@ -215,18 +215,6 @@ namespace NxdbTests
                 Assert.AreEqual("Bbbabc", node.Child(0).Value);
                 Assert.AreEqual("def", node.Child(1).Name);
                 Assert.AreEqual("jkl", node.Child(2).Value);
-
-                //Insertion on a non-element should cause exception
-                NxNodeOld attribute = database.GetDocument("B").Child(0).Child(1).Attribute("e");
-                using (TextReader text = new StringReader("abc<def>ghi</def>jkl"))
-                {
-                    XmlReaderSettings settings = new XmlReaderSettings();
-                    settings.ConformanceLevel = ConformanceLevel.Auto;
-                    using (XmlReader reader = XmlReader.Create(text, settings))
-                    {
-                        Assert.Throws<InvalidOperationException>(() => attribute.Append(reader));
-                    }
-                }
             }
         }
 
@@ -239,7 +227,7 @@ namespace NxdbTests
                 Common.Populate(database, "A", "B", "C", "D");
 
                 //Valid node insertion with text merge
-                NxNodeOld node = database.GetDocument("B").Child(0).Child(1).Child(1);
+                Element node = (Element)database.GetDocument("B").Child(0).Child(1).Child(1);
                 Assert.AreEqual(1, node.Children.Count());
                 using (TextReader text = new StringReader("abc<def>ghi</def>jkl"))
                 {
@@ -254,18 +242,6 @@ namespace NxdbTests
                 Assert.AreEqual("abc", node.Child(0).Value);
                 Assert.AreEqual("def", node.Child(1).Name);
                 Assert.AreEqual("jklBbb", node.Child(2).Value);
-
-                //Insertion on a non-element should cause exception
-                NxNodeOld attribute = database.GetDocument("B").Child(0).Child(1).Attribute("e");
-                using (TextReader text = new StringReader("abc<def>ghi</def>jkl"))
-                {
-                    XmlReaderSettings settings = new XmlReaderSettings();
-                    settings.ConformanceLevel = ConformanceLevel.Auto;
-                    using (XmlReader reader = XmlReader.Create(text, settings))
-                    {
-                        Assert.Throws<InvalidOperationException>(() => attribute.Prepend(reader));
-                    }
-                }
             }
         }
 
@@ -278,7 +254,7 @@ namespace NxdbTests
                 Common.Populate(database, "A", "B", "C", "D");
 
                 //Valid node insertion with text merge
-                NxNodeOld node = database.GetDocument("B").Child(0).Child(1).Child(1).Child(0);
+                TreeNode node = database.GetDocument("B").Child(0).Child(1).Child(1).Child(0);
                 using (TextReader text = new StringReader("abc<def>ghi</def>jkl"))
                 {
                     XmlReaderSettings settings = new XmlReaderSettings();
@@ -305,7 +281,7 @@ namespace NxdbTests
                 Common.Populate(database, "A", "B", "C", "D");
 
                 //Valid node insertion with text merge
-                NxNodeOld node = database.GetDocument("B").Child(0).Child(1).Child(1).Child(0);
+                TreeNode node = database.GetDocument("B").Child(0).Child(1).Child(1).Child(0);
                 using (TextReader text = new StringReader("abc<def>ghi</def>jkl"))
                 {
                     XmlReaderSettings settings = new XmlReaderSettings();
@@ -334,10 +310,10 @@ namespace NxdbTests
                 //Serialization process puts out all quotes as double-quotes
                 //Need to convert single-quotes to double-quotes for comparison
 
-                NxNodeOld doc = database.GetDocument("B");
+                Document doc = database.GetDocument("B");
                 Assert.AreEqual(Common.GenerateXmlContent("B").Replace('\'', '"'), doc.InnerXml);
 
-                NxNodeOld node = database.GetDocument("C").Child(0).Child(1);
+                Element node = (Element)database.GetDocument("C").Child(0).Child(1);
                 Assert.AreEqual("<CBA>Cba</CBA><CBB a=\"Cbba\" b=\"Cbbb\" c=\"Cbbc\">Cbb</CBB>", node.InnerXml);
             }
         }
@@ -350,7 +326,7 @@ namespace NxdbTests
             {
                 Common.Populate(database, "A", "B", "C", "D");
 
-                NxNodeOld node = database.GetDocument("B").Child(0).Child(1).Child(1);
+                Element node = (Element)database.GetDocument("B").Child(0).Child(1).Child(1);
                 Assert.AreEqual(1, node.Children.Count());
                 node.InnerXml = "abc<def a='b'>ghi</def>jkl";
                 Assert.AreEqual(3, node.Children.Count());
@@ -369,10 +345,10 @@ namespace NxdbTests
                 //Serialization process puts out all quotes as double-quotes
                 //Need to convert single-quotes to double-quotes for comparison
 
-                NxNodeOld doc = database.GetDocument("B");
+                Document doc = database.GetDocument("B");
                 Assert.AreEqual(Common.GenerateXmlContent("B").Replace('\'', '"'), doc.OuterXml);
 
-                NxNodeOld node = database.GetDocument("C").Child(0).Child(1);
+                Element node = (Element)database.GetDocument("C").Child(0).Child(1);
                 Assert.AreEqual("<CB d=\"Cbd\" e=\"Cbe\"><CBA>Cba</CBA><CBB a=\"Cbba\" b=\"Cbbb\" c=\"Cbbc\">Cbb</CBB></CB>", node.OuterXml);
             }
         }
@@ -385,7 +361,7 @@ namespace NxdbTests
             {
                 Common.Populate(database, "A", "B", "C", "D");
 
-                NxNodeOld doc = database.GetDocument("B");
+                Document doc = database.GetDocument("B");
                 Assert.AreEqual("BaBbaBbb", doc.InnerText);
 
                 using (TextReader reader = doc.InnerTextReader)
@@ -393,7 +369,7 @@ namespace NxdbTests
                     Assert.AreEqual("BaBbaBbb", reader.ReadToEnd());
                 }
 
-                NxNodeOld node = database.GetDocument("C").Child(0).Child(1);
+                Element node = (Element)database.GetDocument("C").Child(0).Child(1);
                 Assert.AreEqual("CbaCbb", node.InnerText);
             }
         }
@@ -406,9 +382,9 @@ namespace NxdbTests
             {
                 Common.Populate(database, "A", "B", "C", "D");
 
-                NxNodeOld node = database.GetDocument("C").Child(0).Child(1).Child(1);
+                Element node = (Element)database.GetDocument("C").Child(0).Child(1).Child(1);
                 node.InnerText = "1234";
-                NxNodeOld doc = database.GetDocument("C");
+                Document doc = database.GetDocument("C");
                 Assert.AreEqual(Common.GenerateXmlContent("C").Replace(">Cbb<", ">1234<").Replace('\'', '"'), doc.OuterXml);
             }
         }
@@ -421,17 +397,17 @@ namespace NxdbTests
             {
                 Common.Populate(database, "A", "B", "C", "D");
                 
-                NxNodeOld document = database.GetDocument("B");
-                Assert.IsEmpty(document.Name);
-
-                NxNodeOld element = database.GetDocument("C").Child(0).Child(1);
+                Node element = database.GetDocument("C").Child(0).Child(1);
                 Assert.AreEqual("CB", element.Name);
 
-                NxNodeOld attribute = database.GetDocument("A").Child(0).Child(0).Attributes.First();
+                Node attribute = database.GetDocument("A").Child(0).Child(0).Attributes.First();
                 Assert.AreEqual("a", attribute.Name);
 
-                NxNodeOld text = database.GetDocument("D").Child(0).Child(0).Child(0);
+                Node text = database.GetDocument("D").Child(0).Child(0).Child(0);
                 Assert.IsEmpty(text.Name);
+
+                Document doc = database.GetDocument("B");
+                Assert.AreEqual("B", doc.Name);
 
                 //TODO: processing instruction
 
@@ -447,20 +423,30 @@ namespace NxdbTests
             {
                 Common.Populate(database, "A", "B", "C", "D");
                 
-                NxNodeOld element = database.GetDocument("C").Child(0).Child(1);
+                Node element = database.GetDocument("C").Child(0).Child(1);
                 Assert.AreEqual("CB", element.Name);
                 element.Name = "XYZ";
                 Assert.AreEqual("XYZ", element.Name);
 
-                NxNodeOld attribute = database.GetDocument("A").Child(0).Child(0).Attributes.First();
+                Node attribute = database.GetDocument("A").Child(0).Child(0).Attributes.First();
                 Assert.AreEqual("a", attribute.Name);
                 attribute.Name = "xyz";
                 Assert.AreEqual("xyz", attribute.Name);
 
-                NxNodeOld text = database.GetDocument("D").Child(0).Child(0).Child(0);
+                Node text = database.GetDocument("D").Child(0).Child(0).Child(0);
                 Assert.IsEmpty(text.Name);
                 text.Name = "abc";
                 Assert.IsEmpty(text.Name);
+
+                Document doc = database.GetDocument("B");
+                Assert.AreEqual("B", doc.Name);
+                doc.Name = "X";
+                Assert.AreEqual("X", doc.Name);
+                CollectionAssert.AreEquivalent(new []{"A", "X", "C", "D"}, database.DocumentNames);
+                doc = database.GetDocument("B");
+                Assert.IsNull(doc);
+                doc = database.GetDocument("X");
+                Assert.IsNotNull(doc);
 
                 //TODO: processing instruction
 
@@ -482,16 +468,16 @@ namespace NxdbTests
             {
                 Common.Populate(database, "A", "B", "C", "D");
                 
-                NxNodeOld document = database.GetDocument("B");
+                Node document = database.GetDocument("B");
                 Assert.AreEqual("BaBbaBbb", document.Value);
 
-                NxNodeOld element = database.GetDocument("C").Child(0).Child(1);
+                Node element = database.GetDocument("C").Child(0).Child(1);
                 Assert.AreEqual("CbaCbb", element.Value);
 
-                NxNodeOld attribute = database.GetDocument("A").Child(0).Child(0).Attributes.First();
+                Node attribute = database.GetDocument("A").Child(0).Child(0).Attributes.First();
                 Assert.AreEqual("Aaa", attribute.Value);
 
-                NxNodeOld text = database.GetDocument("D").Child(0).Child(0).Child(0);
+                Node text = database.GetDocument("D").Child(0).Child(0).Child(0);
                 Assert.AreEqual("Da", text.Value);
 
                 // TODO: processing instruction
@@ -508,20 +494,20 @@ namespace NxdbTests
             {
                 Common.Populate(database, "A", "B", "C", "D");
 
-                NxNodeOld document = database.GetDocument("A");
+                Document document = database.GetDocument("A");
                 document.Value = "123";
                 Assert.AreEqual(1, document.Children.Count());
                 Assert.AreEqual("123", document.InnerXml);
 
-                NxNodeOld element = database.GetDocument("B").Child(0).Child(1);
+                Element element = (Element)database.GetDocument("B").Child(0).Child(1);
                 element.Value = "456";
                 Assert.AreEqual("<BB d=\"Bbd\" e=\"Bbe\">456</BB>", element.OuterXml);
 
-                NxNodeOld attribute = database.GetDocument("C").Child(0).Child(0).Attributes.First();
+                Nxdb.Attribute attribute = database.GetDocument("C").Child(0).Child(0).Attributes.First();
                 attribute.Value = "789";
-                Assert.AreEqual("789", database.GetDocument("C").Child(0).Child(0).AttributeValue(attribute.Name));
+                Assert.AreEqual("789", ((Element)database.GetDocument("C").Child(0).Child(0)).AttributeValue(attribute.Name));
 
-                NxNodeOld text = database.GetDocument("D").Child(0).Child(0).Child(0);
+                Node text = database.GetDocument("D").Child(0).Child(0).Child(0);
                 text.Value = "54321";
                 Assert.AreEqual(Common.GenerateXmlContent("D").Replace(">Da<", ">54321<").Replace('\'', '"'), database.GetDocument("D").OuterXml);
 

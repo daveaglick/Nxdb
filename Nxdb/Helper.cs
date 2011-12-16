@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Xml;
@@ -64,6 +65,11 @@ namespace Nxdb
                 return _readerSettings;
             }
         }
+
+        internal static NodeCache GetNodeCache(IEnumerable<Node> nodes)
+        {
+            return GetNodeCache(nodes.Select(n => n.ANode).ToArray());
+        }
         
         internal static NodeCache GetNodeCache(params ANode[] nodes)
         {
@@ -72,19 +78,29 @@ namespace Nxdb
 
         internal static NodeCache GetNodeCache(XmlReader reader)
         {
+            IList<ANode> nodes = GetNodes(reader);
+            return nodes != null ? new NodeCache(nodes.ToArray(), nodes.Count) : null;
+        }
+
+        internal static IList<ANode> GetNodes(XmlReader reader)
+        {
             List<ANode> nodes = new List<ANode>();
-            Stack<FElem> parents = new Stack<FElem>();
+            Stack<FNode> parents = new Stack<FNode>();
             try
             {
                 while (reader.Read())
                 {
-                    string value = reader.Value;
                     switch (reader.NodeType)
                     {
+                        case XmlNodeType.Document:
+                            FDoc doc = new FDoc(org.basex.util.Token.EMPTY);
+                            AddNode(doc, nodes, parents);
+                            parents.Push(doc);
+                            break;
                         case XmlNodeType.Element:
                             //Create the element and add it to the parent or list
                             FElem elem = new FElem(new QNm(reader.Name.Token()));
-                            AddNodeToNodeCache(elem, nodes, parents);
+                            AddNode(elem, nodes, parents);
 
                             //Add attributes
                             if (reader.HasAttributes)
@@ -107,19 +123,19 @@ namespace Nxdb
                             parents.Pop();
                             break;
                         case XmlNodeType.Comment:
-                            AddNodeToNodeCache(new FComm(reader.Value.Token()), nodes, parents);
+                            AddNode(new FComm(reader.Value.Token()), nodes, parents);
                             break;
                         case XmlNodeType.Text:
                         case XmlNodeType.SignificantWhitespace:
                         case XmlNodeType.Whitespace:
-                            AddNodeToNodeCache(new FTxt(reader.Value.Token()), nodes, parents);
+                            AddNode(new FTxt(reader.Value.Token()), nodes, parents);
                             break;
                         case XmlNodeType.ProcessingInstruction:
-                            AddNodeToNodeCache(new FPI(new QNm(reader.Name.Token()), reader.Value.Token()), nodes, parents);
+                            AddNode(new FPI(new QNm(reader.Name.Token()), reader.Value.Token()), nodes, parents);
                             break;
                     }
                 }
-                return new NodeCache(nodes.ToArray(), nodes.Count);
+                return nodes;
             }
             catch (Exception)
             {
@@ -127,8 +143,8 @@ namespace Nxdb
             }
         }
 
-        //Helper method for the GetNodeCache method
-        private static void AddNodeToNodeCache(FNode node, List<ANode> nodes, Stack<FElem> parents)
+        //Helper method for the GetNodes method
+        private static void AddNode(FNode node, List<ANode> nodes, Stack<FNode> parents)
         {
             if (parents.Count > 0)
             {
@@ -150,7 +166,7 @@ namespace Nxdb
             ANode node = item as ANode;
             if (node != null)
             {
-                return Node.GetNode(node, database);
+                return Node.Get(node, database);
             }
             
             // Get the Java object
@@ -185,6 +201,55 @@ namespace Nxdb
             }
 
             return obj;
+        }
+
+        // Helper to execute a method that takes an XmlReader given a string
+        internal static void CallWithString(string content, Action<XmlReader> action)
+        {
+            if (content == null) throw new ArgumentNullException("content");
+            using (StringReader stringReader = new StringReader(content))
+            {
+                using (XmlReader xmlReader = XmlReader.Create(stringReader, Helper.ReaderSettings))
+                {
+                    action(xmlReader);
+                }
+            }
+        }
+
+        internal static void CallWithString<T>(string content, T param, Action<T, XmlReader> action)
+        {
+            if (content == null) throw new ArgumentNullException("content");
+            using (StringReader stringReader = new StringReader(content))
+            {
+                using (XmlReader xmlReader = XmlReader.Create(stringReader, Helper.ReaderSettings))
+                {
+                    action(param, xmlReader);
+                }
+            }
+        }
+
+        internal static T CallWithString<T>(string content, Func<XmlReader, T> func)
+        {
+            if (content == null) throw new ArgumentNullException("content");
+            using (StringReader stringReader = new StringReader(content))
+            {
+                using (XmlReader xmlReader = XmlReader.Create(stringReader, Helper.ReaderSettings))
+                {
+                    return func(xmlReader);
+                }
+            }
+        }
+
+        internal static TR CallWithString<TP, TR>(string content, TP param, Func<TP, XmlReader, TR> func)
+        {
+            if (content == null) throw new ArgumentNullException("content");
+            using (StringReader stringReader = new StringReader(content))
+            {
+                using (XmlReader xmlReader = XmlReader.Create(stringReader, Helper.ReaderSettings))
+                {
+                    return func(param, xmlReader);
+                }
+            }
         }
     }
 }

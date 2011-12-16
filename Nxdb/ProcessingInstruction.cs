@@ -11,6 +11,13 @@ namespace Nxdb
     {
         internal ProcessingInstruction(ANode aNode, Database database) : base(aNode, database, Data.PI) { }
 
+        public ProcessingInstruction(string name, string value) : base(new FPI(new QNm(name.Token()), value.Token()), null, Data.PI) { }
+
+        public override System.Xml.XmlNodeType NodeType
+        {
+            get { return System.Xml.XmlNodeType.ProcessingInstruction; }
+        }
+
         #region Content
 
         public override string Name

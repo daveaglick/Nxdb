@@ -12,6 +12,8 @@ namespace Nxdb
     {
         internal Element(ANode aNode, Database database) : base(aNode, database, Data.ELEM) { }
 
+        public Element(string name) : base(new FElem(new QNm(name.Token())), null, Data.ELEM) { }
+
         public override System.Xml.XmlNodeType NodeType
         {
             get { return System.Xml.XmlNodeType.Element; }

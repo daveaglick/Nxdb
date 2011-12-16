@@ -25,8 +25,29 @@ namespace Nxdb
         public virtual void InsertBefore(XmlReader xmlReader)
         {
             if (xmlReader == null) throw new ArgumentNullException("xmlReader");
+            InsertBefore(Helper.GetNodeCache(xmlReader));
+        }
+
+        public virtual void InsertBefore(string content)
+        {
+            Helper.CallWithString(content, InsertBefore);
+        }
+
+        public void InsertBefore(params Node[] nodes)
+        {
+            if (nodes == null) throw new ArgumentNullException("nodes");
+            InsertBefore(Helper.GetNodeCache(nodes));
+        }
+
+        public void InsertBefore(IEnumerable<Node> nodes)
+        {
+            if (nodes == null) throw new ArgumentNullException("nodes");
+            InsertBefore(Helper.GetNodeCache(nodes));
+        }
+
+        private void InsertBefore(NodeCache nodeCache)
+        {
             Check(true);
-            NodeCache nodeCache = Helper.GetNodeCache(xmlReader);
             if (nodeCache != null)
             {
                 using (new UpdateContext())
@@ -43,8 +64,29 @@ namespace Nxdb
         public virtual void InsertAfter(XmlReader xmlReader)
         {
             if (xmlReader == null) throw new ArgumentNullException("xmlReader");
+            InsertAfter(Helper.GetNodeCache(xmlReader));
+        }
+
+        public virtual void InsertAfter(string content)
+        {
+            Helper.CallWithString(content, InsertAfter);
+        }
+
+        public void InsertAfter(params Node[] nodes)
+        {
+            if (nodes == null) throw new ArgumentNullException("nodes");
+            InsertAfter(Helper.GetNodeCache(nodes));
+        }
+
+        public void InsertAfter(IEnumerable<Node> nodes)
+        {
+            if (nodes == null) throw new ArgumentNullException("nodes");
+            InsertAfter(Helper.GetNodeCache(nodes));
+        }
+
+        private void InsertAfter(NodeCache nodeCache)
+        {
             Check(true);
-            NodeCache nodeCache = Helper.GetNodeCache(xmlReader);
             if (nodeCache != null)
             {
                 using (new UpdateContext())

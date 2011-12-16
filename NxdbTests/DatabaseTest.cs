@@ -33,6 +33,9 @@ namespace NxdbTests
             using (Database database = new Database(Common.DatabaseName))
             {
                 Documents docs = Common.Populate(database, "A", "B", "C", "D");
+
+                //TODO: Test adding with XmlDocument and XDocument
+
                 docs.Verify(database);
             }
         }
@@ -44,7 +47,7 @@ namespace NxdbTests
             using (Database database = new Database(Common.DatabaseName))
             {
                 Documents docs = Common.Populate(database, "A", "B", "C", "D");
-                Assert.IsTrue(database.Delete(docs.Names[1]));
+                database.Delete(docs.Names[1]);
                 docs.Names.RemoveAt(1);
                 docs.Content.RemoveAt(1);
                 docs.Verify(database);
@@ -58,7 +61,7 @@ namespace NxdbTests
             using (Database database = new Database(Common.DatabaseName))
             {
                 Documents docs = Common.Populate(database, "A", "B", "C", "D");
-                Assert.IsTrue(database.Rename(docs.Names[2], "E"));
+                database.Rename(docs.Names[2], "E");
                 docs.Names[2] = "E";
                 docs.Verify(database);
             }
@@ -72,8 +75,13 @@ namespace NxdbTests
             {
                 Documents docs = Common.Populate(database, "A", "B", "C", "D");
                 string content = Common.GenerateXmlContent("E");
-                Assert.IsTrue(database.Replace(docs.Names[1], content));
+                database.Replace(docs.Names[1], content);
                 docs.Content[1] = content;
+                docs.Verify(database);
+
+                //Test replacing a document that doesn't exist (shouldn't do anything)
+                content = Common.GenerateXmlContent("F");
+                database.Replace("X", content);
                 docs.Verify(database);
             }
         }
@@ -85,9 +93,9 @@ namespace NxdbTests
             using (Database database = new Database(Common.DatabaseName))
             {
                 Documents docs = Common.Populate(database, "A", "B", "C", "D");
-                NxNodeOld node = database.GetDocument(docs.Names[1]);
+                Node node = database.GetDocument(docs.Names[1]);
                 Assert.IsNotNull(node);
-                //TODO: Verify node name
+                Assert.AreEqual(docs.Names[1], node.Name);
             }
         }
     }

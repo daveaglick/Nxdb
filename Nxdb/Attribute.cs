@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Xml;
 using org.basex.data;
 using org.basex.query.item;
 
@@ -10,6 +11,13 @@ namespace Nxdb
     public class Attribute : Node
     {
         internal Attribute(ANode aNode, Database database) : base(aNode, database, Data.ATTR) { }
+
+        public Attribute(string name, string value) : base(new FAttr(new QNm(name.Token()), value.Token()), null, Data.ATTR) { }
+
+        public override System.Xml.XmlNodeType NodeType
+        {
+            get { return System.Xml.XmlNodeType.Attribute; }
+        }
 
         #region Content
 

@@ -21,8 +21,15 @@ namespace NxdbTests
         public void Verify(Database database)
         {
             CollectionAssert.AreEquivalent(Names, database.DocumentNames);  //Ordering doesn't matter - database reorders documents on certain operations
+            for(int c = 0 ; c < Names.Count ; c++)
+            {
+                Document doc = database.GetDocument(Names[c]);
 
-            //TODO: Verify content of all documents
+                //Serialization process puts out all quotes as double-quotes
+                //Need to convert single-quotes to double-quotes for comparison
+
+                Assert.AreEqual(Content[c].Replace('\'', '"'), doc.OuterXml);
+            }
         }
     }
 }

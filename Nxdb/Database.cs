@@ -18,8 +18,10 @@ using org.basex.core;
 using org.basex.core.cmd;
 using org.basex.data;
 using org.basex.io;
+using org.basex.query;
 using org.basex.query.item;
 using org.basex.query.iter;
+using org.basex.query.up.primitives;
 using org.basex.util;
 using org.basex.build;
 using org.basex.util.list;
@@ -83,6 +85,21 @@ namespace Nxdb
             return context;
         }
 
+        private static bool _initialized = false;
+
+        //This runs some one-time initialization
+        //Useful because several Java classes use reflection on their first construction
+        //which hurts performance when the first construction is done during an operation
+        private static void Initialize(Context context)
+        {
+            if (!_initialized)
+            {
+                new QueryContext(context);
+                new FElem(new QNm("init".Token()));
+                _initialized = true;
+            }
+        }
+
         private readonly Context _context;
 
         public Database(string name)
@@ -91,6 +108,8 @@ namespace Nxdb
             if (name == String.Empty) throw new ArgumentException("name");
             
             _context = GetContext();
+
+            Initialize(_context);
 
             // Open/create the requested database
             if(!Run(new Open(name)))
@@ -191,59 +210,107 @@ namespace Nxdb
         // The following perform the same operation as their equivalent BaseX command:
         // http://docs.basex.org/wiki/Commands
         
-        public bool Add(string name, string content)
+        public void Delete(string name)
         {
-            //TODO: Use the streaming version that takes an XmlReader - it appears to be faster
-            return Run(new Add(name, content));
+            //TODO: Consider switching to the XQuery DBDelete update primitive (don't forget to check FNDb.java for full logic of function)
+            Run(new Delete(name));
         }
 
-        public bool Delete(string name)
+        public void Rename(string name, string newName)
         {
-            return Run(new Delete(name));
+            //TODO: Consider switching to the XQuery DBDelete update primitive (don't forget to check FNDb.java for full logic of function)
+            Run(new Rename(name, newName));
         }
 
-        public bool Rename(string name, string newName)
+        public void Optimize()
         {
-            return Run(new Rename(name, newName));
+            //TODO: Consider switching to the XQuery DBOptimize update primitive (don't forget to check FNDb.java for full logic of function)
+
+            Run(new Optimize());
         }
 
-        public bool Replace(string name, string content)
+        public void OptimizeAll()
         {
-            // TODO: Use the streaming version that takes an XmlReader - it appears to be faster
-            return Run(new Replace(name, content));
+            //TODO: Consider switching to the XQuery DBOptimize update primitive (don't forget to check FNDb.java for full logic of function)
+
+            Run(new OptimizeAll());
         }
 
-        public bool Optimize()
+        // Non-command methods
+        
+        public virtual void Add(string name, XmlReader xmlReader)
         {
-            return Run(new Optimize());
+            if (xmlReader == null) throw new ArgumentNullException("xmlReader");
+            Add(name, Helper.GetNodeCache(xmlReader));
         }
 
-        public bool OptimizeAll()
+        public virtual void Add(string name, string content)
         {
-            return Run(new OptimizeAll());
+            Helper.CallWithString(content, name, Add);
         }
 
-        // More direct access
-
-        public void Add(string name, XmlReader reader)
+        public void Add(string name, params Document[] nodes)
         {
-            if (name == null) throw new ArgumentNullException("name");
-            if (name == String.Empty) throw new ArgumentException("name");
-            if (reader == null) throw new ArgumentNullException("reader");
-            using (new UpdateContext())
+            if (nodes == null) throw new ArgumentNullException("nodes");
+            Add(name, Helper.GetNodeCache(nodes));
+        }
+
+        public void Add(string name, IEnumerable<Document> nodes)
+        {
+            if (nodes == null) throw new ArgumentNullException("nodes");
+            Add(name, Helper.GetNodeCache(nodes.Cast<Node>()));
+        }
+
+        private void Add(string name, NodeCache nodeCache)
+        {
+            if (nodeCache != null)
             {
-                Data data = GetData(name, reader);
-                if(data != null)
+                FDoc doc = new FDoc(nodeCache, name.Token());
+                using (new UpdateContext())
                 {
-                    Data.insert(Data.meta.size, -1, data);
-                    Context.update();
-                    Data.flush();
-                    //TODO: Drop the temp database if using DiskData (but how to know here?!)
-                    data.close();
+                    UpdateContext.AddUpdate(new DBAdd(Data, null, doc, name, Context), Context);
                 }
             }
         }
 
+        public virtual void Replace(string name, XmlReader xmlReader)
+        {
+            if (xmlReader == null) throw new ArgumentNullException("xmlReader");
+            Replace(name, Helper.GetNodeCache(xmlReader));
+        }
+
+        public virtual void Replace(string name, string content)
+        {
+            Helper.CallWithString(content, name, Replace);
+        }
+
+        public void Replace(string name, params Document[] nodes)
+        {
+            if (nodes == null) throw new ArgumentNullException("nodes");
+            Replace(name, Helper.GetNodeCache(nodes));
+        }
+
+        public void Replace(string name, IEnumerable<Document> nodes)
+        {
+            if (nodes == null) throw new ArgumentNullException("nodes");
+            Replace(name, Helper.GetNodeCache(nodes.Cast<Node>()));
+        }
+
+        private void Replace(string name, NodeCache nodeCache)
+        {
+            using(new UpdateContext())
+            {
+                //This is partially ported from FNDb.replace()
+                int pre = Data.doc(name);
+                if(pre != -1)
+                {
+                    if (Data.docs(name).size() != 1) throw new ArgumentException("Simple document expected as replacement target");
+                    UpdateContext.AddUpdate(new DeleteNode(pre, Data, null), Context);  
+                    Add(name, nodeCache);
+                }
+            }
+        }
+        
         internal Context Context
         {
             get { return _context; }
@@ -257,7 +324,7 @@ namespace Nxdb
         public Document GetDocument(string name)
         {
             int pre = Data.doc(name);
-            return pre == -1 ? null : (Document)Node.GetNode(pre, this);
+            return pre == -1 ? null : (Document)Node.Get(pre, this);
         }
 
         public IEnumerable<Document> Documents
@@ -268,7 +335,7 @@ namespace Nxdb
                 for(int c = 0 ; c < il.size() ; c++ )
                 {
                     int pre = il.get(c);
-                    yield return (Document)Node.GetNode(pre, this);
+                    yield return (Document)Node.Get(pre, this);
                 }
             }
         }
@@ -307,46 +374,43 @@ namespace Nxdb
         }
         
         // Gets a Data instance for a given content stream
-        internal Data GetData(string name, string content)
-        {
-            using (TextReader text = new System.IO.StringReader(content))
-            {
-                using (XmlReader reader = XmlReader.Create(text))
-                {
-                    return GetData(name, reader);
-                }
-            }
-        }
+        
+        // Not sure if this is needed - in every case so far, I go straight to a NodeCache
 
-        internal Data GetData(string name, XmlReader reader)
-        {
-            if (name == null) throw new ArgumentNullException("name");
-            if (name == String.Empty) throw new ArgumentException("name");
-            if (reader == null) throw new ArgumentNullException("reader");
-            Builder builder = new MemBuilder(name, new XmlReaderParser(name, reader), Context.prop);
-            // TODO: Use DiskData for larger documents (but how to tell if a stream is going to be large?!)
-            Data data = null;
-            try
-            {
-                data = builder.build();
-                if (data.meta.size > 1)
-                {
-                    builder.close();
-                    return data;
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex.Message);  // TODO: Replace this with some kind of logging mechanism
-            }
-            finally
-            {
-                try { builder.close(); } catch { }
-                if (data != null) try { data.close(); } catch { }
-                // TODO: Drop the temp database if using DiskData
-            }
-            return null;
-        }
+        //internal Data GetData(string name, string content)
+        //{
+        //    return Helper.CallWithString<string, Data>(content, name, GetData);
+        //}
+
+        //internal Data GetData(string name, XmlReader reader)
+        //{
+        //    if (name == null) throw new ArgumentNullException("name");
+        //    if (name == String.Empty) throw new ArgumentException("name");
+        //    if (reader == null) throw new ArgumentNullException("reader");
+        //    Builder builder = new MemBuilder(name, new XmlReaderParser(name, reader), Context.prop);
+        //    // TODO: Use DiskData for larger documents (but how to tell if a stream is going to be large?!)
+        //    Data data = null;
+        //    try
+        //    {
+        //        data = builder.build();
+        //        if (data.meta.size > 1)
+        //        {
+        //            builder.close();
+        //            return data;
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Debug.WriteLine(ex.Message);  // TODO: Replace this with some kind of logging mechanism
+        //    }
+        //    finally
+        //    {
+        //        try { builder.close(); } catch { }
+        //        if (data != null) try { data.close(); } catch { }
+        //        // TODO: Drop the temp database if using DiskData
+        //    }
+        //    return null;
+        //}
 
         // A cache of all constructed DOM nodes for this collection
         // Needed because .NET XML DOM consumers probably expect one object per node instead of the on the fly creation that Nxdb uses

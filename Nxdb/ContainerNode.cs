@@ -28,7 +28,7 @@ namespace Nxdb
             Check(true);
             using (new UpdateContext())
             {
-                foreach (DBNode node in EnumerateANodes(ANode.children()).OfType<DBNode>())
+                foreach (DBNode node in EnumerateANodes(ANode.children()).Cast<DBNode>())
                 {
                     Update(new DeleteNode(node.pre, Database.Data, null));
                 }
@@ -42,8 +42,29 @@ namespace Nxdb
         public void Append(XmlReader xmlReader)
         {
             if (xmlReader == null) throw new ArgumentNullException("xmlReader");
+            Append(Helper.GetNodeCache(xmlReader));
+        }
+
+        public void Append(string content)
+        {
+            Helper.CallWithString(content, Append);
+        }
+
+        public void Append(params Node[] nodes)
+        {
+            if (nodes == null) throw new ArgumentNullException("nodes");
+            Append(Helper.GetNodeCache(nodes));
+        }
+
+        public void Append(IEnumerable<Node> nodes)
+        {
+            if (nodes == null) throw new ArgumentNullException("nodes");
+            Append(Helper.GetNodeCache(nodes));
+        }
+
+        private void Append(NodeCache nodeCache)
+        {
             Check(true);
-            NodeCache nodeCache = Helper.GetNodeCache(xmlReader);
             if (nodeCache != null)
             {
                 using (new UpdateContext())
@@ -60,8 +81,29 @@ namespace Nxdb
         public void Prepend(XmlReader xmlReader)
         {
             if (xmlReader == null) throw new ArgumentNullException("xmlReader");
+            Prepend(Helper.GetNodeCache(xmlReader));
+        }
+
+        public void Prepend(string content)
+        {
+            Helper.CallWithString(content, Prepend);
+        }
+
+        public void Prepend(params Node[] nodes)
+        {
+            if (nodes == null) throw new ArgumentNullException("nodes");
+            Prepend(Helper.GetNodeCache(nodes));
+        }
+
+        public void Prepend(IEnumerable<Node> nodes)
+        {
+            if (nodes == null) throw new ArgumentNullException("nodes");
+            Prepend(Helper.GetNodeCache(nodes));
+        }
+
+        private void Prepend(NodeCache nodeCache)
+        {
             Check(true);
-            NodeCache nodeCache = Helper.GetNodeCache(xmlReader);
             if (nodeCache != null)
             {
                 using (new UpdateContext())
@@ -90,14 +132,7 @@ namespace Nxdb
             }
             set
             {
-                if (value == null) throw new ArgumentNullException("value");
-                using (StringReader stringReader = new StringReader(value))
-                {
-                    using (XmlReader xmlReader = XmlReader.Create(stringReader, Helper.ReaderSettings))
-                    {
-                        ReadInnerXml(xmlReader);
-                    }
-                }
+                Helper.CallWithString(value, ReadInnerXml);
             }
         }
 
@@ -180,7 +215,7 @@ namespace Nxdb
             {
                 if (value == null) throw new ArgumentNullException("value");
                 Check(true);
-                ReplaceChildren(Helper.GetNodeCache(new ANode[] { new FTxt(value.Token()) }));
+                ReplaceChildren(Helper.GetNodeCache(new FTxt(value.Token())));
             }
         }
 
@@ -193,7 +228,7 @@ namespace Nxdb
             {
                 Check();
                 return new InnerTextReader(EnumerateANodes(ANode.descendant())
-                    .Where(n => n.ndType() == NodeType.TXT).GetEnumerator());
+                    .Where(n => n.ndType() == org.basex.query.item.NodeType.TXT).GetEnumerator());
             }
         }
 
@@ -219,7 +254,7 @@ namespace Nxdb
         {
             if (textReader == null) throw new ArgumentNullException("textReader");
             Check(true);
-            ReplaceChildren(Helper.GetNodeCache(new ANode[] { new FTxt(textReader.ReadToEnd().Token()) }));
+            ReplaceChildren(Helper.GetNodeCache(new FTxt(textReader.ReadToEnd().Token())));
         }
 
         // Used by ReadInnerXml(), ReadInnerText(), and Value.set

@@ -49,7 +49,7 @@
   <ItemGroup>
     <Compile Include="Documents.cs" />
     <Compile Include="DatabaseTest.cs" />
-    <Compile Include="NxNodeOldTest.cs" />
+    <Compile Include="NodeTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Common.cs" />
   </ItemGroup>

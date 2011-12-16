@@ -4,12 +4,20 @@ using System.Linq;
 using System.Text;
 using org.basex.data;
 using org.basex.query.item;
+using org.basex.query.up.primitives;
 
 namespace Nxdb
 {
     public class Document : ContainerNode
     {
         internal Document(ANode aNode, Database database) : base(aNode, database, Data.DOC) { }
+
+        public Document(string name) : base(new FDoc(name.Token()), null, Data.DOC) { }
+
+        public override System.Xml.XmlNodeType NodeType
+        {
+            get { return System.Xml.XmlNodeType.Document; }
+        }
 
         #region Content
 
@@ -31,6 +39,24 @@ namespace Nxdb
         public override void InsertAfter(System.Xml.XmlReader xmlReader)
         {
             throw new NotSupportedException("cannot insert after a document node");
+        }
+
+        public override string Name
+        {
+            get
+            {
+                return BaseUri;
+            }
+            set
+            {
+                // Same as Node.Value.set (but have to copy here because ContainerNode overrides it and you can't call a base-base method)
+                if (value == null) throw new ArgumentNullException("value");
+                Check(true);
+                using (new UpdateContext())
+                {
+                    Update(new ReplaceValue(DbNode.pre, Database.Data, null, value.Token()));
+                }
+            }
         }
 
         #endregion

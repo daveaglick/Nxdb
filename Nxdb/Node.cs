@@ -1,14 +1,27 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Xml;
+using System.Xml.Linq;
 using org.basex.query.item;
 using org.basex.query.iter;
 using org.basex.query.up.primitives;
 
 namespace Nxdb
 {
+    /// <summary>
+    /// The base class for XML nodes in Nxdb. There are two types of nodes, database nodes and query nodes (or
+    /// non-database nodes). Database nodes contain a database ID (accessible via the Id property) and can be
+    /// manipulated (which will change the content in the database on disk). Query nodes are immutable and cannot
+    /// be modified. Attempting to modify a query node will result in a NotSupportedException. Database nodes are
+    /// obtained whenever you directly access the database or execute a query that returns results from the database.
+    /// Query nodes are obtained whenever you execute a query that returns temporary or non-database results or when
+    /// you create a node directly or from XmlNodes or XNodes. The check which kind of node this is look at the
+    /// Id property. If it is >= 0 the node is a database node; if it is -1 the node is a query node.
+    /// </summary>
     public abstract class Node : IEquatable<Node>
     {
         private readonly Database _database = null; // The database this node belongs to or null if not a database node
@@ -26,7 +39,7 @@ namespace Nxdb
             _dbNode = aNode as DBNode;
             if (aNode == null) throw new ArgumentNullException("aNode");
             if (_dbNode != null && database == null) throw new ArgumentNullException("database");
-            if (ANode.kind(aNode.ndType()) != kind) throw new ArgumentException("incorrect node type");
+            if (ANode.kind(aNode.ndType()) != kind) throw new ArgumentException("Incorrect node type");
             _aNode = aNode;
             _fNode = aNode as FNode;
             _kind = kind;
@@ -38,7 +51,7 @@ namespace Nxdb
             }
         }
 
-        internal static Node GetNode(ANode aNode, Database database = null)
+        internal static Node Get(ANode aNode, Database database = null)
         {
             if (aNode == null) throw new ArgumentNullException("aNode");
 
@@ -46,46 +59,46 @@ namespace Nxdb
             DBNode dbNode = aNode as DBNode;
             if (dbNode != null)
             {
-                return GetNode(dbNode, database);
+                return Get(dbNode, database);
             }
 
             // If not, create the appropriate non-database node class
             NodeType nodeType = aNode.ndType();
-            if (nodeType == NodeType.ELM)
+            if (nodeType == org.basex.query.item.NodeType.ELM)
             {
                 return new Element(aNode, null);
             }
-            if (nodeType == NodeType.TXT)
+            if (nodeType == org.basex.query.item.NodeType.TXT)
             {
                 return new Text(aNode, null);
             }
-            if (nodeType == NodeType.ATT)
+            if (nodeType == org.basex.query.item.NodeType.ATT)
             {
                 return new Attribute(aNode, null);
             }
-            if (nodeType == NodeType.DOC)
+            if (nodeType == org.basex.query.item.NodeType.DOC)
             {
                 return new Document(aNode, null);
             }
-            if (nodeType == NodeType.COM)
+            if (nodeType == org.basex.query.item.NodeType.COM)
             {
                 return new Comment(aNode, null);
             }
-            if (nodeType == NodeType.PI)
+            if (nodeType == org.basex.query.item.NodeType.PI)
             {
                 return new ProcessingInstruction(aNode, null);
             }
-            throw new ArgumentException("invalid node type");
+            throw new ArgumentException("Invalid node type");
         }
 
-        internal static Node GetNode(int pre, Database database)
+        internal static Node Get(int pre, Database database)
         {
             if (database == null) throw new ArgumentNullException("database");
             if (pre < 0) throw new ArgumentOutOfRangeException("pre");
-            return GetNode(new DBNode(database.Data, pre), database, false);
+            return Get(new DBNode(database.Data, pre), database, false);
         }
 
-        internal static Node GetNode(DBNode dbNode, Database database, bool copy = true)
+        internal static Node Get(DBNode dbNode, Database database, bool copy = true)
         {
             if (database == null) throw new ArgumentNullException("database");
             if (dbNode == null) throw new ArgumentNullException("dbNode");
@@ -98,31 +111,45 @@ namespace Nxdb
 
             // Create the appropriate database node class
             NodeType nodeType = dbNode.ndType();
-            if (nodeType == NodeType.ELM)
+            if (nodeType == org.basex.query.item.NodeType.ELM)
             {
                 return new Element(dbNode, database);
             }
-            if (nodeType == NodeType.TXT)
+            if (nodeType == org.basex.query.item.NodeType.TXT)
             {
                 return new Text(dbNode, database);
             }
-            if (nodeType == NodeType.ATT)
+            if (nodeType == org.basex.query.item.NodeType.ATT)
             {
                 return new Attribute(dbNode, database);
             }
-            if (nodeType == NodeType.DOC)
+            if (nodeType == org.basex.query.item.NodeType.DOC)
             {
                 return new Document(dbNode, database);
             }
-            if (nodeType == NodeType.COM)
+            if (nodeType == org.basex.query.item.NodeType.COM)
             {
                 return new Comment(dbNode, database);
             }
-            if (nodeType == NodeType.PI)
+            if (nodeType == org.basex.query.item.NodeType.PI)
             {
                 return new ProcessingInstruction(dbNode, database);
             }
-            throw new ArgumentException("invalid node type");
+            throw new ArgumentException("Invalid node type");
+        }
+
+        public static Node Get(XmlNode node)
+        {
+            IList<ANode> nodes = Helper.GetNodes(new XmlNodeReader(node));
+            if (nodes.Count != 1) throw new Exception("Unexpected behavior: the XmlNode resulted in more than one Node");
+            return Get(nodes[0]);
+        }
+
+        public static Node Get(XNode node)
+        {
+            IList<ANode> nodes = Helper.GetNodes(node.CreateReader());
+            if (nodes.Count != 1) throw new Exception("Unexpected behavior: the XNode resulted in more than one Node");
+            return Get(nodes[0]);
         }
 
         #endregion
@@ -137,7 +164,7 @@ namespace Nxdb
             get { return _database; }
         }
 
-        protected ANode ANode
+        protected internal ANode ANode
         {
             get { return _aNode; }
         }
@@ -177,6 +204,8 @@ namespace Nxdb
                 return DbNode != null ? DbNode.pre : -1;
             }
         }
+
+        public abstract XmlNodeType NodeType { get; }
 
         #endregion
 
@@ -345,7 +374,7 @@ namespace Nxdb
                 ANode parent = ANode.parent();
                 if (parent != null)
                 {
-                    return (ContainerNode)GetNode(parent, Database);
+                    return (ContainerNode)Get(parent, Database);
                 }
                 return null;
             }
@@ -433,7 +462,8 @@ namespace Nxdb
 
         /// <summary>
         /// Gets or sets the fully-qualified name of this node for elements, attributes,
-        /// and processing instructions. Returns an empty string for all others.
+        /// and processing instructions. For documents, this returns the document name.
+        /// Returns an empty string for all others.
         /// </summary>
         public virtual string Name
         {
@@ -574,7 +604,7 @@ namespace Nxdb
             {
                 return _database.Equals(other._database) && _id == other._id;
             }
-            return ANode.Equals(ANode);
+            return ANode.id == other.ANode.id;
         }
 
         /// <summary>
@@ -606,7 +636,7 @@ namespace Nxdb
             }
             else
             {
-                result = 37 * ANode.GetHashCode();
+                result = 37 * ANode.id;
             }
             return result;
         }
