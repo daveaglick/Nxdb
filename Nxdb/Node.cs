@@ -292,7 +292,7 @@ namespace Nxdb
             {
                 ANode node = iter.next();
                 if (node == null) yield break;
-                yield return node;
+                yield return node.copy();
             }
         }
 
@@ -425,7 +425,7 @@ namespace Nxdb
             Check(true);
             using (new Update())
             {
-                Update.Add(new DeleteNode(DbNode.pre, Database.Data, null));
+                Update.Add(new Delete(null, DbNode));
             }
             Invalidate();
         }
@@ -450,7 +450,7 @@ namespace Nxdb
                 Check(true);
                 using (new Update())
                 {
-                    Update.Add(new ReplaceValue(DbNode.pre, Database.Data, null, value.Token()));
+                    Update.Add(new Replace(null, DbNode, new Atm(value.Token()), true));
                 }
             }
         }
@@ -488,7 +488,7 @@ namespace Nxdb
                 Check(true);
                 using (new Update())
                 {
-                    Update.Add(new RenameNode(_dbNode.pre, _database.Data, null, new QNm(value.Token())));
+                    Update.Add(new Rename(null, DbNode, new QNm(value.Token())));
                 }
             }
         }

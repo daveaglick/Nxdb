@@ -5,6 +5,7 @@ using System.Text;
 using System.Xml;
 using org.basex.query.item;
 using org.basex.query.iter;
+using org.basex.query.up.expr;
 using org.basex.query.up.primitives;
 
 namespace Nxdb
@@ -52,7 +53,7 @@ namespace Nxdb
             {
                 using (new Update())
                 {
-                    Update.Add(new InsertBefore(DbNode.pre, Database.Data, null, nodeCache));
+                    Update.Add(new Insert(null, nodeCache.value(), false, false, true, false, DbNode));
                 }
             }
         }
@@ -91,7 +92,7 @@ namespace Nxdb
             {
                 using (new Update())
                 {
-                    Update.Add(new InsertAfter(DbNode.pre, Database.Data, null, nodeCache));
+                    Update.Add(new Insert(null, nodeCache.value(), false, false, false, true, DbNode));
                 }
             }
         }

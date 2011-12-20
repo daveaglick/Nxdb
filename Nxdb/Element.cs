@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using org.basex.data;
 using org.basex.query.item;
+using org.basex.query.up.expr;
 using org.basex.query.up.primitives;
 
 namespace Nxdb
@@ -70,10 +71,8 @@ namespace Nxdb
             Check(true);
             using (new Update())
             {
-                foreach (DBNode node in EnumerateANodes(ANode.attributes()).Cast<DBNode>())
-                {
-                    Update.Add(new DeleteNode(node.pre, Database.Data, null));
-                }
+                ANode[] nodes = EnumerateANodes(ANode.attributes()).ToArray();
+                Update.Add(new Delete(null, Seq.get(nodes, nodes.Length)));
             }
         }
 
@@ -93,7 +92,7 @@ namespace Nxdb
             {
                 using (new Update())
                 {
-                    Update.Add(new DeleteNode(node.pre, Database.Data, null));
+                    Update.Add(new Delete(null, node));
                 }
             }
         }
@@ -114,7 +113,7 @@ namespace Nxdb
             {
                 using (new Update())
                 {
-                    Update.Add(new InsertAttribute(DbNode.pre, Database.Data, null, Helper.GetNodeCache(attr)));
+                    Update.Add(new Insert(null, attr, false, false, false, false, DbNode));
                 }
             }
             else if(FNode != null)

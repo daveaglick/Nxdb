@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using org.basex.data;
 using org.basex.query.item;
+using org.basex.query.up.expr;
 using org.basex.query.up.primitives;
 
 namespace Nxdb
@@ -49,7 +50,7 @@ namespace Nxdb
             }
             set
             {
-                // Same as Node.Value.set (but have to copy here because ContainerNode overrides it and you can't call a base-base method)
+                //Need to use the update primitive (as opposed to the expression) because documents can't be renamed through the expression
                 if (value == null) throw new ArgumentNullException("value");
                 Check(true);
                 using (new Update())

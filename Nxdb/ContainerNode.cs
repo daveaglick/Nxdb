@@ -29,10 +29,8 @@ namespace Nxdb
             Check(true);
             using (new Update())
             {
-                foreach (DBNode node in EnumerateANodes(ANode.children()).Cast<DBNode>())
-                {
-                    Update.Add(new DeleteNode(node.pre, Database.Data, null));
-                }
+                ANode[] nodes = EnumerateANodes(ANode.children()).ToArray();
+                Update.Add(new Delete(null, Seq.get(nodes, nodes.Length)));
             }
         }
 
@@ -70,7 +68,7 @@ namespace Nxdb
             {
                 using (new Update())
                 {
-                    Update.Add(new InsertInto(DbNode.pre, Database.Data, null, nodeCache, true));
+                    Update.Add(new Insert(null, nodeCache.value(), false, true, false, false, DbNode));
                 }
             }
         }
@@ -109,7 +107,7 @@ namespace Nxdb
             {
                 using (new Update())
                 {
-                    Update.Add(new InsertIntoFirst(DbNode.pre, Database.Data, null, nodeCache));
+                    Update.Add(new Insert(null, nodeCache.value(), true, false, false, false, DbNode));
                 }
             }
         }
@@ -266,14 +264,9 @@ namespace Nxdb
             {
                 using (new Update())
                 {
-                    // Remove all child elements
-                    foreach (DBNode node in EnumerateANodes(ANode.children()).OfType<DBNode>())
-                    {
-                        Update.Add(new DeleteNode(node.pre, Database.Data, null));
-                    }
-
-                    // Append the new content
-                    Update.Add(new InsertInto(DbNode.pre, Database.Data, null, nodeCache, true));
+                    ANode[] nodes = EnumerateANodes(ANode.children()).ToArray();
+                    Update.Add(new Delete(null, Seq.get(nodes, nodes.Length)));
+                    Update.Add(new Insert(null, nodeCache.value(), false, true, false, false, DbNode));
                 }
                 
             }

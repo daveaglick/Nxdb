@@ -116,12 +116,12 @@ namespace Nxdb
 
         public Database(string name)
         {
-
             //This runs some one-time initialization
             //Useful because several Java classes use reflection on their first construction
             //which hurts performance when the first construction is done during an operation
             if (!_initialized)
             {
+                Context context = Context;
                 new QueryContext(Context);
                 new FElem(new QNm("init".Token()));
                 _initialized = true;
