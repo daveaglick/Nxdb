@@ -179,7 +179,7 @@
     </Compile>
     <Compile Include="Text.cs" />
     <Compile Include="TreeNode.cs" />
-    <Compile Include="UpdateContext.cs" />
+    <Compile Include="Update.cs" />
     <Compile Include="Io\XmlWriterSerializer.cs">
       <SubType>Code</SubType>
     </Compile>

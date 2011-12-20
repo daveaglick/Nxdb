@@ -24,7 +24,7 @@ namespace Nxdb.Io
         {
             while (_textNodes.MoveNext() && _textNodes.Current != null)
             {
-                _buffer.Append(_textNodes.Current.atom().Token());
+                _buffer.Append(_textNodes.Current.@string().Token());
                 return true;
             }
             return false;

@@ -8,6 +8,7 @@ using System.Xml;
 using System.Xml.Linq;
 using org.basex.query.item;
 using org.basex.query.iter;
+using org.basex.query.up.expr;
 using org.basex.query.up.primitives;
 
 namespace Nxdb
@@ -39,7 +40,7 @@ namespace Nxdb
             _dbNode = aNode as DBNode;
             if (aNode == null) throw new ArgumentNullException("aNode");
             if (_dbNode != null && database == null) throw new ArgumentNullException("database");
-            if (ANode.kind(aNode.ndType()) != kind) throw new ArgumentException("Incorrect node type");
+            if (aNode.kind() != kind) throw new ArgumentException("Incorrect node type");
             _aNode = aNode;
             _fNode = aNode as FNode;
             _kind = kind;
@@ -63,7 +64,7 @@ namespace Nxdb
             }
 
             // If not, create the appropriate non-database node class
-            NodeType nodeType = aNode.ndType();
+            NodeType nodeType = aNode.nodeType();
             if (nodeType == org.basex.query.item.NodeType.ELM)
             {
                 return new Element(aNode, null);
@@ -110,7 +111,7 @@ namespace Nxdb
             }
 
             // Create the appropriate database node class
-            NodeType nodeType = dbNode.ndType();
+            NodeType nodeType = dbNode.nodeType();
             if (nodeType == org.basex.query.item.NodeType.ELM)
             {
                 return new Element(dbNode, database);
@@ -333,7 +334,7 @@ namespace Nxdb
         /// </summary>
         public IEnumerable<TreeNode> FollowingSiblings
         {
-            get { return EnumerateNodes<TreeNode>(ANode.follSibl()); }
+            get { return EnumerateNodes<TreeNode>(ANode.followingSibling()); }
         }
 
         /// <summary>
@@ -341,7 +342,7 @@ namespace Nxdb
         /// </summary>
         public IEnumerable<TreeNode> PrecedingSiblings
         {
-            get { return EnumerateNodes<TreeNode>(ANode.precSibl()); }
+            get { return EnumerateNodes<TreeNode>(ANode.precedingSibling()); }
         }
         
         /// <summary>
@@ -349,7 +350,7 @@ namespace Nxdb
         /// </summary>
         public IEnumerable<TreeNode> Following
         {
-            get { return EnumerateNodes<TreeNode>(ANode.foll()); }
+            get { return EnumerateNodes<TreeNode>(ANode.following()); }
         }
 
         /// <summary>
@@ -357,7 +358,7 @@ namespace Nxdb
         /// </summary>
         public IEnumerable<TreeNode> Preceding
         {
-            get { return EnumerateNodes<TreeNode>(ANode.prec()); }
+            get { return EnumerateNodes<TreeNode>(ANode.preceding()); }
         }
 
         /// <summary>
@@ -385,7 +386,7 @@ namespace Nxdb
         /// </summary>
         public IEnumerable<ContainerNode> Ancestors
         {
-            get { return EnumerateNodes<ContainerNode>(ANode.anc()); }
+            get { return EnumerateNodes<ContainerNode>(ANode.ancestor()); }
         }
 
         /// <summary>
@@ -393,7 +394,7 @@ namespace Nxdb
         /// </summary>
         public IEnumerable<TreeNode> AncestorsOrSelf
         {
-            get { return EnumerateNodes<TreeNode>(ANode.ancOrSelf()); }
+            get { return EnumerateNodes<TreeNode>(ANode.ancestorOrSelf()); }
         }
 
         /// <summary>
@@ -409,28 +410,22 @@ namespace Nxdb
         /// </summary>
         public IEnumerable<TreeNode> DescendantsOrSelf
         {
-            get { return EnumerateNodes<TreeNode>(ANode.descOrSelf()); }
+            get { return EnumerateNodes<TreeNode>(ANode.descendantOrSelf()); }
         }
 
         #endregion
 
         #region Content
-
-        // Helper to add an update primitive to the open update context with the current database context
-        protected void Update(UpdatePrimitive update)
-        {
-            UpdateContext.AddUpdate(update, _database.Context);
-        }
-
+        
         /// <summary>
         /// Removes this node from the database and invalidates it.
         /// </summary>
         public void Remove()
         {
             Check(true);
-            using (new UpdateContext())
+            using (new Update())
             {
-                Update(new DeleteNode(DbNode.pre, Database.Data, null));
+                Update.Add(new DeleteNode(DbNode.pre, Database.Data, null));
             }
             Invalidate();
         }
@@ -447,15 +442,15 @@ namespace Nxdb
             get
             {
                 Check();
-                return ANode.atom().Token();
+                return ANode.@string().Token();
             }
             set
             {
                 if (value == null) throw new ArgumentNullException("value");
                 Check(true);
-                using (new UpdateContext())
+                using (new Update())
                 {
-                    Update(new ReplaceValue(DbNode.pre, Database.Data, null, value.Token()));
+                    Update.Add(new ReplaceValue(DbNode.pre, Database.Data, null, value.Token()));
                 }
             }
         }
@@ -485,15 +480,15 @@ namespace Nxdb
             get
             {
                 Check();
-                return ANode.nname().Token();
+                return ANode.name().Token();
             }
             set
             {
                 if (value == null) throw new ArgumentNullException("value");
                 Check(true);
-                using (new UpdateContext())
+                using (new Update())
                 {
-                    Update(new RenameNode(_dbNode.pre, _database.Data, null, new QNm(value.Token())));
+                    Update.Add(new RenameNode(_dbNode.pre, _database.Data, null, new QNm(value.Token())));
                 }
             }
         }
@@ -517,7 +512,7 @@ namespace Nxdb
             get
             {
                 Check();
-                return ANode.qname().ln().Token();
+                return ANode.qname().local().Token();
             }
         }
 
@@ -540,7 +535,7 @@ namespace Nxdb
             get
             {
                 Check();
-                return ANode.qname().pref().Token();
+                return ANode.qname().prefix().Token();
             }
         }
 
@@ -563,7 +558,7 @@ namespace Nxdb
             get
             {
                 Check();
-                return ANode.qname().uri().atom().Token();
+                return ANode.qname().uri().Token();
             }
         }
 

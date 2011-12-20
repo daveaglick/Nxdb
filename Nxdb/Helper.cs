@@ -82,21 +82,21 @@ namespace Nxdb
             return nodes != null ? new NodeCache(nodes.ToArray(), nodes.Count) : null;
         }
 
-        internal static IList<ANode> GetNodes(XmlReader reader)
+        internal static ANode[] GetNodes(IEnumerable<Node> nodes)
+        {
+            return nodes.Select(n => n.ANode).ToArray();
+        }
+
+        internal static ANode[] GetNodes(XmlReader reader)
         {
             List<ANode> nodes = new List<ANode>();
-            Stack<FNode> parents = new Stack<FNode>();
+            Stack<FElem> parents = new Stack<FElem>();
             try
             {
                 while (reader.Read())
                 {
                     switch (reader.NodeType)
                     {
-                        case XmlNodeType.Document:
-                            FDoc doc = new FDoc(org.basex.util.Token.EMPTY);
-                            AddNode(doc, nodes, parents);
-                            parents.Push(doc);
-                            break;
                         case XmlNodeType.Element:
                             //Create the element and add it to the parent or list
                             FElem elem = new FElem(new QNm(reader.Name.Token()));
@@ -135,7 +135,7 @@ namespace Nxdb
                             break;
                     }
                 }
-                return nodes;
+                return nodes.ToArray();
             }
             catch (Exception)
             {
@@ -144,7 +144,7 @@ namespace Nxdb
         }
 
         //Helper method for the GetNodes method
-        private static void AddNode(FNode node, List<ANode> nodes, Stack<FNode> parents)
+        private static void AddNode(FNode node, List<ANode> nodes, Stack<FElem> parents)
         {
             if (parents.Count > 0)
             {

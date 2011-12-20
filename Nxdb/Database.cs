@@ -19,6 +19,7 @@ using org.basex.core.cmd;
 using org.basex.data;
 using org.basex.io;
 using org.basex.query;
+using org.basex.query.func;
 using org.basex.query.item;
 using org.basex.query.iter;
 using org.basex.query.up.primitives;
@@ -60,71 +61,97 @@ namespace Nxdb
             Prop.HOME = Path.Combine(_home, "pref");
         }
 
-        public static bool Drop(string name)
-        {
-            if (name == null) throw new ArgumentNullException("name");
-            if (name == String.Empty) throw new ArgumentException("name");
+        //Use one static Context object - all opened databases will get added ("pinned") to the context
+        //The primary Context.data() reference should remain null
+        private static Context _context = null;
 
-            return Run(new DropDB(name), GetContext());
-        }
-
-        private static Context GetContext()
+        internal static Context Context
         {
-            // Set a default home if one hasn't been provided yet
-            if (_home == null)
+            get
             {
-                SetHome(Path.Combine(Environment.CurrentDirectory, "Nxdb"));
+                if (_context == null)
+                {
+                    // Set a default home if one hasn't been provided yet
+                    if (_home == null)
+                    {
+                        SetHome(Path.Combine(Environment.CurrentDirectory, "Nxdb"));
+                    }
+
+                    // Now we can create the context since the path for preferences has been set
+                    _context = new Context();
+
+                    // Now set the database path
+                    _context.mprop.set(MainProp.DBPATH, _home);
+                }
+                return _context;
             }
-
-            // Now we can create the context since the path for preferences has been set
-            Context context = new Context();
-
-            // Now set the database path
-            context.mprop.set(MainProp.DBPATH, _home);
-
-            return context;
         }
 
         private static bool _initialized = false;
-
-        //This runs some one-time initialization
-        //Useful because several Java classes use reflection on their first construction
-        //which hurts performance when the first construction is done during an operation
-        private static void Initialize(Context context)
-        {
-            if (!_initialized)
-            {
-                new QueryContext(context);
-                new FElem(new QNm("init".Token()));
-                _initialized = true;
-            }
-        }
-
-        private readonly Context _context;
-
-        public Database(string name)
+        
+        public static void Drop(string name)
         {
             if (name == null) throw new ArgumentNullException("name");
             if (name == String.Empty) throw new ArgumentException("name");
-            
-            _context = GetContext();
 
-            Initialize(_context);
-
-            // Open/create the requested database
-            if(!Run(new Open(name)))
+            //Only drop if not currently pinned
+            if (Context.pinned(name))
             {
-                // Unable to open it, try creating
-                if (!Run(new CreateDB(name)))
+                throw new ArgumentException("Database is currently open, please dispose all references and try again.");
+            }
+
+            //Attempt to drop
+            if(!DropDB.drop(name, Context.mprop))
+            {
+                throw new Exception("Could not drop database.");
+            }
+        }
+
+        private Data _data;
+        
+        internal Data Data
+        {
+            get { return _data; }
+        }
+
+        public Database(string name)
+        {
+
+            //This runs some one-time initialization
+            //Useful because several Java classes use reflection on their first construction
+            //which hurts performance when the first construction is done during an operation
+            if (!_initialized)
+            {
+                new QueryContext(Context);
+                new FElem(new QNm("init".Token()));
+                _initialized = true;
+            }
+
+            if (name == null) throw new ArgumentNullException("name");
+            if (name == String.Empty) throw new ArgumentException("name");
+
+            //Try to open or create the database
+            try
+            {
+                _data = Open.open(name, Context);
+            }
+            catch (Exception)
+            {
+                try
                 {
-                    throw new ArgumentException();
+                    _data = CreateDB.create(name, Parser.emptyParser(), Context);
+                }
+                catch(Exception ex)
+                {
+                    throw new ArgumentException("Could not create database.", ex);
                 }
             }
         }
 
         public void Dispose()
         {
-            Run(new Close());
+            Close.close(Data, Context);
+            _data = null;
         }
 
         /// <summary>
@@ -136,19 +163,15 @@ namespace Nxdb
         /// </returns>
         public bool Equals(Database other)
         {
-            if(other == null)
-            {
-                return false;
-            }
-            return Data.Equals(other.Data);
+            return other != null && Data.Equals(other.Data);
         }
 
         /// <summary>
-        /// Determines whether the specified <see cref="System.Object"/> is equal to this instance.
+        /// Determines whether the specified <see cref="object"/> is equal to this instance.
         /// </summary>
-        /// <param name="obj">The <see cref="System.Object"/> to compare with this instance.</param>
+        /// <param name="obj">The <see cref="object"/> to compare with this instance.</param>
         /// <returns>
-        ///   <c>true</c> if the specified <see cref="System.Object"/> is equal to this instance; otherwise, <c>false</c>.
+        ///   <c>true</c> if the specified <see cref="object"/> is equal to this instance; otherwise, <c>false</c>.
         /// </returns>
         /// <exception cref="T:System.NullReferenceException">
         /// The <paramref name="obj"/> parameter is null.
@@ -169,162 +192,140 @@ namespace Nxdb
         {
             return Data.GetHashCode();
         }
-
-        // BaseX commands can be run in one of two ways:
-        // 1) An instance of the command class can be created and passed to the following Run() method
-        // 2) When the above won't work, a Func or Action can be used to wrap a command and run it
-
-        internal static bool Run(Command command, Context context)
-        {
-            bool ret = command.run(context);
-            string info = command.info();
-            Debug.WriteLine(info);  //TODO: Replace this with some kind of logging mechanism
-            return ret;
-        }
-
-        internal static bool Run(Func<Context, string> func, Context context)
-        {
-            return Run(new FuncCommand(func), context);
-        }
-
-        internal static bool Run(Action<Context> action, Context context)
-        {
-            return Run(new FuncCommand(action), context);
-        }
-
-        internal bool Run(Command command)
-        {
-            return Run(command, _context);
-        }
-
-        internal bool Run(Func<Context, string> func)
-        {
-            return Run(new FuncCommand(func));
-        }
-
-        internal bool Run(Action<Context> action)
-        {
-            return Run(new FuncCommand(action));
-        }
-
-        // The following perform the same operation as their equivalent BaseX command:
-        // http://docs.basex.org/wiki/Commands
         
-        public void Delete(string name)
+        //Many of the following are ported from FNDb.java to eliminate the overhead of the XQuery function evaluation
+
+        public void Delete(string path)
         {
-            //TODO: Consider switching to the XQuery DBDelete update primitive (don't forget to check FNDb.java for full logic of function)
-            Run(new Delete(name));
+            IntList docs = Data.docs(path);
+            using(new Update())
+            {
+                for (int i = 0, s = docs.size(); i < s; i++)
+                {
+                    Update.Add(new DeleteNode(docs.get(i), Data, null));
+                }
+            }
         }
 
-        public void Rename(string name, string newName)
+        public void Rename(string path, string newName)
         {
-            //TODO: Consider switching to the XQuery DBDelete update primitive (don't forget to check FNDb.java for full logic of function)
-            Run(new Rename(name, newName));
+            IntList docs = Data.docs(path);
+            using (new Update())
+            {
+                for (int i = 0, s = docs.size(); i < s; i++)
+                {
+                    int pre = docs.get(i);
+                    string target = org.basex.core.cmd.Rename.target(Data, pre, path, newName);
+                    if (!String.IsNullOrEmpty(target))
+                    {
+                        Update.Add(new ReplaceValue(pre, Data, null, target.Token()));
+                    }
+                }
+            }
         }
 
         public void Optimize()
         {
-            //TODO: Consider switching to the XQuery DBOptimize update primitive (don't forget to check FNDb.java for full logic of function)
-
-            Run(new Optimize());
+            using(new Update())
+            {
+                Update.Add(new DBOptimize(Data, Context, false, null));
+            }
         }
 
         public void OptimizeAll()
         {
-            //TODO: Consider switching to the XQuery DBOptimize update primitive (don't forget to check FNDb.java for full logic of function)
-
-            Run(new OptimizeAll());
+            using (new Update())
+            {
+                Update.Add(new DBOptimize(Data, Context, true, null));
+            }
         }
-
-        // Non-command methods
         
-        public virtual void Add(string name, XmlReader xmlReader)
+        public virtual void Add(string path, XmlReader xmlReader)
         {
             if (xmlReader == null) throw new ArgumentNullException("xmlReader");
-            Add(name, Helper.GetNodeCache(xmlReader));
+            Add(path, Helper.GetNodeCache(xmlReader));
         }
 
-        public virtual void Add(string name, string content)
+        public virtual void Add(string path, string content)
         {
-            Helper.CallWithString(content, name, Add);
+            Helper.CallWithString(content, path, Add);
         }
 
-        public void Add(string name, params Document[] nodes)
-        {
-            if (nodes == null) throw new ArgumentNullException("nodes");
-            Add(name, Helper.GetNodeCache(nodes));
-        }
-
-        public void Add(string name, IEnumerable<Document> nodes)
+        public void Add(string path, params Document[] nodes)
         {
             if (nodes == null) throw new ArgumentNullException("nodes");
-            Add(name, Helper.GetNodeCache(nodes.Cast<Node>()));
+            Add(path, Helper.GetNodeCache(nodes));
         }
 
-        private void Add(string name, NodeCache nodeCache)
+        public void Add(string path, IEnumerable<Document> nodes)
+        {
+            if (nodes == null) throw new ArgumentNullException("nodes");
+            Add(path, Helper.GetNodeCache(nodes.Cast<Node>()));
+        }
+
+        private void Add(string path, NodeCache nodeCache)
         {
             if (nodeCache != null)
             {
-                FDoc doc = new FDoc(nodeCache, name.Token());
-                using (new UpdateContext())
+                FDoc doc = new FDoc(nodeCache, path.Token());
+                using (new Update())
                 {
-                    UpdateContext.AddUpdate(new DBAdd(Data, null, doc, name, Context), Context);
+                    Update.Add(new DBAdd(Data, null, doc, path, Context));
                 }
             }
         }
 
-        public virtual void Replace(string name, XmlReader xmlReader)
+        public virtual void Replace(string path, XmlReader xmlReader)
         {
             if (xmlReader == null) throw new ArgumentNullException("xmlReader");
-            Replace(name, Helper.GetNodeCache(xmlReader));
+            Replace(path, Helper.GetNodeCache(xmlReader));
         }
 
-        public virtual void Replace(string name, string content)
+        public virtual void Replace(string path, string content)
         {
-            Helper.CallWithString(content, name, Replace);
+            Helper.CallWithString(content, path, Replace);
         }
 
-        public void Replace(string name, params Document[] nodes)
-        {
-            if (nodes == null) throw new ArgumentNullException("nodes");
-            Replace(name, Helper.GetNodeCache(nodes));
-        }
-
-        public void Replace(string name, IEnumerable<Document> nodes)
+        public void Replace(string path, params Document[] nodes)
         {
             if (nodes == null) throw new ArgumentNullException("nodes");
-            Replace(name, Helper.GetNodeCache(nodes.Cast<Node>()));
+            Replace(path, Helper.GetNodeCache(nodes));
         }
 
-        private void Replace(string name, NodeCache nodeCache)
+        public void Replace(string path, IEnumerable<Document> nodes)
         {
-            using(new UpdateContext())
+            if (nodes == null) throw new ArgumentNullException("nodes");
+            Replace(path, Helper.GetNodeCache(nodes.Cast<Node>()));
+        }
+
+        private void Replace(string path, NodeCache nodeCache)
+        {
+            using (new Update())
             {
-                //This is partially ported from FNDb.replace()
-                int pre = Data.doc(name);
-                if(pre != -1)
+                int pre = Data.doc(path);
+                if (pre != -1)
                 {
-                    if (Data.docs(name).size() != 1) throw new ArgumentException("Simple document expected as replacement target");
-                    UpdateContext.AddUpdate(new DeleteNode(pre, Data, null), Context);  
-                    Add(name, nodeCache);
+                    if (Data.docs(path).size() != 1) throw new ArgumentException("Simple document expected as replacement target");
+                    Update.Add(new DeleteNode(pre, Data, null));
+                    Add(path, nodeCache);
                 }
             }
         }
         
-        internal Context Context
-        {
-            get { return _context; }
-        }
-
-        internal Data Data
-        {
-            get { return _context.data(); }
-        }
-
         public Document GetDocument(string name)
         {
             int pre = Data.doc(name);
             return pre == -1 ? null : (Document)Node.Get(pre, this);
+        }
+
+        public IEnumerable<Document> GetDocuments(string path)
+        {
+            IntList docs = Data.docs(path);
+            for (int i = 0, s = docs.size(); i < s; i++)
+            {
+                int pre = docs.get(i);
+                yield return (Document)Node.Get(pre, this);
+            }
         }
 
         public IEnumerable<Document> Documents

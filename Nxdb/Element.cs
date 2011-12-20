@@ -57,7 +57,7 @@ namespace Nxdb
             if (name == String.Empty) throw new ArgumentException("name");
             Check();
             ANode node = AttributeANode(name);
-            return node == null ? String.Empty : node.atom().Token();
+            return node == null ? String.Empty : node.@string().Token();
         }
 
         /// <summary>
@@ -68,11 +68,11 @@ namespace Nxdb
         public void RemoveAllAttributes()
         {
             Check(true);
-            using (new UpdateContext())
+            using (new Update())
             {
                 foreach (DBNode node in EnumerateANodes(ANode.attributes()).Cast<DBNode>())
                 {
-                    Update(new DeleteNode(node.pre, Database.Data, null));
+                    Update.Add(new DeleteNode(node.pre, Database.Data, null));
                 }
             }
         }
@@ -91,9 +91,9 @@ namespace Nxdb
             DBNode node = AttributeANode(name) as DBNode;
             if (node != null)
             {
-                using (new UpdateContext())
+                using (new Update())
                 {
-                    Update(new DeleteNode(node.pre, Database.Data, null));
+                    Update.Add(new DeleteNode(node.pre, Database.Data, null));
                 }
             }
         }
@@ -112,14 +112,14 @@ namespace Nxdb
             FAttr attr = new FAttr(new QNm(name.Token()), value.Token());
             if(DbNode != null)
             {
-                using (new UpdateContext())
+                using (new Update())
                 {
-                    Update(new InsertAttribute(DbNode.pre, Database.Data, null, Helper.GetNodeCache(attr)));
+                    Update.Add(new InsertAttribute(DbNode.pre, Database.Data, null, Helper.GetNodeCache(attr)));
                 }
             }
             else if(FNode != null)
             {
-                FNode.add(attr);
+                ((FElem)FNode).add(attr);
             }
         }
 
@@ -129,7 +129,7 @@ namespace Nxdb
 
         public override void RemoveAll()
         {
-            using(new UpdateContext())
+            using(new Update())
             {
                 RemoveAllAttributes();
                 base.RemoveAll();

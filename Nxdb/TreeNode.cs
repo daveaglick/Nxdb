@@ -50,9 +50,9 @@ namespace Nxdb
             Check(true);
             if (nodeCache != null)
             {
-                using (new UpdateContext())
+                using (new Update())
                 {
-                    Update(new InsertBefore(DbNode.pre, Database.Data, null, nodeCache));
+                    Update.Add(new InsertBefore(DbNode.pre, Database.Data, null, nodeCache));
                 }
             }
         }
@@ -89,9 +89,9 @@ namespace Nxdb
             Check(true);
             if (nodeCache != null)
             {
-                using (new UpdateContext())
+                using (new Update())
                 {
-                    Update(new InsertAfter(DbNode.pre, Database.Data, null, nodeCache));
+                    Update.Add(new InsertAfter(DbNode.pre, Database.Data, null, nodeCache));
                 }
             }
         }

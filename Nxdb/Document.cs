@@ -52,9 +52,9 @@ namespace Nxdb
                 // Same as Node.Value.set (but have to copy here because ContainerNode overrides it and you can't call a base-base method)
                 if (value == null) throw new ArgumentNullException("value");
                 Check(true);
-                using (new UpdateContext())
+                using (new Update())
                 {
-                    Update(new ReplaceValue(DbNode.pre, Database.Data, null, value.Token()));
+                    Update.Add(new ReplaceValue(DbNode.pre, Database.Data, null, value.Token()));
                 }
             }
         }

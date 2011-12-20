@@ -62,7 +62,7 @@ namespace NxdbTests
         public static Documents Populate(Database database, params string[] names)
         {
             Documents documents = new Documents(new List<string>(names), new List<string>());
-            using (new UpdateContext())
+            using (new Update())
             {
                 foreach (string name in names)
                 {

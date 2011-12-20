@@ -19,7 +19,7 @@ namespace NxdbTests
             {
                 Common.Populate(database, "A", "B", "C", "D");
             }
-            Assert.IsTrue(Database.Drop(Common.DatabaseName));
+            Database.Drop(Common.DatabaseName);
             using (Database database = new Database(Common.DatabaseName))
             {
                 CollectionAssert.AreEqual(new []{Common.DatabaseName}, database.DocumentNames); //Initially has an empty document with the database name

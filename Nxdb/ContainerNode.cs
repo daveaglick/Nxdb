@@ -7,6 +7,7 @@ using System.Xml;
 using Nxdb.Io;
 using org.basex.query.item;
 using org.basex.query.iter;
+using org.basex.query.up.expr;
 using org.basex.query.up.primitives;
 
 namespace Nxdb
@@ -26,11 +27,11 @@ namespace Nxdb
         public virtual void RemoveAll()
         {
             Check(true);
-            using (new UpdateContext())
+            using (new Update())
             {
                 foreach (DBNode node in EnumerateANodes(ANode.children()).Cast<DBNode>())
                 {
-                    Update(new DeleteNode(node.pre, Database.Data, null));
+                    Update.Add(new DeleteNode(node.pre, Database.Data, null));
                 }
             }
         }
@@ -67,9 +68,9 @@ namespace Nxdb
             Check(true);
             if (nodeCache != null)
             {
-                using (new UpdateContext())
+                using (new Update())
                 {
-                    Update(new InsertInto(DbNode.pre, Database.Data, null, nodeCache, true));
+                    Update.Add(new InsertInto(DbNode.pre, Database.Data, null, nodeCache, true));
                 }
             }
         }
@@ -106,9 +107,9 @@ namespace Nxdb
             Check(true);
             if (nodeCache != null)
             {
-                using (new UpdateContext())
+                using (new Update())
                 {
-                    Update(new InsertIntoFirst(DbNode.pre, Database.Data, null, nodeCache));
+                    Update.Add(new InsertIntoFirst(DbNode.pre, Database.Data, null, nodeCache));
                 }
             }
         }
@@ -228,7 +229,7 @@ namespace Nxdb
             {
                 Check();
                 return new InnerTextReader(EnumerateANodes(ANode.descendant())
-                    .Where(n => n.ndType() == org.basex.query.item.NodeType.TXT).GetEnumerator());
+                    .Where(n => n.nodeType() == org.basex.query.item.NodeType.TXT).GetEnumerator());
             }
         }
 
@@ -257,24 +258,26 @@ namespace Nxdb
             ReplaceChildren(Helper.GetNodeCache(new FTxt(textReader.ReadToEnd().Token())));
         }
 
-        // Used by ReadInnerXml(), ReadInnerText(), and Value.set
+        // Used by ReadInnerXml(), ReadInnerText(), and set_Value()
         // Deletes all the child nodes and adds the nodeCache nodes, does nothing if nodeCache is null
         private void ReplaceChildren(NodeCache nodeCache)
         {
             if (nodeCache != null)
             {
-                using (new UpdateContext())
+                using (new Update())
                 {
                     // Remove all child elements
                     foreach (DBNode node in EnumerateANodes(ANode.children()).OfType<DBNode>())
                     {
-                        Update(new DeleteNode(node.pre, Database.Data, null));
+                        Update.Add(new DeleteNode(node.pre, Database.Data, null));
                     }
 
                     // Append the new content
-                    Update(new InsertInto(DbNode.pre, Database.Data, null, nodeCache, true));
+                    Update.Add(new InsertInto(DbNode.pre, Database.Data, null, nodeCache, true));
                 }
+                
             }
+                    
         }
 
         public override string Value
