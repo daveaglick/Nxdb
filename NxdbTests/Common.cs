@@ -56,6 +56,11 @@ namespace NxdbTests
              * </X>
              */
 
+            int slash = name.LastIndexOf('/');
+            if (slash != -1)
+            {
+                name = name.Substring(slash+1);
+            }
             return String.Format("<{0}><{0}A a='{0}aa'>{0}a</{0}A><{0}B d='{0}bd' e='{0}be'><{0}BA>{0}ba</{0}BA><{0}BB a='{0}bba' b='{0}bbb' c='{0}bbc'>{0}bb</{0}BB></{0}B></{0}>", name);
         }
 

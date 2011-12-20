@@ -41,6 +41,34 @@ namespace NxdbTests
         }
 
         [Test]
+        public void Paths()
+        {
+            Common.Reset();
+            using (Database database = new Database(Common.DatabaseName))
+            {
+                Documents docs = Common.Populate(database, "A", "B", "path/A", "path/B", "path/C", "path2/D", "path2/E");
+
+                docs.Verify(database);
+
+                //Delete some documents on a specific path
+                database.Delete("path");
+                docs.Names.RemoveAt(2);
+                docs.Names.RemoveAt(2);
+                docs.Names.RemoveAt(2);
+                docs.Content.RemoveAt(2);
+                docs.Content.RemoveAt(2);
+                docs.Content.RemoveAt(2);
+                docs.Verify(database);
+
+                //Try a global rename
+                database.Rename("path2", "path3");
+                docs.Names[2] = "path3/D";
+                docs.Names[3] = "path3/E";
+                docs.Verify(database);
+            }
+        }
+
+        [Test]
         public void Delete()
         {
             Common.Reset();
