@@ -53,7 +53,7 @@ namespace Nxdb
 
                 //Optimize database(s)
                 //TODO: Make this an option or a flag
-                bool optimize = false;
+                bool optimize = true;
                 if (_queryContext.updates.mod != null && optimize)
                 {
                     //Loop through each database used and optimize
