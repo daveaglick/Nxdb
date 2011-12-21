@@ -1,12 +1,15 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Xml;
+using com.sun.org.apache.xerces.@internal.jaxp.datatype;
 using java.math;
 using javax.xml.datatype;
 using javax.xml.@namespace;
+using org.basex.query.func;
 using org.basex.query.item;
 using org.basex.query.iter;
 using org.basex.util;
@@ -16,17 +19,6 @@ namespace Nxdb
     //Extension methods and other helper functionality
     public static class Helper
     {
-        //A couple extension methods to help with the tokenizing of strings
-        internal static string Token(this byte[] bytes)
-        {
-            return org.basex.util.Token.@string(bytes);
-        }
-
-        internal static byte[] Token(this string str)
-        {
-            return org.basex.util.Token.token(str);
-        }
-
         //Static XmlReader and XmlWriter settings
         //Most permisive possible, don't want the writer/reader doing any post-processing
         private static XmlWriterSettings _writerSettings;
@@ -155,54 +147,7 @@ namespace Nxdb
                 nodes.Add(node);
             }
         }
-
-        // This is used to get an atomic type object or a node object from a database item
-        internal static object GetObjectForItem(Item item)
-        {
-            // Check for a null item
-            if (item == null) return null;
-
-            // Is it a node?
-            ANode node = item as ANode;
-            if (node != null)
-            {
-                return Node.Get(node);
-            }
-            
-            // Get the Java object
-            object obj = item.toJava();
-
-            // Clean up non-.NET values
-            if(obj is BigInteger)
-            {
-                BigInteger bigInteger = (BigInteger) obj;
-                obj = Convert.ToDecimal(bigInteger.toString());
-            }
-            else if(obj is BigDecimal)
-            {
-                BigDecimal bigDecimal = (BigDecimal) obj;
-                obj = Convert.ToDecimal(bigDecimal.toString());
-            }
-            else if (obj is XMLGregorianCalendar)
-            {
-                XMLGregorianCalendar date = (XMLGregorianCalendar) obj;
-                date.normalize();   // Normalizes the date to UTC
-                obj = XmlConvert.ToDateTime(date.toXMLFormat(), XmlDateTimeSerializationMode.Utc);
-            }
-            else if(obj is Duration)
-            {
-                Duration duration = (Duration) obj;
-                obj = XmlConvert.ToTimeSpan(duration.toString());
-            }
-            else if(obj is QName)
-            {
-                QName qname = (QName) obj;
-                obj = new XmlQualifiedName(qname.getLocalPart(), qname.getNamespaceURI());
-            }
-
-            return obj;
-        }
-
+        
         // Helper to execute a method that takes an XmlReader given a string
         internal static void CallWithString(string content, Action<XmlReader> action)
         {

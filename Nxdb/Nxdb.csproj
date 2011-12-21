@@ -121,6 +121,7 @@
     <Compile Include="Attribute.cs" />
     <Compile Include="Comment.cs" />
     <Compile Include="ContainerNode.cs" />
+    <Compile Include="ConversionExtensions.cs" />
     <Compile Include="Document.cs" />
     <Compile Include="Element.cs" />
     <Compile Include="Helper.cs" />

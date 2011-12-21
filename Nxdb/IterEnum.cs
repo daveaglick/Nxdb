@@ -47,7 +47,7 @@ namespace Nxdb
             get
             {
                 if (_iter == null) throw new ObjectDisposedException("IterEnum");
-                return Helper.GetObjectForItem(_current);
+                return _current.ToObject();
             }
         }
 
