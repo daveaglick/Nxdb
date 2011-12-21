@@ -15,7 +15,7 @@ namespace Nxdb
     /// </summary>
     public abstract class TreeNode : Node
     {
-        protected TreeNode(ANode aNode, Database database, int kind) : base(aNode, database, kind) { }
+        protected TreeNode(ANode aNode, int kind) : base(aNode, kind) { }
 
         #region Content
 

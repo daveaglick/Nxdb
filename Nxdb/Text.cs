@@ -9,9 +9,9 @@ namespace Nxdb
 {
     public class Text : TreeNode
     {
-        internal Text(ANode aNode, Database database) : base(aNode, database, Data.TEXT) { }
+        internal Text(ANode aNode) : base(aNode, Data.TEXT) { }
 
-        public Text(string text) : base(new FTxt(text.Token()), null, Data.TEXT) { }
+        public Text(string text) : base(new FTxt(text.Token()), Data.TEXT) { }
 
         public override System.Xml.XmlNodeType NodeType
         {

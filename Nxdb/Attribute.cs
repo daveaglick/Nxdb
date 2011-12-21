@@ -10,9 +10,9 @@ namespace Nxdb
 {
     public class Attribute : Node
     {
-        internal Attribute(ANode aNode, Database database) : base(aNode, database, Data.ATTR) { }
+        internal Attribute(ANode aNode) : base(aNode, Data.ATTR) { }
 
-        public Attribute(string name, string value) : base(new FAttr(new QNm(name.Token()), value.Token()), null, Data.ATTR) { }
+        public Attribute(string name, string value) : base(new FAttr(new QNm(name.Token()), value.Token()), Data.ATTR) { }
 
         public override System.Xml.XmlNodeType NodeType
         {

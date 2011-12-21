@@ -11,9 +11,9 @@ namespace Nxdb
 {
     public class Element : ContainerNode
     {
-        internal Element(ANode aNode, Database database) : base(aNode, database, Data.ELEM) { }
+        internal Element(ANode aNode) : base(aNode, Data.ELEM) { }
 
-        public Element(string name) : base(new FElem(new QNm(name.Token())), null, Data.ELEM) { }
+        public Element(string name) : base(new FElem(new QNm(name.Token())), Data.ELEM) { }
 
         public override System.Xml.XmlNodeType NodeType
         {
@@ -41,7 +41,7 @@ namespace Nxdb
             if (name == String.Empty) throw new ArgumentException("name");
             Check();
             ANode node = AttributeANode(name);
-            return node == null ? null : new Attribute(node, Database);
+            return node == null ? null : new Attribute(node);
         }
 
         /// <summary>

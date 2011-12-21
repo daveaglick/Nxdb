@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Xml;
 using System.Xml.Linq;
+using org.basex.data;
 using org.basex.query.item;
 using org.basex.query.iter;
 using org.basex.query.up.expr;
@@ -25,7 +26,6 @@ namespace Nxdb
     /// </summary>
     public abstract class Node : IEquatable<Node>
     {
-        private readonly Database _database = null; // The database this node belongs to or null if not a database node
         private readonly ANode _aNode;  // This should be updated before every use by calling Valid.get
         private readonly DBNode _dbNode; // This should be set if the node is a database node
         private readonly FNode _fNode; // This should be set if the node is a result node
@@ -35,24 +35,22 @@ namespace Nxdb
 
         #region Construction
 
-        protected Node(ANode aNode, Database database, int kind)
+        protected Node(ANode aNode, int kind)
         {
             _dbNode = aNode as DBNode;
             if (aNode == null) throw new ArgumentNullException("aNode");
-            if (_dbNode != null && database == null) throw new ArgumentNullException("database");
             if (aNode.kind() != kind) throw new ArgumentException("Incorrect node type");
             _aNode = aNode;
             _fNode = aNode as FNode;
             _kind = kind;
             if (_dbNode != null)
             {
-                _database = database;
-                _id = database.GetId(_dbNode.pre);
-                _time = database.GetTime();
+                _id = _dbNode.data().id(_dbNode.pre);
+                _time = _dbNode.data().meta.time;
             }
         }
 
-        internal static Node Get(ANode aNode, Database database = null)
+        internal static Node Get(ANode aNode)
         {
             if (aNode == null) throw new ArgumentNullException("aNode");
 
@@ -60,48 +58,47 @@ namespace Nxdb
             DBNode dbNode = aNode as DBNode;
             if (dbNode != null)
             {
-                return Get(dbNode, database);
+                return Get(dbNode);
             }
 
             // If not, create the appropriate non-database node class
             NodeType nodeType = aNode.nodeType();
             if (nodeType == org.basex.query.item.NodeType.ELM)
             {
-                return new Element(aNode, null);
+                return new Element(aNode);
             }
             if (nodeType == org.basex.query.item.NodeType.TXT)
             {
-                return new Text(aNode, null);
+                return new Text(aNode);
             }
             if (nodeType == org.basex.query.item.NodeType.ATT)
             {
-                return new Attribute(aNode, null);
+                return new Attribute(aNode);
             }
             if (nodeType == org.basex.query.item.NodeType.DOC)
             {
-                return new Document(aNode, null);
+                return new Document(aNode);
             }
             if (nodeType == org.basex.query.item.NodeType.COM)
             {
-                return new Comment(aNode, null);
+                return new Comment(aNode);
             }
             if (nodeType == org.basex.query.item.NodeType.PI)
             {
-                return new ProcessingInstruction(aNode, null);
+                return new ProcessingInstruction(aNode);
             }
             throw new ArgumentException("Invalid node type");
         }
 
-        internal static Node Get(int pre, Database database)
+        internal static Node Get(int pre, Data data)
         {
-            if (database == null) throw new ArgumentNullException("database");
+            if (data == null) throw new ArgumentNullException("data");
             if (pre < 0) throw new ArgumentOutOfRangeException("pre");
-            return Get(new DBNode(database.Data, pre), database, false);
+            return Get(new DBNode(data, pre), false);
         }
 
-        internal static Node Get(DBNode dbNode, Database database, bool copy = true)
+        internal static Node Get(DBNode dbNode, bool copy = true)
         {
-            if (database == null) throw new ArgumentNullException("database");
             if (dbNode == null) throw new ArgumentNullException("dbNode");
 
             // Copy the DBNode if it wasn't created from scratch
@@ -114,27 +111,27 @@ namespace Nxdb
             NodeType nodeType = dbNode.nodeType();
             if (nodeType == org.basex.query.item.NodeType.ELM)
             {
-                return new Element(dbNode, database);
+                return new Element(dbNode);
             }
             if (nodeType == org.basex.query.item.NodeType.TXT)
             {
-                return new Text(dbNode, database);
+                return new Text(dbNode);
             }
             if (nodeType == org.basex.query.item.NodeType.ATT)
             {
-                return new Attribute(dbNode, database);
+                return new Attribute(dbNode);
             }
             if (nodeType == org.basex.query.item.NodeType.DOC)
             {
-                return new Document(dbNode, database);
+                return new Document(dbNode);
             }
             if (nodeType == org.basex.query.item.NodeType.COM)
             {
-                return new Comment(dbNode, database);
+                return new Comment(dbNode);
             }
             if (nodeType == org.basex.query.item.NodeType.PI)
             {
-                return new ProcessingInstruction(dbNode, database);
+                return new ProcessingInstruction(dbNode);
             }
             throw new ArgumentException("Invalid node type");
         }
@@ -162,7 +159,7 @@ namespace Nxdb
         /// </summary>
         public Database Database
         {
-            get { return _database; }
+            get { return DbNode == null ? null : new Database(DbNode.data()); }
         }
 
         protected internal ANode ANode
@@ -236,7 +233,7 @@ namespace Nxdb
                 }
 
                 // Check if the database has been modified since the last validity check
-                long time = _database.GetTime();
+                long time = DbNode.data().meta.time;
                 if (_time != time)
                 {
                     _time = time;
@@ -244,9 +241,9 @@ namespace Nxdb
                     // First check if the pre value is too large (the database shrunk),
                     // then check if the current pre still refers to the same id
                     // (do second since it requires disk access and is thus a little slower)
-                    if (DbNode.pre >= _database.GetSize() || _id != _database.GetId(DbNode.pre))
+                    if (DbNode.pre >= DbNode.data().meta.size || _id != DbNode.data().id(DbNode.pre))
                     {
-                        int pre = _database.GetPre(_id);
+                        int pre = DbNode.data().pre(_id);
                         if (pre == -1)
                         {
                             Invalidate();
@@ -282,7 +279,7 @@ namespace Nxdb
         protected IEnumerable<T> EnumerateNodes<T>(NodeIter iter)
         {
             Check();
-            return new IterEnum(iter, Database).Cast<T>();
+            return new IterEnum(iter).Cast<T>();
         }
 
         // Enumerate the BaseX ANodes in a NodeIter
@@ -375,7 +372,7 @@ namespace Nxdb
                 ANode parent = ANode.parent();
                 if (parent != null)
                 {
-                    return (ContainerNode)Get(parent, Database);
+                    return (ContainerNode)Get(parent);
                 }
                 return null;
             }
@@ -597,7 +594,7 @@ namespace Nxdb
             }
             if(DbNode != null)
             {
-                return _database.Equals(other._database) && _id == other._id;
+                return DbNode.data().Equals(other.DbNode.data()) && _id == other._id;
             }
             return ANode.id == other.ANode.id;
         }
@@ -626,8 +623,8 @@ namespace Nxdb
             int result = 17;
             if(DbNode != null)
             {
-                result = 37 * result + _id.GetHashCode();   
-                result = 37 * result + _database.GetHashCode(); 
+                result = 37 * result + _id.GetHashCode();
+                result = 37 * result + DbNode.data().GetHashCode(); 
             }
             else
             {

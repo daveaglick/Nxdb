@@ -13,7 +13,6 @@ using java.lang;
 using java.math;
 using javax.xml.datatype;
 using javax.xml.@namespace;
-using org.basex.api.xmldb;
 using org.basex.core;
 using org.basex.core.cmd;
 using org.basex.data;
@@ -87,7 +86,6 @@ namespace Nxdb
             }
         }
 
-        private static bool _initialized = false;
         
         public static void Drop(string name)
         {
@@ -107,6 +105,22 @@ namespace Nxdb
             }
         }
 
+        private static bool _initialized = false;
+
+        //This runs some one-time initialization
+        //Useful because several Java classes use reflection on their first construction
+        //which hurts performance when the first construction is done during an operation
+        private static void Initialize()
+        {
+            if (!_initialized)
+            {
+                Context context = Context;
+                new QueryContext(Context);
+                new FElem(new QNm("init".Token()));
+                _initialized = true;
+            }
+        }
+
         private Data _data;
         
         internal Data Data
@@ -116,19 +130,9 @@ namespace Nxdb
 
         public Database(string name)
         {
-            //This runs some one-time initialization
-            //Useful because several Java classes use reflection on their first construction
-            //which hurts performance when the first construction is done during an operation
-            if (!_initialized)
-            {
-                Context context = Context;
-                new QueryContext(Context);
-                new FElem(new QNm("init".Token()));
-                _initialized = true;
-            }
-
             if (name == null) throw new ArgumentNullException("name");
             if (name == String.Empty) throw new ArgumentException("name");
+            Initialize();
 
             //Try to open or create the database
             try
@@ -146,6 +150,13 @@ namespace Nxdb
                     throw new ArgumentException("Could not create database.", ex);
                 }
             }
+        }
+
+        internal Database(Data data)
+        {
+            if (data == null) throw new ArgumentNullException("data");
+            Initialize();
+            _data = data;
         }
 
         public void Dispose()
@@ -315,7 +326,7 @@ namespace Nxdb
         public Document GetDocument(string name)
         {
             int pre = Data.doc(name);
-            return pre == -1 ? null : (Document)Node.Get(pre, this);
+            return pre == -1 ? null : (Document)Node.Get(pre, Data);
         }
 
         public IEnumerable<Document> GetDocuments(string path)
@@ -324,7 +335,7 @@ namespace Nxdb
             for (int i = 0, s = docs.size(); i < s; i++)
             {
                 int pre = docs.get(i);
-                yield return (Document)Node.Get(pre, this);
+                yield return (Document)Node.Get(pre, Data);
             }
         }
 
@@ -336,7 +347,7 @@ namespace Nxdb
                 for(int c = 0 ; c < il.size() ; c++ )
                 {
                     int pre = il.get(c);
-                    yield return (Document)Node.Get(pre, this);
+                    yield return (Document)Node.Get(pre, Data);
                 }
             }
         }
@@ -353,65 +364,6 @@ namespace Nxdb
                 }
             }
         }
-
-        internal int GetId(int pre)
-        {
-            return Data.id(pre);
-        }
-
-        internal int GetPre(int id)
-        {
-            return Data.pre(id);
-        }
-
-        internal long GetTime()
-        {
-            return Data.meta.time;
-        }
-
-        internal int GetSize()
-        {
-            return Data.meta.size;
-        }
-        
-        // Gets a Data instance for a given content stream
-        
-        // Not sure if this is needed - in every case so far, I go straight to a NodeCache
-
-        //internal Data GetData(string name, string content)
-        //{
-        //    return Helper.CallWithString<string, Data>(content, name, GetData);
-        //}
-
-        //internal Data GetData(string name, XmlReader reader)
-        //{
-        //    if (name == null) throw new ArgumentNullException("name");
-        //    if (name == String.Empty) throw new ArgumentException("name");
-        //    if (reader == null) throw new ArgumentNullException("reader");
-        //    Builder builder = new MemBuilder(name, new XmlReaderParser(name, reader), Context.prop);
-        //    // TODO: Use DiskData for larger documents (but how to tell if a stream is going to be large?!)
-        //    Data data = null;
-        //    try
-        //    {
-        //        data = builder.build();
-        //        if (data.meta.size > 1)
-        //        {
-        //            builder.close();
-        //            return data;
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Debug.WriteLine(ex.Message);  // TODO: Replace this with some kind of logging mechanism
-        //    }
-        //    finally
-        //    {
-        //        try { builder.close(); } catch { }
-        //        if (data != null) try { data.close(); } catch { }
-        //        // TODO: Drop the temp database if using DiskData
-        //    }
-        //    return null;
-        //}
 
         // A cache of all constructed DOM nodes for this collection
         // Needed because .NET XML DOM consumers probably expect one object per node instead of the on the fly creation that Nxdb uses

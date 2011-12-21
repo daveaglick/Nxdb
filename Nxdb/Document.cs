@@ -11,9 +11,9 @@ namespace Nxdb
 {
     public class Document : ContainerNode
     {
-        internal Document(ANode aNode, Database database) : base(aNode, database, Data.DOC) { }
+        internal Document(ANode aNode) : base(aNode, Data.DOC) { }
 
-        public Document(string name) : base(new FDoc(name.Token()), null, Data.DOC) { }
+        public Document(string name) : base(new FDoc(name.Token()), Data.DOC) { }
 
         public override System.Xml.XmlNodeType NodeType
         {
@@ -55,7 +55,7 @@ namespace Nxdb
                 Check(true);
                 using (new Update())
                 {
-                    Update.Add(new ReplaceValue(DbNode.pre, Database.Data, null, value.Token()));
+                    Update.Add(new ReplaceValue(DbNode.pre, DbNode.data(), null, value.Token()));
                 }
             }
         }

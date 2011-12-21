@@ -157,7 +157,7 @@ namespace Nxdb
         }
 
         // This is used to get an atomic type object or a node object from a database item
-        internal static object GetObjectForItem(Item item, Database database)
+        internal static object GetObjectForItem(Item item)
         {
             // Check for a null item
             if (item == null) return null;
@@ -166,7 +166,7 @@ namespace Nxdb
             ANode node = item as ANode;
             if (node != null)
             {
-                return Node.Get(node, database);
+                return Node.Get(node);
             }
             
             // Get the Java object

@@ -12,14 +12,12 @@ namespace Nxdb
     internal class IterEnum : IEnumerator<object>, IEnumerable<object>
     {
         private Iter _iter;
-        private readonly Database _database;
         private Item _current = null;
 
-        public IterEnum(Iter iter, Database database)
+        public IterEnum(Iter iter)
         {
             if (iter == null) throw new ArgumentNullException("iter");
             _iter = iter;
-            _database = database;
         }
 
         public void Dispose()
@@ -49,7 +47,7 @@ namespace Nxdb
             get
             {
                 if (_iter == null) throw new ObjectDisposedException("IterEnum");
-                return Helper.GetObjectForItem(_current, _database);
+                return Helper.GetObjectForItem(_current);
             }
         }
 
