@@ -65,8 +65,7 @@ namespace Nxdb
             else if (obj is XMLGregorianCalendar)
             {
                 XMLGregorianCalendar date = (XMLGregorianCalendar)obj;
-                date.normalize();   // Normalizes the date to UTC
-                obj = XmlConvert.ToDateTime(date.toXMLFormat(), XmlDateTimeSerializationMode.Utc);
+                obj = XmlConvert.ToDateTime(date.toXMLFormat(), XmlDateTimeSerializationMode.RoundtripKind);
             }
             else if (obj is Duration)
             {
@@ -116,10 +115,10 @@ namespace Nxdb
                 return database.Documents.Select(d => d.ANode).Cast<Item>();
             }
 
-            //Is it enumerable (list, array, etc.)
+            //Is it enumerable (list, array, etc. - but not a string!)
             //This is recursive and results in flattening any nested sequences
             IEnumerable enumerable = obj as IEnumerable;
-            if (enumerable != null)
+            if (!(obj is string) && enumerable != null)
             {
                 return enumerable.Cast<object>().Select(GetItems).SelectMany(x => x);
             }

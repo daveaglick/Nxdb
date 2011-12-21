@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Xml;
 using NUnit.Framework;
 using Nxdb;
 
@@ -53,6 +54,43 @@ namespace NxdbTests
                         results.OfType<Node>().Select(n => n.Name));
                 }
             }
+        }
+
+        [Test]
+        public void Variables()
+        {
+            Common.Reset();
+            using (Database database = new Database(Common.DatabaseName))
+            {
+                Documents docs = Common.Populate(database, "A", "B", "C", "D");
+
+                //TODO: Some tests for variable binding
+            }
+        }
+
+        [Test]
+        public void TypeConversion()
+        {
+            Common.Reset();
+
+            TypeConversion(1234);
+            TypeConversion("string");
+            TypeConversion(1234.567);
+            TypeConversion(false);
+            TypeConversion(DateTime.Now);
+            TypeConversion(DateTime.UtcNow);
+            TypeConversion(new TimeSpan(12300000));
+            TypeConversion(new Decimal(123456789));
+            TypeConversion(new XmlQualifiedName("foo", "bar"));
+        }
+
+        private void TypeConversion(object value)
+        {
+            Query query = new Query("$var");
+            query.SetVariable("var", value);
+            IList<object> results = query.GetList();
+            Assert.AreEqual(1, results.Count);
+            Assert.AreEqual(value, results[0]);
         }
     }
 }
