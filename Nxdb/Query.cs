@@ -6,15 +6,19 @@ using org.basex.query;
 using org.basex.query.expr;
 using org.basex.query.item;
 using org.basex.query.iter;
+using org.basex.util;
 
 namespace Nxdb
 {
     public class Query
     {
         private string _expression;
-        private readonly Dictionary<string, Value> _collections
-            = new Dictionary<string, Value>();  //String.Empty = the default (first) collection
+        private readonly Dictionary<string, Value> _namedCollections
+            = new Dictionary<string, Value>();
+        private Value _defaultCollection = null;
         private Value _initialContext = null;
+        private readonly Dictionary<string, Value> _variables
+            = new Dictionary<string, Value>();
 
         public Query(string expression)
         {
@@ -42,16 +46,35 @@ namespace Nxdb
             {
                 _initialContext = value;
             }
+            else if(name == String.Empty)
+            {
+                _defaultCollection = value;
+            }
             else
             {
                 if(value == null)
                 {
-                    _collections.Remove(name);
+                    _namedCollections.Remove(name);
                 }
                 else
                 {
-                    _collections[name] = value;
+                    _namedCollections[name] = value;
                 }
+            }
+        }
+
+        //value == null -> clear variable
+        private void SetVariable(string name, Value value)
+        {
+            if (name == null) throw new ArgumentNullException("name");
+            if (name == String.Empty) throw new ArgumentException("name");
+            if(value == null)
+            {
+                _variables.Remove(name);
+            }
+            else
+            {
+                _variables[name] = value;
             }
         }
 
@@ -60,7 +83,23 @@ namespace Nxdb
             //Create the query context
             QueryContext queryContext = new QueryContext(Database.Context);
 
-            //TODO: Add variables
+            //Add variables
+            foreach(KeyValuePair<string, Value> kvp in _variables)
+            {
+                queryContext.bind(kvp.Key, kvp.Value);
+            }
+
+            //Add default collection
+            queryContext.resource.addCollection(_defaultCollection ?? Empty.SEQ, String.Empty);
+
+            //Add named collections
+            foreach(KeyValuePair<string, Value> kvp in _namedCollections)
+            {
+                queryContext.resource.addCollection(kvp.Value, kvp.Key);
+            }
+
+            //Set the initial context item
+            queryContext.ctxItem = _initialContext;
 
             //Parse the expression
             queryContext.parse(_expression);
@@ -71,6 +110,18 @@ namespace Nxdb
             //Get the iterator and return the results
             Iter iter = queryContext.iter();
             return new IterEnum(iter);
+
+            //TODO: Check if the query contained update expressions, and if so run the same cleanup/optimize as Update (or maybe use an Update container)
+        }
+
+        public IList<object> GetList()
+        {
+            return new List<object>(Evaluate());
+        }
+
+        public IList<T> GetList<T>()
+        {
+            return new List<T>(Evaluate().OfType<T>());
         }
     }
 }

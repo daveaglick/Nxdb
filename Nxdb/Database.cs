@@ -6,31 +6,17 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Xml;
-using ikvm.@internal;
-using java.io;
-using Nxdb.Io;
-using java.lang;
-using java.math;
-using javax.xml.datatype;
-using javax.xml.@namespace;
 using org.basex.core;
 using org.basex.core.cmd;
 using org.basex.data;
-using org.basex.io;
 using org.basex.query;
-using org.basex.query.func;
 using org.basex.query.item;
 using org.basex.query.iter;
 using org.basex.query.up.primitives;
-using org.basex.util;
 using org.basex.build;
 using org.basex.util.list;
-using org.xmldb.api;
 using Exception = System.Exception;
-using File = java.io.File;
 using String = System.String;
-using StringReader = java.io.StringReader;
-using Type = org.basex.query.item.Type;
 
 namespace Nxdb
 {
