@@ -151,6 +151,11 @@ namespace Nxdb
             _data = null;
         }
 
+        public string Name
+        {
+            get { return Data.meta.name; }
+        }
+
         /// <summary>
         /// Indicates whether the current database is equal to another database.
         /// </summary>

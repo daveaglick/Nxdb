@@ -36,45 +36,47 @@ namespace Nxdb
             }
         }
 
-        //name == null -> set the initial context
-        //name == String.Empty -> set the default (first) collection
+        public void SetInitialContext(object value)
+        {
+            _initialContext = value.ToValue();
+        }
+
+        //name == null or String.Empty -> set the default (first) collection
         //name == text -> set a named collection
         //value == null -> clear the specified context/collection
-        private void SetCollection(string name, Value value)
+        public void SetCollection(string name, object value)
         {
-            if(name == null)
+            Value v = value.ToValue();
+            if(String.IsNullOrEmpty(name))
             {
-                _initialContext = value;
-            }
-            else if(name == String.Empty)
-            {
-                _defaultCollection = value;
+                _defaultCollection = v;
             }
             else
             {
-                if(value == null)
+                if(v == null)
                 {
                     _namedCollections.Remove(name);
                 }
                 else
                 {
-                    _namedCollections[name] = value;
+                    _namedCollections[name] = v;
                 }
             }
         }
 
         //value == null -> clear variable
-        private void SetVariable(string name, Value value)
+        public void SetVariable(string name, object value)
         {
             if (name == null) throw new ArgumentNullException("name");
             if (name == String.Empty) throw new ArgumentException("name");
-            if(value == null)
+            Value v = value.ToValue();
+            if(v == null)
             {
                 _variables.Remove(name);
             }
             else
             {
-                _variables[name] = value;
+                _variables[name] = v;
             }
         }
 

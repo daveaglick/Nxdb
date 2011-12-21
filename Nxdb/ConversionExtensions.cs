@@ -90,31 +90,38 @@ namespace Nxdb
                 return (Value)obj;
             }
 
-            //Is it enumerable (in other words, a sequence)?
-            //We only need to support one-dimensional arrays since that's all that XQuery supports
-            IEnumerable enumerable = obj as IEnumerable;
-            if (enumerable != null)
-            {
-                Item[] array = enumerable.Cast<object>().Select(ToItem).ToArray();
-                return Seq.get(array, array.Length);
-            }
-
-            //Get it as an item
-            Item item = ToItem(obj);
-            if (item == null)
+            //Get the item(s)
+            Item[] items = GetItems(obj).ToArray();
+            if(items.Length == 0)
             {
                 return Empty.SEQ;
             }
-            return item;
+            return items.Length == 1 ? items[0] : Seq.get(items, items.Length);
         }
 
-        private static Item ToItem(object obj)
+        //Converts potential sequences into item lists, while flattening to a single dimension
+        private static IEnumerable<Item> GetItems(object obj)
         {
             //It it a Node?
             Node node = obj as Node;
             if (node != null)
             {
-                return node.ANode;
+                return new[]{node.ANode};
+            }
+
+            //Is it a Database?
+            Database database = obj as Database;
+            if(database != null)
+            {
+                return database.Documents.Select(d => d.ANode).Cast<Item>();
+            }
+
+            //Is it enumerable (list, array, etc.)
+            //This is recursive and results in flattening any nested sequences
+            IEnumerable enumerable = obj as IEnumerable;
+            if (enumerable != null)
+            {
+                return enumerable.Cast<object>().Select(GetItems).SelectMany(x => x);
             }
 
             // Clean up non-.NET values
@@ -139,7 +146,8 @@ namespace Nxdb
             }
 
             //Get the item
-            return JavaFunc.type(obj).e(obj, null);
+            return new []{JavaFunc.type(obj).e(obj, null)};
         }
+
     }
 }
