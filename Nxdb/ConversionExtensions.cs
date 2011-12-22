@@ -62,6 +62,19 @@ namespace Nxdb
                 BigDecimal bigDecimal = (BigDecimal)obj;
                 obj = Convert.ToDecimal(bigDecimal.toString());
             }
+            else if (obj is java.lang.Number)
+            {
+                int i;
+                double d;
+                if(int.TryParse(obj.ToString(), out i))
+                {
+                    obj = i;
+                }
+                else if(double.TryParse(obj.ToString(), out d))
+                {
+                    obj = d;
+                }
+            }
             else if (obj is XMLGregorianCalendar)
             {
                 XMLGregorianCalendar date = (XMLGregorianCalendar)obj;
@@ -131,7 +144,7 @@ namespace Nxdb
             else if (obj is DateTime)
             {
                 obj = DatatypeFactory.newInstance().newXMLGregorianCalendar(
-                    ((DateTime)obj).ToString("yyyy-MM-ddTHH:mm:ss.fffffffzzz"));
+                    ((DateTime)obj).ToString("yyyy-MM-ddTHH:mm:ss.fffffffZ"));
             }
             else if (obj is TimeSpan)
             {
