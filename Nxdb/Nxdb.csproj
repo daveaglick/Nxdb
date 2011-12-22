@@ -165,11 +165,7 @@
     <Compile Include="Database.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="NxManager.cs" />
     <Compile Include="Node.cs" />
-    <Compile Include="NxQuery.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="Io\InnerTextReader.cs">
       <SubType>Code</SubType>
     </Compile>

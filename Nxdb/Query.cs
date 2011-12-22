@@ -17,7 +17,7 @@ namespace Nxdb
         private readonly Dictionary<string, Value> _namedCollections
             = new Dictionary<string, Value>();
         private Value _defaultCollection = null;
-        private Value _initialContext = null;
+        private Value _context = null;
         private readonly Dictionary<string, Value> _variables
             = new Dictionary<string, Value>();
         private readonly Dictionary<string, string> _externals
@@ -39,9 +39,9 @@ namespace Nxdb
             }
         }
 
-        public void SetInitialContext(object value)
+        public void SetContext(object value)
         {
-            _initialContext = value.ToValue();
+            _context = value.ToValue();
         }
 
         // name == null or String.Empty -> set the default (first) collection
@@ -151,7 +151,7 @@ namespace Nxdb
             }
 
             // Set the initial context item
-            queryContext.ctxItem = _initialContext;
+            queryContext.ctxItem = _context;
 
             // Add external namespaces
             foreach(KeyValuePair<string, string> kvp in _externals)
@@ -159,17 +159,24 @@ namespace Nxdb
                 queryContext.sc.@namespace(kvp.Key, "java:" + kvp.Value);
             }
 
-            // Parse the expression
-            queryContext.parse(_expression);
+            using (new Update())
+            {
+                // Reset the update collection to the common one in our update operation
+                queryContext.updates = Update.Updates;
 
-            // Compile the query
-            queryContext.compile();
+                // Parse the expression
+                queryContext.parse(_expression);
 
-            // Get the iterator and return the results
-            Iter iter = queryContext.iter();
-            return new IterEnum(iter);
+                // Compile the query
+                queryContext.compile();
 
-            // TODO: Check if the query contained update expressions, and if so run the same cleanup/optimize as Update (or maybe use an Update container)
+                // Reset the updating flag (so they aren't applied here)
+                queryContext.updating = false;
+
+                // Get the iterator and return the results
+                Iter iter = queryContext.iter();
+                return new IterEnum(iter);
+            }
         }
 
         public IEnumerable<object> GetResults()

@@ -13,16 +13,26 @@ using org.basex.query.up.primitives;
 
 namespace Nxdb
 {
-    //TODO: How should this interact with updating queries? How should queries trigger optimization?
-    //TODO: Should Update cache/compare database time to see if update actually occured?
     public class Update : IDisposable
     {
+        private static bool _optimize = true;
         private static int _counter = 0;
         private static QueryContext _queryContext = new QueryContext(Database.Context);
         
         public Update()
         {
             _counter++;
+        }
+
+        internal static Updates Updates
+        {
+            get { return _queryContext.updates; }
+        }
+
+        public static bool Optimize
+        {
+            get { return _optimize; }
+            set { _optimize = value; }
         }
         
         //Adds an update primitive to the sequence of operations
@@ -48,18 +58,20 @@ namespace Nxdb
         {
             if (_counter <= 0)
             {
-                //Apply the updates
-                _queryContext.updates.applyUpdates();
-
-                //Optimize database(s)
-                //TODO: Make this an option or a flag
-                bool optimize = true;
-                if (_queryContext.updates.mod != null && optimize)
+                //Check if there are any updates to perform (if not, updates.mod will be null)
+                if (_queryContext.updates.mod != null)
                 {
-                    //Loop through each database used and optimize
-                    foreach (Data data in _queryContext.updates.mod.datas())
+                    //Apply the updates
+                    _queryContext.updates.applyUpdates();
+
+                    //Optimize database(s)
+                    if (_optimize)
                     {
-                        Optimize.optimize(data);
+                        //Loop through each database used and optimize
+                        foreach (Data data in _queryContext.updates.mod.datas())
+                        {
+                            org.basex.core.cmd.Optimize.optimize(data);
+                        }
                     }
                 }
 

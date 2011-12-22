@@ -53,6 +53,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Common.cs" />
     <Compile Include="QueryTest.cs" />
+    <Compile Include="UpdateTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Nxdb\Nxdb.csproj">

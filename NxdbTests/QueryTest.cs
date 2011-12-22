@@ -41,7 +41,7 @@ namespace NxdbTests
                     Documents docs2 = Common.Populate(database2, "A", "B", "E", "F");
 
                     Query query = new Query("/A");
-                    query.SetInitialContext(new Database[]{database, database2});
+                    query.SetContext(new Database[]{database, database2});
                     IList<object> results = query.GetList();
                     Assert.AreEqual(2, results.Count);
                     CollectionAssert.AreEquivalent(new[] { Common.DatabaseName, Common.DatabaseName + "2"},
@@ -57,6 +57,31 @@ namespace NxdbTests
         }
 
         [Test]
+        public void Context()
+        {
+            Common.Reset();
+            using (Database database = new Database(Common.DatabaseName))
+            {
+                Documents docs = Common.Populate(database, "A", "B", "C", "D");
+                
+                Query query = new Query("/*[1]/*[2]");
+                query.SetContext(database.GetDocument("B"));
+                IList<object> results = query.GetList();
+                Assert.AreEqual("BB", ((Element)results[0]).Name);
+
+                query.SetContext(results[0]);
+                query.Expression = "./BBB";
+                results = query.GetList();
+                Assert.AreEqual(1, results.Count);
+                Assert.AreEqual("BBB", ((Element)results[0]).Name);
+
+                query.Expression = "./XYZ";
+                results = query.GetList();
+                Assert.AreEqual(0, results.Count);
+            }
+        }
+
+        [Test]
         public void Variables()
         {
             Common.Reset();
@@ -64,6 +89,7 @@ namespace NxdbTests
             {
                 Documents docs = Common.Populate(database, "A", "B", "C", "D");
 
+                // TODO: Some complex variable binding tests
             }
         }
 
@@ -109,7 +135,7 @@ namespace NxdbTests
         }
 
         [Test]
-        public void ExternalFunctions()
+        public void Externals()
         {
             Common.Reset();
 

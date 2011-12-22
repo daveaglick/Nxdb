@@ -52,17 +52,7 @@ namespace Nxdb
             object obj = value.toJava();
 
             // Clean up non-.NET values
-            if (obj is BigInteger)
-            {
-                BigInteger bigInteger = (BigInteger)obj;
-                obj = Convert.ToDecimal(bigInteger.toString());
-            }
-            else if (obj is BigDecimal)
-            {
-                BigDecimal bigDecimal = (BigDecimal)obj;
-                obj = Convert.ToDecimal(bigDecimal.toString());
-            }
-            else if (obj is java.lang.Number)
+            if (obj is java.lang.Number)
             {
                 int i;
                 double d;
@@ -73,6 +63,16 @@ namespace Nxdb
                 else if(double.TryParse(obj.ToString(), out d))
                 {
                     obj = d;
+                }
+                else if (obj is BigInteger)
+                {
+                    BigInteger bigInteger = (BigInteger)obj;
+                    obj = Convert.ToDecimal(bigInteger.toString());
+                }
+                else if (obj is BigDecimal)
+                {
+                    BigDecimal bigDecimal = (BigDecimal)obj;
+                    obj = Convert.ToDecimal(bigDecimal.toString());
                 }
             }
             else if (obj is XMLGregorianCalendar)
