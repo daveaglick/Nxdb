@@ -13,7 +13,7 @@ using org.basex.query.item;
 namespace Nxdb
 {
     //Extensions to help convert between .NET, Java, and BaseX objects
-    internal static class ConversionExtensions
+    internal static class Conversions
     {
         //A couple extension methods to help with the tokenizing of strings
         internal static string Token(this byte[] bytes)

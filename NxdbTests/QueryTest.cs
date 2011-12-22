@@ -64,7 +64,6 @@ namespace NxdbTests
             {
                 Documents docs = Common.Populate(database, "A", "B", "C", "D");
 
-                //TODO: Some tests for variable binding
             }
         }
 
@@ -127,11 +126,24 @@ namespace NxdbTests
             results = query.GetList();
             Assert.AreEqual(1, results.Count);
             Assert.AreEqual(12, results[0]);
+
+            // Passing an object via variable binding
+            query = new Query("QueryTest:BindingTest($var, xs:int(5))");
+            query.SetVariable("var", new ExtTest("testing"));
+            query.SetExternal(GetType());
+            results = query.GetList();
+            Assert.AreEqual(1, results.Count);
+            Assert.AreEqual(12, results[0]);
         }
 
         public static int FuncTest(int i)
         {
             return i + 9;
+        }
+
+        public static int BindingTest(ExtTest obj, int i)
+        {
+            return obj.Count(i);
         }
     }
 
