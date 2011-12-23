@@ -16,7 +16,7 @@ namespace NxdbTests
         public void Validity()
         {
             Common.Reset();
-            using (Database database = new Database(Common.DatabaseName))
+            using (Database database = Database.Get(Common.DatabaseName))
             {
                 Common.Populate(database, "A", "B", "C", "D");
 
@@ -34,7 +34,7 @@ namespace NxdbTests
         public void NodeType()
         {
             Common.Reset();
-            using (Database database = new Database(Common.DatabaseName))
+            using (Database database = Database.Get(Common.DatabaseName))
             {
                 Common.Populate(database, "A", "B", "C", "D");
                 
@@ -60,7 +60,7 @@ namespace NxdbTests
         public void Attributes()
         {
             Common.Reset();
-            using (Database database = new Database(Common.DatabaseName))
+            using (Database database = Database.Get(Common.DatabaseName))
             {
                 Common.Populate(database, "A", "B", "C", "D");
 
@@ -73,7 +73,7 @@ namespace NxdbTests
         public void GetAttribute()
         {
             Common.Reset();
-            using (Database database = new Database(Common.DatabaseName))
+            using (Database database = Database.Get(Common.DatabaseName))
             {
                 Common.Populate(database, "A", "B", "C", "D");
 
@@ -87,7 +87,7 @@ namespace NxdbTests
         public void GetAttributeNode()
         {
             Common.Reset();
-            using (Database database = new Database(Common.DatabaseName))
+            using (Database database = Database.Get(Common.DatabaseName))
             {
                 Common.Populate(database, "A", "B", "C", "D");
 
@@ -101,7 +101,7 @@ namespace NxdbTests
         public void RemoveAllAttributes()
         {
             Common.Reset();
-            using (Database database = new Database(Common.DatabaseName))
+            using (Database database = Database.Get(Common.DatabaseName))
             {
                 Common.Populate(database, "A", "B", "C", "D");
 
@@ -116,7 +116,7 @@ namespace NxdbTests
         public void RemoveAttribute()
         {
             Common.Reset();
-            using (Database database = new Database(Common.DatabaseName))
+            using (Database database = Database.Get(Common.DatabaseName))
             {
                 Common.Populate(database, "A", "B", "C", "D");
 
@@ -130,7 +130,7 @@ namespace NxdbTests
         public void InsertAttribute()
         {
             Common.Reset();
-            using (Database database = new Database(Common.DatabaseName))
+            using (Database database = Database.Get(Common.DatabaseName))
             {
                 Common.Populate(database, "A", "B", "C", "D");
 
@@ -144,7 +144,7 @@ namespace NxdbTests
         public void RemoveAll()
         {
             Common.Reset();
-            using (Database database = new Database(Common.DatabaseName))
+            using (Database database = Database.Get(Common.DatabaseName))
             {
                 Common.Populate(database, "A", "B", "C", "D");
 
@@ -163,7 +163,7 @@ namespace NxdbTests
         public void Remove()
         {
             Common.Reset();
-            using (Database database = new Database(Common.DatabaseName))
+            using (Database database = Database.Get(Common.DatabaseName))
             {
                 Common.Populate(database, "A", "B", "C", "D");
 
@@ -175,7 +175,8 @@ namespace NxdbTests
                 Assert.IsNull(database.GetDocument("B").Child(0).Child(1).Child(1));
                 CollectionAssert.AreEqual(new []{ "BBA" }, node.Children.Select(n => n.Name));
 
-                Node attribute = ((Element)database.GetDocument("B").Child(0).Child(1)).Attribute("e");
+                Element elem = (Element)database.GetDocument("B").Child(0).Child(1);
+                Node attribute = elem.Attribute("e");
                 attribute.Remove();
                 Assert.IsFalse(attribute.Valid);
                 Assert.IsNull(((Element)database.GetDocument("B").Child(0).Child(1)).Attribute("e"));
@@ -195,7 +196,7 @@ namespace NxdbTests
         public void Append()
         {
             Common.Reset();
-            using (Database database = new Database(Common.DatabaseName))
+            using (Database database = Database.Get(Common.DatabaseName))
             {
                 Common.Populate(database, "A", "B", "C", "D");
 
@@ -222,7 +223,7 @@ namespace NxdbTests
         public void Prepend()
         {
             Common.Reset();
-            using (Database database = new Database(Common.DatabaseName))
+            using (Database database = Database.Get(Common.DatabaseName))
             {
                 Common.Populate(database, "A", "B", "C", "D");
 
@@ -249,7 +250,7 @@ namespace NxdbTests
         public void InsertAfter()
         {
             Common.Reset();
-            using (Database database = new Database(Common.DatabaseName))
+            using (Database database = Database.Get(Common.DatabaseName))
             {
                 Common.Populate(database, "A", "B", "C", "D");
 
@@ -276,7 +277,7 @@ namespace NxdbTests
         public void InsertBefore()
         {
             Common.Reset();
-            using (Database database = new Database(Common.DatabaseName))
+            using (Database database = Database.Get(Common.DatabaseName))
             {
                 Common.Populate(database, "A", "B", "C", "D");
 
@@ -303,7 +304,7 @@ namespace NxdbTests
         public void GetInnerXml()
         {
             Common.Reset();
-            using (Database database = new Database(Common.DatabaseName))
+            using (Database database = Database.Get(Common.DatabaseName))
             {
                 Common.Populate(database, "A", "B", "C", "D");
 
@@ -322,7 +323,7 @@ namespace NxdbTests
         public void SetInnerXml()
         {
             Common.Reset();
-            using (Database database = new Database(Common.DatabaseName))
+            using (Database database = Database.Get(Common.DatabaseName))
             {
                 Common.Populate(database, "A", "B", "C", "D");
 
@@ -338,7 +339,7 @@ namespace NxdbTests
         public void GetOuterXml()
         {
             Common.Reset();
-            using (Database database = new Database(Common.DatabaseName))
+            using (Database database = Database.Get(Common.DatabaseName))
             {
                 Common.Populate(database, "A", "B", "C", "D");
 
@@ -357,7 +358,7 @@ namespace NxdbTests
         public void GetInnerText()
         {
             Common.Reset();
-            using (Database database = new Database(Common.DatabaseName))
+            using (Database database = Database.Get(Common.DatabaseName))
             {
                 Common.Populate(database, "A", "B", "C", "D");
 
@@ -378,7 +379,7 @@ namespace NxdbTests
         public void SetInnerText()
         {
             Common.Reset();
-            using (Database database = new Database(Common.DatabaseName))
+            using (Database database = Database.Get(Common.DatabaseName))
             {
                 Common.Populate(database, "A", "B", "C", "D");
 
@@ -393,7 +394,7 @@ namespace NxdbTests
         public void GetName()
         {
             Common.Reset();
-            using (Database database = new Database(Common.DatabaseName))
+            using (Database database = Database.Get(Common.DatabaseName))
             {
                 Common.Populate(database, "A", "B", "C", "D");
                 
@@ -419,7 +420,7 @@ namespace NxdbTests
         public void SetName()
         {
             Common.Reset();
-            using (Database database = new Database(Common.DatabaseName))
+            using (Database database = Database.Get(Common.DatabaseName))
             {
                 Common.Populate(database, "A", "B", "C", "D");
                 
@@ -464,7 +465,7 @@ namespace NxdbTests
         public void GetValue()
         {
             Common.Reset();
-            using (Database database = new Database(Common.DatabaseName))
+            using (Database database = Database.Get(Common.DatabaseName))
             {
                 Common.Populate(database, "A", "B", "C", "D");
                 
@@ -490,7 +491,7 @@ namespace NxdbTests
         public void SetValue()
         {
             Common.Reset();
-            using (Database database = new Database(Common.DatabaseName))
+            using (Database database = Database.Get(Common.DatabaseName))
             {
                 Common.Populate(database, "A", "B", "C", "D");
 

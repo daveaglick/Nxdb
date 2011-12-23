@@ -9,6 +9,7 @@ namespace Nxdb
 {
     public class Text : TreeNode
     {
+        //Should only be called from Node.Get()
         internal Text(ANode aNode) : base(aNode, Data.TEXT) { }
 
         public Text(string text) : base(new FTxt(text.Token()), Data.TEXT) { }

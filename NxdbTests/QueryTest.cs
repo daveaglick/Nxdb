@@ -31,9 +31,9 @@ namespace NxdbTests
         public void MultipleDatabases()
         {
             Common.Reset();
-            using (Database database = new Database(Common.DatabaseName))
+            using (Database database = Database.Get(Common.DatabaseName))
             {
-                using (Database database2 = new Database(Common.DatabaseName + "2"))
+                using (Database database2 = Database.Get(Common.DatabaseName + "2"))
                 {
                     Documents docs = Common.Populate(database, "A", "B", "C", "D");
                     Documents docs2 = Common.Populate(database2, "A", "B", "E", "F");
@@ -56,7 +56,7 @@ namespace NxdbTests
         public void Context()
         {
             Common.Reset();
-            using (Database database = new Database(Common.DatabaseName))
+            using (Database database = Database.Get(Common.DatabaseName))
             {
                 Documents docs = Common.Populate(database, "A", "B", "C", "D");
                 
@@ -78,7 +78,7 @@ namespace NxdbTests
         public void Variables()
         {
             Common.Reset();
-            using (Database database = new Database(Common.DatabaseName))
+            using (Database database = Database.Get(Common.DatabaseName))
             {
                 Documents docs = Common.Populate(database, "A", "B", "C", "D");
 

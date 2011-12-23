@@ -10,6 +10,7 @@ namespace Nxdb
 {
     public class Attribute : Node
     {
+        //Should only be called from Node.Get()
         internal Attribute(ANode aNode) : base(aNode, Data.ATTR) { }
 
         public Attribute(string name, string value) : base(new FAttr(new QNm(name.Token()), value.Token()), Data.ATTR) { }

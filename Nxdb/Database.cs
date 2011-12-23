@@ -107,6 +107,50 @@ namespace Nxdb
             }
         }
 
+        public static Database Get(string name)
+        {
+            Initialize();
+
+            if (name == null) throw new ArgumentNullException("name");
+            if (name == String.Empty) throw new ArgumentException("name");
+
+            //Try to open or create the database
+            try
+            {
+                return Get(Open.open(name, Context));
+            }
+            catch (Exception)
+            {
+                try
+                {
+                    return Get(CreateDB.create(name, Parser.emptyParser(), Context));
+                }
+                catch (Exception ex)
+                {
+                    throw new ArgumentException("Could not create database.", ex);
+                }
+            }
+        }
+
+        internal static Database Get(Data data)
+        {
+            if (data == null) throw new ArgumentNullException("data");
+            Database database;
+            if(!Databases.TryGetValue(data, out database))
+            {
+                database = new Database(data);
+                Databases.Add(data, database);
+            }
+            return database;
+        }
+
+        // A cache of all databases - the same instance should be returned for the same Data
+        private static readonly Dictionary<Data, Database> Databases
+            = new Dictionary<Data, Database>(); 
+
+        // A cache of all nodes for this database indexed by pre value
+        private WeakReference[] _nodes;
+
         private Data _data;
         
         internal Data Data
@@ -114,46 +158,99 @@ namespace Nxdb
             get { return _data; }
         }
 
-        public Database(string name)
+        private Database(Data data)
         {
-            if (name == null) throw new ArgumentNullException("name");
-            if (name == String.Empty) throw new ArgumentException("name");
-            Initialize();
-
-            //Try to open or create the database
-            try
-            {
-                _data = Open.open(name, Context);
-            }
-            catch (Exception)
-            {
-                try
-                {
-                    _data = CreateDB.create(name, Parser.emptyParser(), Context);
-                }
-                catch(Exception ex)
-                {
-                    throw new ArgumentException("Could not create database.", ex);
-                }
-            }
-        }
-
-        internal Database(Data data)
-        {
-            if (data == null) throw new ArgumentNullException("data");
-            Initialize();
             _data = data;
+            _nodes = new WeakReference[data.meta.size];
         }
 
         public void Dispose()
         {
-            Close.close(Data, Context);
-            _data = null;
+            if(_data == null) throw new ObjectDisposedException("Database");
+            if(Context.unpin(_data))
+            {
+                Databases.Remove(_data);
+                _data.close();  
+                _data = null;   
+                _nodes = null;
+            }
+        }
+
+        internal Node GetNode(int pre)
+        {
+            if (_data == null) throw new ObjectDisposedException("Database");
+            if (_nodes[pre] != null)
+            {
+                Node node = (Node)_nodes[pre].Target;
+                if (node != null)
+                {
+                    return node;
+                }
+            }
+            return null;
+        }
+
+        internal void SetNode(int pre, Node node)
+        {
+            if (_data == null) throw new ObjectDisposedException("Database");
+            _nodes[pre] = new WeakReference(node);
+        }
+
+        internal void Update()
+        {
+            if (_data == null) throw new ObjectDisposedException("Database");
+
+            // Grow the nodes cache if needed (but never shrink it)
+            if(_data.meta.size > _nodes.Length)
+            {
+                Array.Resize(ref _nodes, _data.meta.size);
+            }
+
+            // Check validity and reposition nodes
+            LinkedList<Node> reposition = new LinkedList<Node>();
+            for(int c = 0; c < _nodes.Length ; c++)
+            {
+                if (_nodes[c] != null)
+                {
+                    Node node = (Node)_nodes[c].Target;
+                    if (node != null)
+                    {
+                        if(!node.Validate())
+                        {
+                            // The node is now invalid, remove it from the cache
+                            _nodes[c] = null;
+                        }
+                        else
+                        {
+                            // The node is still valid, but if it moved add it to the reposition list
+                            if(node.Index != c)
+                            {
+                                reposition.AddLast(node);
+                                _nodes[c] = null;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        _nodes[c] = null;
+                    }
+                }
+            }
+
+            // Reposition any nodes that moved
+            foreach(Node node in reposition)
+            {
+                _nodes[node.Index] = new WeakReference(node);
+            }
         }
 
         public string Name
         {
-            get { return Data.meta.name; }
+            get
+            {
+                if (_data == null) throw new ObjectDisposedException("Database");
+                return Data.meta.name;
+            }
         }
 
         /// <summary>
@@ -165,7 +262,7 @@ namespace Nxdb
         /// </returns>
         public bool Equals(Database other)
         {
-            return other != null && Data.Equals(other.Data);
+            return other != null && this == other;
         }
 
         /// <summary>
@@ -192,13 +289,14 @@ namespace Nxdb
         /// </returns>
         public override int GetHashCode()
         {
-            return Data.GetHashCode();
+            return Data == null ? 0 : Data.GetHashCode();
         }
         
         //Many of the following are ported from FNDb.java to eliminate the overhead of the XQuery function evaluation
 
         public void Delete(string path)
         {
+            if (_data == null) throw new ObjectDisposedException("Database");
             IntList docs = Data.docs(path);
             using(new Updates())
             {
@@ -211,6 +309,7 @@ namespace Nxdb
 
         public void Rename(string path, string newName)
         {
+            if (_data == null) throw new ObjectDisposedException("Database");
             IntList docs = Data.docs(path);
             using (new Updates())
             {
@@ -228,18 +327,14 @@ namespace Nxdb
 
         public void Optimize()
         {
-            using(new Updates())
-            {
-                Updates.Add(new DBOptimize(Data, Context, false, null));
-            }
+            if (_data == null) throw new ObjectDisposedException("Database");
+            Updates.Add(new DBOptimize(Data, Context, false, null));
         }
 
         public void OptimizeAll()
         {
-            using (new Updates())
-            {
-                Updates.Add(new DBOptimize(Data, Context, true, null));
-            }
+            if (_data == null) throw new ObjectDisposedException("Database");
+            Updates.Add(new DBOptimize(Data, Context, true, null));
         }
         
         public virtual void Add(string path, XmlReader xmlReader)
@@ -267,13 +362,11 @@ namespace Nxdb
 
         private void Add(string path, NodeCache nodeCache)
         {
+            if (_data == null) throw new ObjectDisposedException("Database");
             if (nodeCache != null)
             {
                 FDoc doc = new FDoc(nodeCache, path.Token());
-                using (new Updates())
-                {
-                    Updates.Add(new DBAdd(Data, null, doc, path, Context));
-                }
+                Updates.Add(new DBAdd(Data, null, doc, path, Context));
             }
         }
 
@@ -302,6 +395,7 @@ namespace Nxdb
 
         private void Replace(string path, NodeCache nodeCache)
         {
+            if (_data == null) throw new ObjectDisposedException("Database");
             using (new Updates())
             {
                 int pre = Data.doc(path);
@@ -316,12 +410,14 @@ namespace Nxdb
         
         public Document GetDocument(string name)
         {
+            if (_data == null) throw new ObjectDisposedException("Database");
             int pre = Data.doc(name);
             return pre == -1 ? null : (Document)Node.Get(pre, Data);
         }
 
         public IEnumerable<Document> GetDocuments(string path)
         {
+            if (_data == null) throw new ObjectDisposedException("Database");
             IntList docs = Data.docs(path);
             for (int i = 0, s = docs.size(); i < s; i++)
             {
@@ -334,6 +430,7 @@ namespace Nxdb
         {
             get
             {
+                if (_data == null) throw new ObjectDisposedException("Database");
                 IntList il = Data.docs();
                 for(int c = 0 ; c < il.size() ; c++ )
                 {
@@ -347,6 +444,7 @@ namespace Nxdb
         {
             get
             {
+                if (_data == null) throw new ObjectDisposedException("Database");
                 IntList il = Data.docs();
                 for (int c = 0; c < il.size(); c++)
                 {
@@ -358,6 +456,7 @@ namespace Nxdb
 
         public IEnumerable<object> Eval(string expression)
         {
+            if (_data == null) throw new ObjectDisposedException("Database");
             return new Query(this).Eval(expression);
         }
 
@@ -384,17 +483,6 @@ namespace Nxdb
         public T EvalSingle<T>(string expression) where T : class
         {
             return EvalSingle(expression) as T;
-        }
-        
-        // A cache of all constructed DOM nodes for this collection
-        // Needed because .NET XML DOM consumers probably expect one object per node instead of the on the fly creation that Nxdb uses
-        // This ensures reference equality for equivalent NxNodes
-        // Key = node Id, Value = WeakReference to XmlNode instance
-        private readonly Dictionary<int, WeakReference> _domCache = new Dictionary<int, WeakReference>();
-
-        internal Dictionary<int, WeakReference> DomCache
-        {
-            get { return _domCache; }
         }
     }
 }

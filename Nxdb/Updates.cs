@@ -66,11 +66,11 @@ namespace Nxdb
             //Execute the function (which may implicity add to the query context)
             expr.item(_queryContext, null);
 
-            //If a context isn't open, apply the update immediatly
+            // If a context isn't open, apply the update immediatly
             Apply(false);
         }
 
-        //Forces update application regardless of update nesting level, resets updates
+        // Forces update application regardless of update nesting level, resets updates
         public static void Apply()
         {
             Apply(true);
@@ -80,24 +80,27 @@ namespace Nxdb
         {
             if (force || _counter <= 0)
             {
-                //Check if there are any updates to perform (if not, updates.mod will be null)
+                // Check if there are any updates to perform (if not, updates.mod will be null)
                 if (_queryContext.updates.mod != null)
                 {
-                    //Apply the updates
+                    // Apply the updates
                     _queryContext.updates.applyUpdates();
 
-                    //Optimize database(s)
-                    if (_optimize)
+                    // Update databases
+                    foreach (Data data in _queryContext.updates.mod.datas())
                     {
-                        //Loop through each database used and optimize
-                        foreach (Data data in _queryContext.updates.mod.datas())
+                        // Update database node cache
+                        Database.Get(data).Update();
+
+                        // Optimize database(s)
+                        if (_optimize)
                         {
                             org.basex.core.cmd.Optimize.optimize(data);
                         }
                     }
                 }
 
-                //Reset
+                // Reset
                 Reset();
             }
         }

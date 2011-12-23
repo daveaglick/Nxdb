@@ -11,6 +11,7 @@ namespace Nxdb
 {
     public class Document : ContainerNode
     {
+        //Should only be called from Node.Get()
         internal Document(ANode aNode) : base(aNode, Data.DOC) { }
 
         public Document(string name) : base(new FDoc(name.Token()), Data.DOC) { }
@@ -53,10 +54,7 @@ namespace Nxdb
                 //Need to use the update primitive (as opposed to the expression) because documents can't be renamed through the expression
                 if (value == null) throw new ArgumentNullException("value");
                 Check(true);
-                using (new Updates())
-                {
-                    Updates.Add(new ReplaceValue(DbNode.pre, DbNode.data(), null, value.Token()));
-                }
+                Updates.Add(new ReplaceValue(DbNode.pre, DbNode.data(), null, value.Token()));
             }
         }
 

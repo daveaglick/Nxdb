@@ -15,12 +15,12 @@ namespace NxdbTests
         public void Drop()
         {
             Common.Reset();
-            using (Database database = new Database(Common.DatabaseName))
+            using (Database database = Database.Get(Common.DatabaseName))
             {
                 Common.Populate(database, "A", "B", "C", "D");
             }
             Database.Drop(Common.DatabaseName);
-            using (Database database = new Database(Common.DatabaseName))
+            using (Database database = Database.Get(Common.DatabaseName))
             {
                 CollectionAssert.AreEqual(new []{Common.DatabaseName}, database.DocumentNames); //Initially has an empty document with the database name
             }
@@ -30,7 +30,7 @@ namespace NxdbTests
         public void Add()
         {
             Common.Reset();
-            using (Database database = new Database(Common.DatabaseName))
+            using (Database database = Database.Get(Common.DatabaseName))
             {
                 Documents docs = Common.Populate(database, "A", "B", "C", "D");
 
@@ -44,7 +44,7 @@ namespace NxdbTests
         public void Paths()
         {
             Common.Reset();
-            using (Database database = new Database(Common.DatabaseName))
+            using (Database database = Database.Get(Common.DatabaseName))
             {
                 Documents docs = Common.Populate(database, "A", "B", "path/A", "path/B", "path/C", "path2/D", "path2/E");
 
@@ -72,7 +72,7 @@ namespace NxdbTests
         public void Delete()
         {
             Common.Reset();
-            using (Database database = new Database(Common.DatabaseName))
+            using (Database database = Database.Get(Common.DatabaseName))
             {
                 Documents docs = Common.Populate(database, "A", "B", "C", "D");
                 database.Delete(docs.Names[1]);
@@ -86,7 +86,7 @@ namespace NxdbTests
         public void Rename()
         {
             Common.Reset();
-            using (Database database = new Database(Common.DatabaseName))
+            using (Database database = Database.Get(Common.DatabaseName))
             {
                 Documents docs = Common.Populate(database, "A", "B", "C", "D");
                 database.Rename(docs.Names[2], "E");
@@ -99,7 +99,7 @@ namespace NxdbTests
         public void Replace()
         {
             Common.Reset();
-            using (Database database = new Database(Common.DatabaseName))
+            using (Database database = Database.Get(Common.DatabaseName))
             {
                 Documents docs = Common.Populate(database, "A", "B", "C", "D");
                 string content = Common.GenerateXmlContent("E");
@@ -118,7 +118,7 @@ namespace NxdbTests
         public void GetDocument()
         {
             Common.Reset();
-            using (Database database = new Database(Common.DatabaseName))
+            using (Database database = Database.Get(Common.DatabaseName))
             {
                 Documents docs = Common.Populate(database, "A", "B", "C", "D");
                 Node node = database.GetDocument(docs.Names[1]);

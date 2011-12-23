@@ -25,12 +25,11 @@ namespace Nxdb
     /// </summary>
     public abstract class Node : IEquatable<Node>, IQuery
     {
-        private readonly ANode _aNode;  // This should be updated before every use by calling Valid.get
+        private ANode _aNode;  // This should be updated before every use by calling Valid.get, if null then invalid
         private readonly DBNode _dbNode; // This should be set if the node is a database node
         private readonly FNode _fNode; // This should be set if the node is a result node
         private readonly int _id = -1; // The unique immutable ID for the node, -1 if not a database node
         private readonly int _kind; // The database kind supported by the subclass
-        private long _time = -1; // Cache the last modified time to avoid checking pre against id on every operation, also invalid if MinValue
 
         #region Construction
 
@@ -45,7 +44,6 @@ namespace Nxdb
             if (_dbNode != null)
             {
                 _id = _dbNode.data().id(_dbNode.pre);
-                _time = _dbNode.data().meta.time;
             }
         }
 
@@ -93,46 +91,66 @@ namespace Nxdb
         {
             if (data == null) throw new ArgumentNullException("data");
             if (pre < 0) throw new ArgumentOutOfRangeException("pre");
-            return Get(new DBNode(data, pre), false);
+            
+            //Is it already created?
+            Node node = Database.Get(data).GetNode(pre);
+            return node ?? Get(new DBNode(data, pre), false);
         }
 
-        internal static Node Get(DBNode dbNode, bool copy = true)
+        internal static Node Get(DBNode dbNode, bool check = true)
         {
             if (dbNode == null) throw new ArgumentNullException("dbNode");
 
             // Copy the DBNode if it wasn't created from scratch
-            if (copy)
+            Database database = Database.Get(dbNode.data());
+            if (check)
             {
+                // Is it already created?
+                Node node = database.GetNode(dbNode.pre);
+                if(node != null)
+                {
+                    return node;
+                }
+
+                // Otherwise, copy the DBNode so we can make a new Node
                 dbNode = dbNode.copy();
             }
 
             // Create the appropriate database node class
+            Node newNode;
             NodeType nodeType = dbNode.nodeType();
             if (nodeType == org.basex.query.item.NodeType.ELM)
             {
-                return new Element(dbNode);
+                newNode = new Element(dbNode);
             }
-            if (nodeType == org.basex.query.item.NodeType.TXT)
+            else if (nodeType == org.basex.query.item.NodeType.TXT)
             {
-                return new Text(dbNode);
+                newNode = new Text(dbNode);
             }
-            if (nodeType == org.basex.query.item.NodeType.ATT)
+            else if (nodeType == org.basex.query.item.NodeType.ATT)
             {
-                return new Attribute(dbNode);
+                newNode = new Attribute(dbNode);
             }
-            if (nodeType == org.basex.query.item.NodeType.DOC)
+            else if (nodeType == org.basex.query.item.NodeType.DOC)
             {
-                return new Document(dbNode);
+                newNode = new Document(dbNode);
             }
-            if (nodeType == org.basex.query.item.NodeType.COM)
+            else if (nodeType == org.basex.query.item.NodeType.COM)
             {
-                return new Comment(dbNode);
+                newNode = new Comment(dbNode);
             }
-            if (nodeType == org.basex.query.item.NodeType.PI)
+            else if (nodeType == org.basex.query.item.NodeType.PI)
             {
-                return new ProcessingInstruction(dbNode);
+                newNode = new ProcessingInstruction(dbNode);
             }
-            throw new ArgumentException("Invalid node type");
+            else
+            {
+                throw new ArgumentException("Invalid node type");
+            }
+
+            // Cache and return the node
+            database.SetNode(dbNode.pre, newNode);
+            return newNode;
         }
 
         public static Node Get(XmlNode node)
@@ -158,7 +176,7 @@ namespace Nxdb
         /// </summary>
         public Database Database
         {
-            get { return DbNode == null ? null : new Database(DbNode.data()); }
+            get { return DbNode == null ? null : Database.Get(DbNode.data()); }
         }
 
         protected internal ANode ANode
@@ -208,6 +226,37 @@ namespace Nxdb
 
         #region Validity
 
+        internal bool Validate()
+        {
+            // If no ANode, then we're invalid
+            if(_aNode == null)
+            {
+                return false;
+            }
+
+            // If we're not a database node, then always valid
+            if (DbNode == null)
+            {
+                return true;
+            }
+
+            // First check if the pre value is too large (the database shrunk),
+            // then check if the current pre still refers to the same id
+            // (do second since it requires disk access and is thus a little slower)
+            if (DbNode.pre >= DbNode.data().meta.size || _id != DbNode.data().id(DbNode.pre))
+            {
+                int pre = DbNode.data().pre(_id);
+                if (pre == -1)
+                {
+                    _aNode = null;
+                    // TODO: Raise Invalidated event
+                    return false;
+                }
+                DbNode.set(pre, _kind);    // Assume that the kind is the same since we found the same ID
+            }
+            return true;
+        }
+
         /// <summary>
         /// Gets a value indicating whether this node is valid. Non-database nodes
         /// are always valid.
@@ -217,48 +266,7 @@ namespace Nxdb
         /// </value>
         public bool Valid
         {
-            get
-            {
-                // If time == minimum value we've been invalidated
-                if (_time == long.MinValue)
-                {
-                    return false;
-                }
-
-                // If we're not a database node, then always valid
-                if (DbNode == null)
-                {
-                    return true;
-                }
-
-                // Check if the database has been modified since the last validity check
-                long time = DbNode.data().meta.time;
-                if (_time != time)
-                {
-                    _time = time;
-
-                    // First check if the pre value is too large (the database shrunk),
-                    // then check if the current pre still refers to the same id
-                    // (do second since it requires disk access and is thus a little slower)
-                    if (DbNode.pre >= DbNode.data().meta.size || _id != DbNode.data().id(DbNode.pre))
-                    {
-                        int pre = DbNode.data().pre(_id);
-                        if (pre == -1)
-                        {
-                            Invalidate();
-                            return false;
-                        }
-                        DbNode.set(pre, _kind);    // Assume that the kind is the same since we found the same ID
-                    }
-                }
-
-                return true;
-            }
-        }
-
-        protected void Invalidate()
-        {
-            _time = long.MinValue;
+            get { return _aNode != null; }
         }
 
         // Checks node validity and optionally checks if this is a database node
@@ -414,16 +422,12 @@ namespace Nxdb
         #region Content
         
         /// <summary>
-        /// Removes this node from the database and invalidates it.
+        /// Removes this node from the database.
         /// </summary>
         public void Remove()
         {
             Check(true);
-            using (new Updates())
-            {
-                Updates.Add(new Delete(null, DbNode));
-            }
-            Invalidate();
+            Updates.Add(new Delete(null, DbNode));
         }
 
         /// <summary>
@@ -444,10 +448,7 @@ namespace Nxdb
             {
                 if (value == null) throw new ArgumentNullException("value");
                 Check(true);
-                using (new Updates())
-                {
-                    Updates.Add(new Replace(null, DbNode, new Atm(value.Token()), true));
-                }
+                Updates.Add(new Replace(null, DbNode, new Atm(value.Token()), true));
             }
         }
 
@@ -482,10 +483,7 @@ namespace Nxdb
             {
                 if (value == null) throw new ArgumentNullException("value");
                 Check(true);
-                using (new Updates())
-                {
-                    Updates.Add(new Rename(null, DbNode, new QNm(value.Token())));
-                }
+                Updates.Add(new Rename(null, DbNode, new QNm(value.Token())));
             }
         }
 
@@ -621,13 +619,13 @@ namespace Nxdb
         public bool Equals(Node other)
         {
             //Do a validity check without throwing exceptions (Equals should never throw exceptions)
-            if (other == null || !Valid || !other.Valid)
+            if (other == null)
             {
                 return false;
             }
             if(DbNode != null)
             {
-                return DbNode.data().Equals(other.DbNode.data()) && _id == other._id;
+                return this == other;
             }
             return ANode.id == other.ANode.id;
         }

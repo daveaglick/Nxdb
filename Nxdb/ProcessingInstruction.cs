@@ -9,6 +9,7 @@ namespace Nxdb
 {
     public class ProcessingInstruction : TreeNode
     {
+        //Should only be called from Node.Get()
         internal ProcessingInstruction(ANode aNode) : base(aNode, Data.PI) { }
 
         public ProcessingInstruction(string name, string value) : base(new FPI(new QNm(name.Token()), value.Token()), Data.PI) { }

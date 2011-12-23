@@ -9,6 +9,7 @@ namespace Nxdb
 {
     public class Comment : TreeNode
     {
+        //Should only be called from Node.Get()
         internal Comment(ANode aNode) : base(aNode, Data.COMM) { }
 
         public Comment(string comment) : base(new FComm(comment.Token()), Data.COMM) { }

@@ -14,7 +14,7 @@ namespace NxdbTests
         public void Queries()
         {
             Common.Reset();
-            using (Database database = new Database(Common.DatabaseName))
+            using (Database database = Database.Get(Common.DatabaseName))
             {
                 Documents docs = Common.Populate(database, "A", "B", "C", "D");
 

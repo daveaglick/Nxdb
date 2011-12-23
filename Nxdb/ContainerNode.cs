@@ -27,11 +27,8 @@ namespace Nxdb
         public virtual void RemoveAll()
         {
             Check(true);
-            using (new Updates())
-            {
-                ANode[] nodes = EnumerateANodes(ANode.children()).ToArray();
-                Updates.Add(new Delete(null, Seq.get(nodes, nodes.Length)));
-            }
+            ANode[] nodes = EnumerateANodes(ANode.children()).ToArray();
+            Updates.Add(new Delete(null, Seq.get(nodes, nodes.Length)));
         }
 
         /// <summary>
@@ -66,10 +63,7 @@ namespace Nxdb
             Check(true);
             if (nodeCache != null)
             {
-                using (new Updates())
-                {
-                    Updates.Add(new Insert(null, nodeCache.value(), false, true, false, false, DbNode));
-                }
+                Updates.Add(new Insert(null, nodeCache.value(), false, true, false, false, DbNode));
             }
         }
 
@@ -105,10 +99,7 @@ namespace Nxdb
             Check(true);
             if (nodeCache != null)
             {
-                using (new Updates())
-                {
-                    Updates.Add(new Insert(null, nodeCache.value(), true, false, false, false, DbNode));
-                }
+                Updates.Add(new Insert(null, nodeCache.value(), true, false, false, false, DbNode));
             }
         }
 

@@ -11,6 +11,7 @@ namespace Nxdb
 {
     public class Element : ContainerNode
     {
+        //Should only be called from Node.Get()
         internal Element(ANode aNode) : base(aNode, Data.ELEM) { }
 
         public Element(string name) : base(new FElem(new QNm(name.Token())), Data.ELEM) { }
@@ -41,7 +42,7 @@ namespace Nxdb
             if (name == String.Empty) throw new ArgumentException("name");
             Check();
             ANode node = AttributeANode(name);
-            return node == null ? null : new Attribute(node);
+            return node == null ? null : (Attribute)Get(node);
         }
 
         /// <summary>
@@ -69,11 +70,8 @@ namespace Nxdb
         public void RemoveAllAttributes()
         {
             Check(true);
-            using (new Updates())
-            {
-                ANode[] nodes = EnumerateANodes(ANode.attributes()).ToArray();
-                Updates.Add(new Delete(null, Seq.get(nodes, nodes.Length)));
-            }
+            ANode[] nodes = EnumerateANodes(ANode.attributes()).ToArray();
+            Updates.Add(new Delete(null, Seq.get(nodes, nodes.Length)));
         }
 
         /// <summary>
@@ -90,10 +88,7 @@ namespace Nxdb
             DBNode node = AttributeANode(name) as DBNode;
             if (node != null)
             {
-                using (new Updates())
-                {
-                    Updates.Add(new Delete(null, node));
-                }
+                Updates.Add(new Delete(null, node));
             }
         }
 
@@ -111,10 +106,7 @@ namespace Nxdb
             FAttr attr = new FAttr(new QNm(name.Token()), value.Token());
             if(DbNode != null)
             {
-                using (new Updates())
-                {
-                    Updates.Add(new Insert(null, attr, false, false, false, false, DbNode));
-                }
+                Updates.Add(new Insert(null, attr, false, false, false, false, DbNode));
             }
             else if(FNode != null)
             {
