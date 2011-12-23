@@ -11,9 +11,8 @@ using Type = System.Type;
 
 namespace Nxdb
 {
-    public class Query
+    public class Query : IQuery
     {
-        private string _expression;
         private readonly Dictionary<string, Value> _namedCollections
             = new Dictionary<string, Value>();
         private Value _defaultCollection = null;
@@ -23,25 +22,18 @@ namespace Nxdb
         private readonly Dictionary<string, string> _externals
             = new Dictionary<string, string>();
 
-        public Query(string expression)
+        public Query()
         {
-            Expression = expression;
         }
 
-        public string Expression
+        public Query(object context)
         {
-            get { return _expression; }
-            set
-            {
-                if (value == null) throw new ArgumentNullException("value");
-                if (value == String.Empty) throw new ArgumentException("value");
-                _expression = value;
-            }
+            SetContext(context);
         }
 
-        public void SetContext(object value)
+        public void SetContext(object context)
         {
-            _context = value.ToValue();
+            _context = context.ToValue();
         }
 
         // name == null or String.Empty -> set the default (first) collection
@@ -82,7 +74,6 @@ namespace Nxdb
                 _variables[name] = v;
             }
         }
-
 
         /// <summary>
         /// Sets an external class that can be used for XQuery external functions. The provided
@@ -129,9 +120,11 @@ namespace Nxdb
             SetExternal(type.Name, type);
         }
 
-        // TODO: Return a structure with the result enumerable as well as other information such as what was modified
-        public IEnumerable<object> Evaluate()
+        public IEnumerable<object> Eval(string expression)
         {
+            if (expression == null) throw new ArgumentNullException("expression");
+            if (expression == String.Empty) throw new ArgumentException("expression");
+
             // Create the query context
             QueryContext queryContext = new QueryContext(Database.Context);
 
@@ -159,13 +152,13 @@ namespace Nxdb
                 queryContext.sc.@namespace(kvp.Key, "java:" + kvp.Value);
             }
 
-            using (new Update())
+            using (new Updates())
             {
                 // Reset the update collection to the common one in our update operation
-                queryContext.updates = Update.Updates;
+                queryContext.updates = Updates.QueryUpdates;
 
                 // Parse the expression
-                queryContext.parse(_expression);
+                queryContext.parse(expression);
 
                 // Compile the query
                 queryContext.compile();
@@ -179,29 +172,59 @@ namespace Nxdb
             }
         }
 
-        public IEnumerable<object> GetResults()
+        public IEnumerable<T> Eval<T>(string expression)
         {
-            return Evaluate();
+            return Eval(expression).OfType<T>();
         }
 
-        public IList<object> GetList()
+        public IList<object> EvalList(string expression)
         {
-            return new List<object>(GetResults());
+            return new List<object>(Eval(expression));
         }
 
-        public IList<T> GetList<T>()
+        public IList<T> EvalList<T>(string expression)
         {
-            return new List<T>(GetResults().OfType<T>());
+            return new List<T>(Eval(expression).OfType<T>());
         }
 
-        public object GetSingle()
+        public object EvalSingle(string expression)
         {
-            return GetResults().FirstOrDefault();
+            return Eval(expression).FirstOrDefault();
         }
 
-        public T GetSingle<T>() where T : class
+        public T EvalSingle<T>(string expression) where T : class
         {
-            return GetSingle() as T;
+            return EvalSingle(expression) as T;
+        }
+
+        public static IEnumerable<object> Eval(object context, string expression)
+        {
+            return new Query(context).Eval(expression);
+        }
+
+        public static IEnumerable<T> Eval<T>(object context, string expression)
+        {
+            return new Query(context).Eval<T>(expression);
+        }
+
+        public static IList<object> EvalList(object context, string expression)
+        {
+            return new Query(context).EvalList(expression);
+        }
+
+        public static IList<T> EvalList<T>(object context, string expression)
+        {
+            return new Query(context).EvalList<T>(expression);
+        }
+
+        public static object EvalSingle(object context, string expression)
+        {
+            return new Query(context).EvalSingle(expression);
+        }
+
+        public static T EvalSingle<T>(object context, string expression) where T : class
+        {
+            return new Query(context).EvalSingle<T>(expression);
         }
     }
 }

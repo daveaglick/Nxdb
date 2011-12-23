@@ -69,10 +69,10 @@ namespace Nxdb
         public void RemoveAllAttributes()
         {
             Check(true);
-            using (new Update())
+            using (new Updates())
             {
                 ANode[] nodes = EnumerateANodes(ANode.attributes()).ToArray();
-                Update.Add(new Delete(null, Seq.get(nodes, nodes.Length)));
+                Updates.Add(new Delete(null, Seq.get(nodes, nodes.Length)));
             }
         }
 
@@ -90,9 +90,9 @@ namespace Nxdb
             DBNode node = AttributeANode(name) as DBNode;
             if (node != null)
             {
-                using (new Update())
+                using (new Updates())
                 {
-                    Update.Add(new Delete(null, node));
+                    Updates.Add(new Delete(null, node));
                 }
             }
         }
@@ -111,9 +111,9 @@ namespace Nxdb
             FAttr attr = new FAttr(new QNm(name.Token()), value.Token());
             if(DbNode != null)
             {
-                using (new Update())
+                using (new Updates())
                 {
-                    Update.Add(new Insert(null, attr, false, false, false, false, DbNode));
+                    Updates.Add(new Insert(null, attr, false, false, false, false, DbNode));
                 }
             }
             else if(FNode != null)
@@ -128,7 +128,7 @@ namespace Nxdb
 
         public override void RemoveAll()
         {
-            using(new Update())
+            using(new Updates())
             {
                 RemoveAllAttributes();
                 base.RemoveAll();

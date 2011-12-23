@@ -125,6 +125,7 @@
     <Compile Include="Document.cs" />
     <Compile Include="Element.cs" />
     <Compile Include="Helper.cs" />
+    <Compile Include="IQuery.cs" />
     <Compile Include="IterEnum.cs" />
     <Compile Include="DataInserter.cs">
       <SubType>Code</SubType>
@@ -177,7 +178,7 @@
     <Compile Include="Query.cs" />
     <Compile Include="Text.cs" />
     <Compile Include="TreeNode.cs" />
-    <Compile Include="Update.cs" />
+    <Compile Include="Updates.cs" />
     <Compile Include="Io\XmlWriterSerializer.cs">
       <SubType>Code</SubType>
     </Compile>

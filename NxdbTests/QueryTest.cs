@@ -16,13 +16,11 @@ namespace NxdbTests
         {
             Common.Reset();
 
-            Query query = new Query("1 + 2");
-            IList<object> results = query.GetList();
+            IList<object> results = Query.EvalList(null, "1 + 2");
             Assert.AreEqual(1, results.Count);
             Assert.AreEqual(3, results[0]);
 
-            query = new Query("(3, 'test', 2 + 5)");
-            results = query.GetList();
+            results = Query.EvalList(null, "(3, 'test', 2 + 5)");
             Assert.AreEqual(3, results.Count);
             Assert.AreEqual(3, results[0]);
             Assert.AreEqual("test", results[1]);
@@ -40,15 +38,13 @@ namespace NxdbTests
                     Documents docs = Common.Populate(database, "A", "B", "C", "D");
                     Documents docs2 = Common.Populate(database2, "A", "B", "E", "F");
 
-                    Query query = new Query("/A");
-                    query.SetContext(new Database[]{database, database2});
-                    IList<object> results = query.GetList();
+                    Query query = new Query(new []{database, database2});
+                    IList<object> results = query.EvalList("/A");
                     Assert.AreEqual(2, results.Count);
                     CollectionAssert.AreEquivalent(new[] { Common.DatabaseName, Common.DatabaseName + "2"},
                         results.OfType<Node>().Select(n => n.Database.Name));
 
-                    query.Expression = "/*";
-                    results = query.GetList();
+                    results = query.EvalList("/*");
                     Assert.AreEqual(8, results.Count);
                     CollectionAssert.AreEquivalent(docs.Names.Concat(docs2.Names),
                         results.OfType<Node>().Select(n => n.Name));
@@ -64,19 +60,16 @@ namespace NxdbTests
             {
                 Documents docs = Common.Populate(database, "A", "B", "C", "D");
                 
-                Query query = new Query("/*[1]/*[2]");
-                query.SetContext(database.GetDocument("B"));
-                IList<object> results = query.GetList();
+                Query query = new Query(database.GetDocument("B"));
+                IList<object> results = query.EvalList("/*[1]/*[2]");
                 Assert.AreEqual("BB", ((Element)results[0]).Name);
 
                 query.SetContext(results[0]);
-                query.Expression = "./BBB";
-                results = query.GetList();
+                results = query.EvalList("./BBB");
                 Assert.AreEqual(1, results.Count);
                 Assert.AreEqual("BBB", ((Element)results[0]).Name);
 
-                query.Expression = "./XYZ";
-                results = query.GetList();
+                results = query.EvalList("./XYZ");
                 Assert.AreEqual(0, results.Count);
             }
         }
@@ -109,27 +102,27 @@ namespace NxdbTests
             TypeConversion(new XmlQualifiedName("foo", "bar"));
 
             // Single dimensional array
-            Query query = new Query("$var");
+            Query query = new Query();
             object[] arr = new object[] {1, "2", 3.4, true};
             query.SetVariable("var", arr);
-            IList<object> results = query.GetList();
+            IList<object> results = query.EvalList("$var");
             Assert.AreEqual(4, results.Count);
             CollectionAssert.AreEqual(arr, results);
 
             // Multi dimensional array (test flattening)
-            query = new Query("$var");
+            query = new Query();
             arr = new object[] { 1, "2", new object[]{3.4, 5, 6}, true };
             query.SetVariable("var", arr);
-            results = query.GetList();
+            results = query.EvalList("$var");
             Assert.AreEqual(6, results.Count);
             CollectionAssert.AreEqual(new object[] { 1, "2", 3.4, 5, 6, true }, results);
         }
 
         private void TypeConversion(object value)
         {
-            Query query = new Query("$var");
+            Query query = new Query();
             query.SetVariable("var", value);
-            IList<object> results = query.GetList();
+            IList<object> results = query.EvalList("$var");
             Assert.AreEqual(1, results.Count);
             Assert.AreEqual(value, results[0]);
         }
@@ -140,24 +133,24 @@ namespace NxdbTests
             Common.Reset();
 
             // External static method call
-            Query query = new Query("QueryTest:FuncTest(xs:int(5))");
+            Query query = new Query();
             query.SetExternal(GetType());
-            IList<object> results = query.GetList();
+            IList<object> results = query.EvalList("QueryTest:FuncTest(xs:int(5))");
             Assert.AreEqual(1, results.Count);
             Assert.AreEqual(FuncTest(5), results[0]);
 
             // External class construction and member call
-            query = new Query("let $cls := ExtTest:new('testing') return ExtTest:Count($cls, xs:int(5))");
+            query = new Query();
             query.SetExternal(typeof(ExtTest));
-            results = query.GetList();
+            results = query.EvalList("let $cls := ExtTest:new('testing') return ExtTest:Count($cls, xs:int(5))");
             Assert.AreEqual(1, results.Count);
             Assert.AreEqual(12, results[0]);
 
             // Passing an object via variable binding
-            query = new Query("QueryTest:BindingTest($var, xs:int(5))");
+            query = new Query();
             query.SetVariable("var", new ExtTest("testing"));
             query.SetExternal(GetType());
-            results = query.GetList();
+            results = query.EvalList("QueryTest:BindingTest($var, xs:int(5))");
             Assert.AreEqual(1, results.Count);
             Assert.AreEqual(12, results[0]);
         }

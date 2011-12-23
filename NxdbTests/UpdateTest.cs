@@ -19,56 +19,44 @@ namespace NxdbTests
                 Documents docs = Common.Populate(database, "A", "B", "C", "D");
 
                 //Simple update with context
-                Query query = new Query("insert node 'test' into .");
                 Document doc = database.GetDocument("B");
-                query.SetContext(doc);
+                Query query = new Query(doc);
                 Assert.AreEqual(1, doc.Children.Count());
-                query.Evaluate();
+                query.Eval("insert node 'test' into .");
                 Assert.AreEqual(2, doc.Children.Count());
 
-                //Multiple updates - make sure none are updated until Update is closed
-                using (new Update())
+                //Multiple updates - make sure none are updated until Updates is closed
+                using (new Updates())
                 {
-                    query.Expression = "insert node 'test2' into .";
-                    query.Evaluate();
-                    query.Expression = "insert node 'test3' into .";
-                    query.Evaluate();
-                    query.Expression = "string(./text()[1])";
-                    Assert.AreEqual("test", query.GetSingle());
+                    query.Eval("insert node 'test2' into .");
+                    query.Eval("insert node 'test3' into .");
+                    Assert.AreEqual("test", query.EvalSingle("string(./text()[1])"));
                 }
                 Assert.AreEqual(2, doc.Children.Count());   //The two insert texts should have been merged into the existing
-                query.Expression = "string(./text()[1])";
-                Assert.AreEqual("testtest2test3", query.GetSingle());
+                Assert.AreEqual("testtest2test3", query.EvalSingle("string(./text()[1])"));
 
                 //Aborted update
-                using (new Update())
+                using (new Updates())
                 {
-                    query.Expression = "insert node 'test4' into .";
-                    query.Evaluate();
+                    query.Eval("insert node 'test4' into .");
                     Assert.AreEqual(2, doc.Children.Count());
-                    query.Expression = "insert node 'test5' into .";
-                    query.Evaluate();
+                    query.Eval("insert node 'test5' into .");
                     Assert.AreEqual(2, doc.Children.Count());
-                    query.Expression = "string(./text()[1])";
-                    Assert.AreEqual("testtest2test3", query.GetSingle());
-                    Update.Reset();
+                    Assert.AreEqual("testtest2test3", query.EvalSingle("string(./text()[1])"));
+                    Updates.Reset();
                 }
                 Assert.AreEqual(2, doc.Children.Count());
-                query.Expression = "string(./text()[1])";
-                Assert.AreEqual("testtest2test3", query.GetSingle());
+                Assert.AreEqual("testtest2test3", query.EvalSingle("string(./text()[1])"));
 
                 //Multiple updates with non-query updates
-                using (new Update())
+                using (new Updates())
                 {
-                    query.Expression = "insert node 'test6' into .";
-                    query.Evaluate();
+                    query.Eval("insert node 'test6' into .");
                     doc.Append("test7");
-                    query.Expression = "string(./text()[1])";
-                    Assert.AreEqual("testtest2test3", query.GetSingle());
+                    Assert.AreEqual("testtest2test3", query.EvalSingle("string(./text()[1])"));
                 }
                 Assert.AreEqual(2, doc.Children.Count());
-                query.Expression = "string(./text()[1])";
-                Assert.AreEqual("testtest2test3test6test7", query.GetSingle());
+                Assert.AreEqual("testtest2test3test6test7", query.EvalSingle("string(./text()[1])"));
             }
         }
     }

@@ -13,18 +13,18 @@ using org.basex.query.up.primitives;
 
 namespace Nxdb
 {
-    public class Update : IDisposable
+    public class Updates : IDisposable
     {
         private static bool _optimize = true;
         private static int _counter = 0;
         private static QueryContext _queryContext = new QueryContext(Database.Context);
         
-        public Update()
+        public Updates()
         {
-            _counter++;
+            Begin();
         }
 
-        internal static Updates Updates
+        internal static org.basex.query.up.Updates QueryUpdates
         {
             get { return _queryContext.updates; }
         }
@@ -34,6 +34,22 @@ namespace Nxdb
             get { return _optimize; }
             set { _optimize = value; }
         }
+
+        public static void Begin()
+        {
+            _counter++;
+        }
+
+        public static void End()
+        {
+            _counter--;
+            Apply(false);
+        }
+
+        public void Dispose()
+        {
+            End();
+        }
         
         //Adds an update primitive to the sequence of operations
         internal static void Add(UpdatePrimitive update)
@@ -42,7 +58,7 @@ namespace Nxdb
             _queryContext.updates.add(update, _queryContext);
 
             //If a context isn't open, apply the update immediatly
-            ApplyUpdates();
+            Apply(false);
         }
 
         internal static void Add(Expr expr)
@@ -51,12 +67,18 @@ namespace Nxdb
             expr.item(_queryContext, null);
 
             //If a context isn't open, apply the update immediatly
-            ApplyUpdates();
+            Apply(false);
         }
 
-        private static void ApplyUpdates()
+        //Forces update application regardless of update nesting level, resets updates
+        public static void Apply()
         {
-            if (_counter <= 0)
+            Apply(true);
+        }
+
+        private static void Apply(bool force)
+        {
+            if (force || _counter <= 0)
             {
                 //Check if there are any updates to perform (if not, updates.mod will be null)
                 if (_queryContext.updates.mod != null)
@@ -87,12 +109,6 @@ namespace Nxdb
         {
             _queryContext = new QueryContext(Database.Context);
             _counter = 0;
-        }
-
-        public void Dispose()
-        {
-            _counter--;
-            ApplyUpdates();
         }
     }
 }

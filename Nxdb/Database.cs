@@ -25,7 +25,7 @@ namespace Nxdb
     // and querying between them is not supported
     // The documents in the database can be grouped using paths in the document name,
     // i.e.: "folderA/docA.xml", "folderA/docB.xml", "folderB/docC.xml"
-    public class Database : IDisposable, IEquatable<Database>
+    public class Database : IDisposable, IEquatable<Database>, IQuery
     {
         private static string _home = null;
 
@@ -200,11 +200,11 @@ namespace Nxdb
         public void Delete(string path)
         {
             IntList docs = Data.docs(path);
-            using(new Update())
+            using(new Updates())
             {
                 for (int i = 0, s = docs.size(); i < s; i++)
                 {
-                    Update.Add(new DeleteNode(docs.get(i), Data, null));
+                    Updates.Add(new DeleteNode(docs.get(i), Data, null));
                 }
             }
         }
@@ -212,7 +212,7 @@ namespace Nxdb
         public void Rename(string path, string newName)
         {
             IntList docs = Data.docs(path);
-            using (new Update())
+            using (new Updates())
             {
                 for (int i = 0, s = docs.size(); i < s; i++)
                 {
@@ -220,7 +220,7 @@ namespace Nxdb
                     string target = org.basex.core.cmd.Rename.target(Data, pre, path, newName);
                     if (!String.IsNullOrEmpty(target))
                     {
-                        Update.Add(new ReplaceValue(pre, Data, null, target.Token()));
+                        Updates.Add(new ReplaceValue(pre, Data, null, target.Token()));
                     }
                 }
             }
@@ -228,17 +228,17 @@ namespace Nxdb
 
         public void Optimize()
         {
-            using(new Update())
+            using(new Updates())
             {
-                Update.Add(new DBOptimize(Data, Context, false, null));
+                Updates.Add(new DBOptimize(Data, Context, false, null));
             }
         }
 
         public void OptimizeAll()
         {
-            using (new Update())
+            using (new Updates())
             {
-                Update.Add(new DBOptimize(Data, Context, true, null));
+                Updates.Add(new DBOptimize(Data, Context, true, null));
             }
         }
         
@@ -270,9 +270,9 @@ namespace Nxdb
             if (nodeCache != null)
             {
                 FDoc doc = new FDoc(nodeCache, path.Token());
-                using (new Update())
+                using (new Updates())
                 {
-                    Update.Add(new DBAdd(Data, null, doc, path, Context));
+                    Updates.Add(new DBAdd(Data, null, doc, path, Context));
                 }
             }
         }
@@ -302,13 +302,13 @@ namespace Nxdb
 
         private void Replace(string path, NodeCache nodeCache)
         {
-            using (new Update())
+            using (new Updates())
             {
                 int pre = Data.doc(path);
                 if (pre != -1)
                 {
                     if (Data.docs(path).size() != 1) throw new ArgumentException("Simple document expected as replacement target");
-                    Update.Add(new DeleteNode(pre, Data, null));
+                    Updates.Add(new DeleteNode(pre, Data, null));
                     Add(path, nodeCache);
                 }
             }
@@ -356,6 +356,36 @@ namespace Nxdb
             }
         }
 
+        public IEnumerable<object> Eval(string expression)
+        {
+            return new Query(this).Eval(expression);
+        }
+
+        public IEnumerable<T> Eval<T>(string expression)
+        {
+            return Eval(expression).OfType<T>();
+        }
+
+        public IList<object> EvalList(string expression)
+        {
+            return new List<object>(Eval(expression));
+        }
+
+        public IList<T> EvalList<T>(string expression)
+        {
+            return new List<T>(Eval(expression).OfType<T>());
+        }
+
+        public object EvalSingle(string expression)
+        {
+            return Eval(expression).FirstOrDefault();
+        }
+
+        public T EvalSingle<T>(string expression) where T : class
+        {
+            return EvalSingle(expression) as T;
+        }
+        
         // A cache of all constructed DOM nodes for this collection
         // Needed because .NET XML DOM consumers probably expect one object per node instead of the on the fly creation that Nxdb uses
         // This ensures reference equality for equivalent NxNodes

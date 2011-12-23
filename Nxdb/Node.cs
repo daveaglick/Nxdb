@@ -23,7 +23,7 @@ namespace Nxdb
     /// you create a node directly or from XmlNodes or XNodes. The check which kind of node this is look at the
     /// Id property. If it is >= 0 the node is a database node; if it is -1 the node is a query node.
     /// </summary>
-    public abstract class Node : IEquatable<Node>
+    public abstract class Node : IEquatable<Node>, IQuery
     {
         private readonly ANode _aNode;  // This should be updated before every use by calling Valid.get
         private readonly DBNode _dbNode; // This should be set if the node is a database node
@@ -419,9 +419,9 @@ namespace Nxdb
         public void Remove()
         {
             Check(true);
-            using (new Update())
+            using (new Updates())
             {
-                Update.Add(new Delete(null, DbNode));
+                Updates.Add(new Delete(null, DbNode));
             }
             Invalidate();
         }
@@ -444,9 +444,9 @@ namespace Nxdb
             {
                 if (value == null) throw new ArgumentNullException("value");
                 Check(true);
-                using (new Update())
+                using (new Updates())
                 {
-                    Update.Add(new Replace(null, DbNode, new Atm(value.Token()), true));
+                    Updates.Add(new Replace(null, DbNode, new Atm(value.Token()), true));
                 }
             }
         }
@@ -482,9 +482,9 @@ namespace Nxdb
             {
                 if (value == null) throw new ArgumentNullException("value");
                 Check(true);
-                using (new Update())
+                using (new Updates())
                 {
-                    Update.Add(new Rename(null, DbNode, new QNm(value.Token())));
+                    Updates.Add(new Rename(null, DbNode, new QNm(value.Token())));
                 }
             }
         }
@@ -568,6 +568,40 @@ namespace Nxdb
                 Check();
                 return ANode.baseURI().Token();
             }
+        }
+
+        #endregion
+
+        #region IQuery
+
+        public IEnumerable<object> Eval(string expression)
+        {
+            return new Query(this).Eval(expression);
+        }
+
+        public IEnumerable<T> Eval<T>(string expression)
+        {
+            return Eval(expression).OfType<T>();
+        }
+
+        public IList<object> EvalList(string expression)
+        {
+            return new List<object>(Eval(expression));
+        }
+
+        public IList<T> EvalList<T>(string expression)
+        {
+            return new List<T>(Eval(expression).OfType<T>());
+        }
+
+        public object EvalSingle(string expression)
+        {
+            return Eval(expression).FirstOrDefault();
+        }
+
+        public T EvalSingle<T>(string expression) where T : class
+        {
+            return EvalSingle(expression) as T;
         }
 
         #endregion

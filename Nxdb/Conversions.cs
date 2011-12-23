@@ -96,6 +96,12 @@ namespace Nxdb
 
         internal static Value ToValue(this object obj)
         {
+            //Is it null?
+            if (obj == null)
+            {
+                return null;
+            }
+
             //Is it already a Value?
             if (obj is Value)
             {
