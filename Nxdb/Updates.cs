@@ -15,7 +15,6 @@ namespace Nxdb
 {
     public class Updates : IDisposable
     {
-        private static bool _optimize = true;
         private static int _counter = 0;
         private static QueryContext _queryContext = new QueryContext(Database.Context);
         
@@ -27,12 +26,6 @@ namespace Nxdb
         internal static org.basex.query.up.Updates QueryUpdates
         {
             get { return _queryContext.updates; }
-        }
-
-        public static bool Optimize
-        {
-            get { return _optimize; }
-            set { _optimize = value; }
         }
 
         public static void Begin()
@@ -87,15 +80,16 @@ namespace Nxdb
                     _queryContext.updates.applyUpdates();
 
                     // Update databases
+                    bool optimize = Properties.OptimizeAfterUpdates.Get();
                     foreach (Data data in _queryContext.updates.mod.datas())
                     {
                         // Update database node cache
                         Database.Get(data).Update();
 
                         // Optimize database(s)
-                        if (_optimize)
+                        if (optimize)
                         {
-                            org.basex.core.cmd.Optimize.optimize(data);
+                            Optimize.optimize(data);
                         }
                     }
                 }

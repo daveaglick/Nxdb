@@ -64,6 +64,7 @@ namespace Nxdb
 
                     // Now we can create the context since the path for preferences has been set
                     _context = new Context();
+                    _properties = new NxdbProp();
 
                     // Now set the database path
                     _context.mprop.set(MainProp.DBPATH, _home);
@@ -72,6 +73,16 @@ namespace Nxdb
             }
         }
 
+        private static NxdbProp _properties = null;
+
+        internal static NxdbProp Properties
+        {
+            get
+            {
+                Context context = Context;
+                return _properties;
+            }
+        }
         
         public static void Drop(string name)
         {
@@ -107,7 +118,8 @@ namespace Nxdb
             }
         }
 
-        public static Database Get(string name)
+        // Return value = opened (true = opened; false = created)
+        public static bool Get(string name, out Database database)
         {
             Initialize();
 
@@ -115,21 +127,31 @@ namespace Nxdb
             if (name == String.Empty) throw new ArgumentException("name");
 
             //Try to open or create the database
+            database = null;
             try
             {
-                return Get(Open.open(name, Context));
+                database = Get(Open.open(name, Context));
+                return true;
             }
             catch (Exception)
             {
                 try
                 {
-                    return Get(CreateDB.create(name, Parser.emptyParser(), Context));
+                    database = Get(CreateDB.create(name, Parser.emptyParser(), Context));
+                    return false;
                 }
                 catch (Exception ex)
                 {
                     throw new ArgumentException("Could not create database.", ex);
                 }
             }
+        }
+
+        public static Database Get(string name)
+        {
+            Database database;
+            Get(name, out database);
+            return database;
         }
 
         internal static Database Get(Data data)
@@ -169,10 +191,15 @@ namespace Nxdb
             if(_data == null) throw new ObjectDisposedException("Database");
             if(Context.unpin(_data))
             {
+                string name = Name;
                 Databases.Remove(_data);
                 _data.close();  
                 _data = null;   
                 _nodes = null;
+                if(Nxdb.Properties.DropOnDispose.Get())
+                {
+                    Drop(name);
+                }
             }
         }
 

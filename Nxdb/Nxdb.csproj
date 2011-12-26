@@ -164,6 +164,7 @@
     <Compile Include="Io\TextWriterSerializer.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Properties.cs" />
     <Compile Include="Query.cs" />
     <Compile Include="Text.cs" />
     <Compile Include="TreeNode.cs" />
