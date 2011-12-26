@@ -26,8 +26,9 @@ namespace Nxdb
     public abstract class Node : IEquatable<Node>, IQuery
     {
         private ANode _aNode;  // This should be updated before every use by calling Valid.get, if null then invalid
-        private readonly DBNode _dbNode; // This should be set if the node is a database node
-        private readonly FNode _fNode; // This should be set if the node is a result node
+        private DBNode _dbNode; // This should be set if the node is a database node
+        private FNode _fNode; // This should be set if the node is a result node
+        private XmlNode _xmlNode = null; // Cached XmlNode inastance for DOM interoperability
         private readonly int _id = -1; // The unique immutable ID for the node, -1 if not a database node
         private readonly int _kind; // The database kind supported by the subclass
 
@@ -248,13 +249,27 @@ namespace Nxdb
                 int pre = DbNode.data().pre(_id);
                 if (pre == -1)
                 {
-                    _aNode = null;
-                    // TODO: Raise Invalidated event
+                    Invalidate();
                     return false;
                 }
                 DbNode.set(pre, _kind);    // Assume that the kind is the same since we found the same ID
             }
             return true;
+        }
+
+        /// <summary>
+        /// Occurs when this node is invalidated.
+        /// </summary>
+        public event EventHandler<EventArgs> Invalidated;
+
+        private void Invalidate()
+        {
+            _aNode = null;
+            _dbNode = null;
+            _fNode = null;
+            _xmlNode = null;
+            EventHandler<EventArgs> handler = Invalidated;
+            if (handler != null) handler(this, EventArgs.Empty);
         }
 
         /// <summary>
@@ -282,7 +297,7 @@ namespace Nxdb
         #region Enumeration
 
         // Provides typed enumeration for BaseX NodeIter, which are limited to ANode results
-        // and thus the enumeration results are guaranteed to produce NxNode objects
+        // and thus the enumeration results are guaranteed to produce Node objects
         protected IEnumerable<T> EnumerateNodes<T>(NodeIter iter)
         {
             Check();
@@ -399,6 +414,22 @@ namespace Nxdb
         public IEnumerable<TreeNode> AncestorsOrSelf
         {
             get { return EnumerateNodes<TreeNode>(ANode.ancestorOrSelf()); }
+        }
+
+        public Document Document
+        {
+            get
+            {
+                Check();
+                foreach(ANode ancestor in EnumerateANodes(ANode.ancestorOrSelf()))
+                {
+                    if(ancestor.nodeType() == org.basex.query.item.NodeType.DOC)
+                    {
+                        return Get(ancestor) as Document;
+                    }
+                }
+                return null;
+            }
         }
 
         /// <summary>
@@ -604,6 +635,21 @@ namespace Nxdb
 
         #endregion
 
+        #region Dom
+        
+        public XmlNode XmlNode
+        {
+            get
+            {
+                Check();
+                return _xmlNode ?? (_xmlNode = CreateXmlNode());
+            }
+        }
+
+        protected abstract XmlNode CreateXmlNode();
+
+        #endregion
+
         #region Equality
 
         /// <summary>
@@ -657,7 +703,7 @@ namespace Nxdb
                 result = 37 * result + _id.GetHashCode();
                 result = 37 * result + DbNode.data().GetHashCode(); 
             }
-            else
+            else if(ANode != null)
             {
                 result = 37 * ANode.id;
             }

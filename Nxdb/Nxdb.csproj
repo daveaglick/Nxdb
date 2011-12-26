@@ -127,42 +127,31 @@
     <Compile Include="Helper.cs" />
     <Compile Include="IQuery.cs" />
     <Compile Include="IterEnum.cs" />
-    <Compile Include="DataInserter.cs">
+    <Compile Include="Dom\IDomNode.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="DataMatcher.cs">
+    <Compile Include="Dom\DomAttribute.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Dom\INxXmlNode.cs">
+    <Compile Include="Dom\DomComment.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Dom\NxAttribute.cs">
+    <Compile Include="Dom\DomDocument.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Dom\NxComment.cs">
+    <Compile Include="Dom\DomElement.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Dom\NxDocument.cs">
+    <Compile Include="Dom\DomProcessingInstruction.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Dom\NxElement.cs">
+    <Compile Include="Dom\DomText.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Dom\NxProcessingInstruction.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Dom\NxText.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Dom\NxXmlNodeList.cs">
+    <Compile Include="Dom\DomNodeList.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="FuncCommand.cs" />
-    <Compile Include="Io\LargeStringBuffer.cs" />
-    <Compile Include="Io\LsbOutputStream.cs" />
-    <Compile Include="Io\LsbReader.cs" />
-    <Compile Include="Io\LsbWriter.cs" />
-    <Compile Include="Io\XmlReaderParser.cs" />
     <Compile Include="Database.cs">
       <SubType>Code</SubType>
     </Compile>

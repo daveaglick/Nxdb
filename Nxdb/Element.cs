@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Xml;
 using org.basex.data;
 using org.basex.query.item;
 using org.basex.query.up.expr;
@@ -20,8 +21,6 @@ namespace Nxdb
         {
             get { return System.Xml.XmlNodeType.Element; }
         }
-
-        #region Attributes
         
         // Gets a specific attribute ANode for a given attribute name
         private ANode AttributeANode(string name)
@@ -113,11 +112,7 @@ namespace Nxdb
                 ((FElem)FNode).add(attr);
             }
         }
-
-        #endregion
-
-        #region Content
-
+        
         public override void RemoveAll()
         {
             using(new Updates())
@@ -148,6 +143,9 @@ namespace Nxdb
             get { return NamespaceUriImpl; }
         }
 
-        #endregion
+        protected override XmlNode CreateXmlNode()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Xml;
 using org.basex.data;
 using org.basex.query.item;
 using org.basex.query.up.expr;
@@ -20,8 +21,6 @@ namespace Nxdb
         {
             get { return System.Xml.XmlNodeType.Document; }
         }
-
-        #region Content
 
         /// <summary>
         /// Document does not support inserting content before it. This method will always throw
@@ -58,6 +57,9 @@ namespace Nxdb
             }
         }
 
-        #endregion
+        protected override XmlNode CreateXmlNode()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

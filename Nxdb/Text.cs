@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Xml;
 using org.basex.data;
 using org.basex.query.item;
 
@@ -17,6 +18,11 @@ namespace Nxdb
         public override System.Xml.XmlNodeType NodeType
         {
             get { return System.Xml.XmlNodeType.Text; }
+        }
+
+        protected override XmlNode CreateXmlNode()
+        {
+            throw new NotImplementedException();
         }
     }
 }

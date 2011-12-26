@@ -5,10 +5,10 @@ using org.basex.query.item;
 
 namespace Nxdb.Io
 {
-    //TODO: Fix treating of xml declaration as text for serialization
-    //If the original input has an xml declaration, that appears to get read into BaseX as text
-    //content before the opening element. When it gets serialized back out, the XmlWriter throws an
-    //exception that there is text content before the opening element.
+    // TODO: Fix treating of xml declaration as text for serialization
+    // If the original input has an xml declaration, that appears to get read into BaseX as text
+    // content before the opening element. When it gets serialized back out, the XmlWriter throws an
+    // exception that there is text content before the opening element.
     internal class XmlWriterSerializer : Serializer, IDisposable
     {
         private readonly XmlWriter _xmlWriter;
@@ -25,31 +25,31 @@ namespace Nxdb.Io
             }
         }
 
-        //Starts an opening element tag
+        // Starts an opening element tag
         protected override void startOpen(byte[] name)
         {
             _xmlWriter.WriteStartElement(name.Token());
         }
 
-        //Writes an attribute
+        // Writes an attribute
         public override void attribute(byte[] name, byte[] value)
         {
             _xmlWriter.WriteAttributeString(name.Token(), value.Token());
         }
 
-        //Finishes an opening element tag
+        // Finishes an opening element tag
         protected override void finishOpen()
         {
-            //Don't need to do anything
+            // Don't need to do anything
         }
 
-        //Finishes an empty element tag
+        // Finishes an empty element tag
         protected override void finishEmpty()
         {
             _xmlWriter.WriteEndElement();
         }
 
-        //Finishes a closing element tag
+        // Finishes a closing element tag
         protected override void finishClose()
         {
             _xmlWriter.WriteEndElement();
@@ -70,7 +70,7 @@ namespace Nxdb.Io
             _xmlWriter.WriteProcessingInstruction(name.Token(), text.Token());
         }
 
-        //Not supported - only used internally by BaseX
+        // Not supported - only used internally by BaseX
         protected override void finishItem(Item i)
         {
             throw new NotSupportedException();

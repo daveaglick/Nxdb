@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml;
+using Nxdb.Dom;
 using org.basex.data;
 using org.basex.query.item;
 
@@ -19,8 +20,6 @@ namespace Nxdb
         {
             get { return System.Xml.XmlNodeType.Attribute; }
         }
-
-        #region Content
 
         public override string Name
         {
@@ -43,6 +42,9 @@ namespace Nxdb
             get { return NamespaceUriImpl; }
         }
 
-        #endregion
+        protected override XmlNode CreateXmlNode()
+        {
+            return new DomAttribute(this);
+        }
     }
 }

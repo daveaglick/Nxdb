@@ -176,6 +176,7 @@ namespace Nxdb
             }
         }
 
+        // Only called from the Node.Get() static methods - use those to get new nodes
         internal Node GetNode(int pre)
         {
             if (_data == null) throw new ObjectDisposedException("Database");
@@ -199,6 +200,10 @@ namespace Nxdb
         internal void Update()
         {
             if (_data == null) throw new ObjectDisposedException("Database");
+
+            //Raise the Updated event
+            EventHandler<EventArgs> handler = Updated;
+            if (handler != null) handler(this, EventArgs.Empty);
 
             // Grow the nodes cache if needed (but never shrink it)
             if(_data.meta.size > _nodes.Length)
@@ -243,6 +248,8 @@ namespace Nxdb
                 _nodes[node.Index] = new WeakReference(node);
             }
         }
+
+        public event EventHandler<EventArgs> Updated;
 
         public string Name
         {

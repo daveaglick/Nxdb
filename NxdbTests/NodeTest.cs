@@ -417,6 +417,35 @@ namespace NxdbTests
         }
 
         [Test]
+        public void GetDocument()
+        {
+            Common.Reset();
+            using (Database database = Database.Get(Common.DatabaseName))
+            {
+                Common.Populate(database, "A", "B", "C", "D");
+                Document doc = database.GetDocument("C");
+
+                Assert.AreEqual(doc, doc.Document);
+
+                Node element = database.GetDocument("C").Child(0).Child(1);
+                Assert.AreEqual(doc, element.Document);
+
+                element = database.GetDocument("B").Child(0).Child(1);
+                Assert.AreNotEqual(doc, element.Document);
+
+                Node attribute = database.GetDocument("C").Child(0).Child(0).Attributes.First();
+                Assert.AreEqual(doc, attribute.Document);
+
+                Node text = database.GetDocument("C").Child(0).Child(0).Child(0);
+                Assert.AreEqual(doc, text.Document);
+                
+                //TODO: processing instruction
+
+                //TODO: comment
+            }
+        }
+
+        [Test]
         public void SetName()
         {
             Common.Reset();
