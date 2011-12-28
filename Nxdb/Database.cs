@@ -288,6 +288,19 @@ namespace Nxdb
         }
 
         /// <summary>
+        /// Gets a timestamp representing the last database modification. This can be valuable
+        /// when you need to check if the database has been modified.
+        /// </summary>
+        public long Time
+        {
+            get
+            {
+                if (_data == null) throw new ObjectDisposedException("Database");
+                return Data.meta.time;
+            }
+        }
+
+        /// <summary>
         /// Indicates whether the current database is equal to another database.
         /// </summary>
         /// <param name="other">A database to compare with this one.</param>

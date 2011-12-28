@@ -18,10 +18,10 @@ namespace Nxdb
         public static BoolProperty OptimizeAfterUpdates = new BoolProperty(Database.Properties, NxdbProp.OPTIMIZEAFTERUPDATES);
     }
 
-    internal class NxdbProp : AProp
+    public class NxdbProp : AProp
     {
-        internal static readonly object[] DROPONDISPOSE = { "DROPONDISPOSE", new java.lang.Boolean(false) };
-        internal static readonly object[] OPTIMIZEAFTERUPDATES = { "OPTIMIZEAFTERUPDATES", new java.lang.Boolean(true) };
+        public static readonly object[] DROPONDISPOSE = { "DROPONDISPOSE", new java.lang.Boolean(false) };
+        public static readonly object[] OPTIMIZEAFTERUPDATES = { "OPTIMIZEAFTERUPDATES", new java.lang.Boolean(true) };
 
         internal NxdbProp() : base(".nxdb")
         {

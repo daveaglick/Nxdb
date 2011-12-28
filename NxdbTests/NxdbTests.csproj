@@ -50,6 +50,7 @@
     <Compile Include="Documents.cs" />
     <Compile Include="DatabaseTest.cs" />
     <Compile Include="NodeTest.cs" />
+    <Compile Include="PropertiesTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Common.cs" />
     <Compile Include="QueryTest.cs" />
