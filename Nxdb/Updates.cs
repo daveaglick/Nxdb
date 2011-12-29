@@ -80,7 +80,7 @@ namespace Nxdb
                     _queryContext.updates.applyUpdates();
 
                     // Update databases
-                    bool optimize = Properties.OptimizeAfterUpdates.Get();
+                    bool optimize = Properties.OptimizeAfterUpdates;
                     foreach (Data data in _queryContext.updates.mod.datas())
                     {
                         // Update database node cache

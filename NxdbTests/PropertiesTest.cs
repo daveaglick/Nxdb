@@ -14,10 +14,24 @@ namespace NxdbTests
         public void DropOnDispose()
         {
             Common.Reset();
-            Properties.DropOnDispose.Set(true);
+
+            // No drop on dispose
+            Assert.IsFalse(Properties.DropOnDispose);
             using (Database database = Database.Get(Common.DatabaseName))
             {
-                Common.Populate(database, "A", "B", "C", "D");
+                Common.Populate(database, "A", "B", "C", "D").Verify(database);
+            }
+            using (Database database = Database.Get(Common.DatabaseName))
+            {
+                CollectionAssert.AreEqual(new[] { "A", "B", "C", "D" }, database.DocumentNames);
+            }
+            Database.Drop(Common.DatabaseName);
+
+            // Drop on dispose
+            Properties.DropOnDispose = true;
+            using (Database database = Database.Get(Common.DatabaseName))
+            {
+                Common.Populate(database, "A", "B", "C", "D").Verify(database);
             }
             using (Database database = Database.Get(Common.DatabaseName))
             {

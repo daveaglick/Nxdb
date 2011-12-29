@@ -22,7 +22,7 @@ namespace NxdbTests
             Database.Drop(Common.DatabaseName);
             using (Database database = Database.Get(Common.DatabaseName))
             {
-                CollectionAssert.AreEqual(new []{Common.DatabaseName}, database.DocumentNames); //Initially has an empty document with the database name
+                CollectionAssert.AreEqual(new []{Common.DatabaseName}, database.DocumentNames); // Initially has an empty document with the database name
             }
         }
 
@@ -33,10 +33,16 @@ namespace NxdbTests
             using (Database database = Database.Get(Common.DatabaseName))
             {
                 Documents docs = Common.Populate(database, "A", "B", "C", "D");
-
-                //TODO: Test adding with XmlDocument and XDocument
-
                 docs.Verify(database);
+
+                //Add an empty document
+                Document e = database.GetDocument("E");
+                Assert.IsNull(e);
+                database.Add("E", String.Empty);
+                e = database.GetDocument("E");
+                Assert.IsNotNull(e);
+
+                // TODO: Test adding with XmlDocument and XDocument
             }
         }
 

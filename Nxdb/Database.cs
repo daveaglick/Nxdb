@@ -196,7 +196,7 @@ namespace Nxdb
                 _data.close();  
                 _data = null;   
                 _nodes = null;
-                if(Nxdb.Properties.DropOnDispose.Get())
+                if(Nxdb.Properties.DropOnDispose)
                 {
                     Drop(name);
                 }

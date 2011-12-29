@@ -8,14 +8,75 @@ namespace Nxdb
 {
     public static class Properties
     {
-        public static BoolProperty ChopWhitespace = new BoolProperty(Database.Context.prop, Prop.CHOP);
-        public static BoolProperty UsePathIndex = new BoolProperty(Database.Context.prop, Prop.PATHINDEX);
-        public static BoolProperty UseTextIndex = new BoolProperty(Database.Context.prop, Prop.TEXTINDEX);
-        public static BoolProperty UseAttributeIndex = new BoolProperty(Database.Context.prop, Prop.ATTRINDEX);
-        public static BoolProperty UseFullTextIndex = new BoolProperty(Database.Context.prop, Prop.FTINDEX);
-        public static BoolProperty UpdateIndexes = new BoolProperty(Database.Context.prop, Prop.UPDINDEX);
-        public static BoolProperty DropOnDispose = new BoolProperty(Database.Properties, NxdbProp.DROPONDISPOSE);
-        public static BoolProperty OptimizeAfterUpdates = new BoolProperty(Database.Properties, NxdbProp.OPTIMIZEAFTERUPDATES);
+        public static bool ChopWhitespace
+        {
+            get { return Is(Database.Context.prop, Prop.CHOP); }
+            set { Set(Database.Context.prop, Prop.CHOP, value); }
+        }
+
+        public static bool UsePathIndex
+        {
+            get { return Is(Database.Context.prop, Prop.PATHINDEX); }
+            set { Set(Database.Context.prop, Prop.PATHINDEX, value); }
+        }
+
+        public static bool UseTextIndex
+        {
+            get { return Is(Database.Context.prop, Prop.TEXTINDEX); }
+            set { Set(Database.Context.prop, Prop.TEXTINDEX, value); }
+        }
+
+        public static bool UseAttributeIndex
+        {
+            get { return Is(Database.Context.prop, Prop.ATTRINDEX); }
+            set { Set(Database.Context.prop, Prop.ATTRINDEX, value); }
+        }
+
+        public static bool UseFullTextIndex
+        {
+            get { return Is(Database.Context.prop, Prop.FTINDEX); }
+            set { Set(Database.Context.prop, Prop.FTINDEX, value); }
+        }
+
+        public static bool UpdateIndexes
+        {
+            get { return Is(Database.Context.prop, Prop.UPDINDEX); }
+            set { Set(Database.Context.prop, Prop.UPDINDEX, value); }
+        }
+
+        public static bool DropOnDispose
+        {
+            get { return Is(Database.Properties, NxdbProp.DROPONDISPOSE); }
+            set { Set(Database.Properties, NxdbProp.DROPONDISPOSE, value); }
+        }
+
+        public static bool OptimizeAfterUpdates
+        {
+            get { return Is(Database.Properties, NxdbProp.OPTIMIZEAFTERUPDATES); }
+            set { Set(Database.Properties, NxdbProp.OPTIMIZEAFTERUPDATES, value); }
+        }
+
+        private static bool Is(AProp prop, object[] key)
+        {
+            return prop.@is(key);
+        }
+
+        private static string Get(AProp prop, object[] key)
+        {
+            return prop.get(key);
+        }
+
+        private static void Set(AProp prop, object[] key, bool value)
+        {
+            prop.set(key, value);
+            prop.write();
+        }
+
+        private static void Set(AProp prop, object[] key, string value)
+        {
+            prop.set(key, value);
+            prop.write();
+        }
     }
 
     public class NxdbProp : AProp
@@ -25,70 +86,6 @@ namespace Nxdb
 
         internal NxdbProp() : base(".nxdb")
         {
-        }
-    }
-
-    public abstract class Property<T>
-    {
-
-        private readonly AProp _prop;
-        private readonly object[] _key;
-
-        protected Property(AProp prop, object[] key)
-        {
-            _prop = prop;
-            _key = key;
-        }
-
-        protected AProp Prop
-        {
-            get { return _prop; }
-        }
-
-        protected object[] Key
-        {
-            get { return _key; }
-        }
-
-        public abstract void Set(T value);
-        public abstract T Get();
-    }
-
-    public class BoolProperty : Property<bool>
-    {
-        internal BoolProperty(AProp prop, object[] key)
-            : base(prop, key)
-        {
-        }
-
-        public override void Set(bool value)
-        {
-            Prop.set(Key, value);
-            Prop.write();
-        }
-
-        public override bool Get()
-        {
-            return Prop.@is(Key);
-        }
-    }
-
-    public class StringProperty : Property<string>
-    {
-        internal StringProperty(AProp prop, object[] key)
-            : base(prop, key)
-        {
-        }
-
-        public override void Set(string value)
-        {
-            Prop.set(Key, value);
-            Prop.write();
-        }
-
-        public override string Get()
-        {
-            return Prop.get(Key);
         }
     }
 }
