@@ -85,7 +85,11 @@ namespace Nxdb
             Stack<FElem> parents = new Stack<FElem>();
             try
             {
-                while (reader.Read())
+                if (reader.ReadState == ReadState.Initial)
+                {
+                    reader.Read();
+                }
+                while (reader.ReadState == ReadState.Interactive)
                 {
                     switch (reader.NodeType)
                     {
@@ -126,6 +130,7 @@ namespace Nxdb
                             AddNode(new FPI(new QNm(reader.Name.Token()), reader.Value.Token()), nodes, parents);
                             break;
                     }
+                    reader.Read();
                 }
                 return nodes.ToArray();
             }
