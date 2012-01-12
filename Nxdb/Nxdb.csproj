@@ -53,6 +53,9 @@
     <Reference Include="basex">
       <HintPath>..\Lib\basex.dll</HintPath>
     </Reference>
+    <Reference Include="Drac.Threading">
+      <HintPath>..\Lib\Drac.Threading.dll</HintPath>
+    </Reference>
     <Reference Include="IKVM.OpenJDK.Charsets">
       <HintPath>..\Lib\IKVM.OpenJDK.Charsets.dll</HintPath>
     </Reference>

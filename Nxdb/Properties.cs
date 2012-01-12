@@ -10,50 +10,50 @@ namespace Nxdb
     {
         public static bool ChopWhitespace
         {
-            get { return Is(Database.Context.prop, Prop.CHOP); }
-            set { Set(Database.Context.prop, Prop.CHOP, value); }
+            get { using(Database.GlobalReadLock()) return Is(Database.Context.prop, Prop.CHOP); }
+            set { using (Database.GlobalWriteLock()) Set(Database.Context.prop, Prop.CHOP, value); }
         }
 
         public static bool UsePathIndex
         {
-            get { return Is(Database.Context.prop, Prop.PATHINDEX); }
-            set { Set(Database.Context.prop, Prop.PATHINDEX, value); }
+            get { using(Database.GlobalReadLock()) return Is(Database.Context.prop, Prop.PATHINDEX); }
+            set { using (Database.GlobalWriteLock()) Set(Database.Context.prop, Prop.PATHINDEX, value); }
         }
 
         public static bool UseTextIndex
         {
-            get { return Is(Database.Context.prop, Prop.TEXTINDEX); }
-            set { Set(Database.Context.prop, Prop.TEXTINDEX, value); }
+            get { using(Database.GlobalReadLock()) return Is(Database.Context.prop, Prop.TEXTINDEX); }
+            set { using (Database.GlobalWriteLock()) Set(Database.Context.prop, Prop.TEXTINDEX, value); }
         }
 
         public static bool UseAttributeIndex
         {
-            get { return Is(Database.Context.prop, Prop.ATTRINDEX); }
-            set { Set(Database.Context.prop, Prop.ATTRINDEX, value); }
+            get { using(Database.GlobalReadLock()) return Is(Database.Context.prop, Prop.ATTRINDEX); }
+            set { using (Database.GlobalWriteLock()) Set(Database.Context.prop, Prop.ATTRINDEX, value); }
         }
 
         public static bool UseFullTextIndex
         {
-            get { return Is(Database.Context.prop, Prop.FTINDEX); }
-            set { Set(Database.Context.prop, Prop.FTINDEX, value); }
+            get { using(Database.GlobalReadLock()) return Is(Database.Context.prop, Prop.FTINDEX); }
+            set { using (Database.GlobalWriteLock()) Set(Database.Context.prop, Prop.FTINDEX, value); }
         }
 
         public static bool UpdateIndexes
         {
-            get { return Is(Database.Context.prop, Prop.UPDINDEX); }
-            set { Set(Database.Context.prop, Prop.UPDINDEX, value); }
+            get { using(Database.GlobalReadLock()) return Is(Database.Context.prop, Prop.UPDINDEX); }
+            set { using (Database.GlobalWriteLock()) Set(Database.Context.prop, Prop.UPDINDEX, value); }
         }
 
         public static bool DropOnDispose
         {
-            get { return Is(Database.Properties, NxdbProp.DROPONDISPOSE); }
-            set { Set(Database.Properties, NxdbProp.DROPONDISPOSE, value); }
+            get { using(Database.GlobalReadLock()) return Is(Database.Properties, NxdbProp.DROPONDISPOSE); }
+            set { using (Database.GlobalWriteLock()) Set(Database.Properties, NxdbProp.DROPONDISPOSE, value); }
         }
 
         public static bool OptimizeAfterUpdates
         {
-            get { return Is(Database.Properties, NxdbProp.OPTIMIZEAFTERUPDATES); }
-            set { Set(Database.Properties, NxdbProp.OPTIMIZEAFTERUPDATES, value); }
+            get { using(Database.GlobalReadLock()) return Is(Database.Properties, NxdbProp.OPTIMIZEAFTERUPDATES); }
+            set { using (Database.GlobalWriteLock()) Set(Database.Properties, NxdbProp.OPTIMIZEAFTERUPDATES, value); }
         }
 
         private static bool Is(AProp prop, object[] key)

@@ -5,7 +5,9 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Xml;
+using Drac.Threading;
 using org.basex.core;
 using org.basex.core.cmd;
 using org.basex.data;
@@ -27,23 +29,98 @@ namespace Nxdb
     // i.e.: "folderA/docA.xml", "folderA/docB.xml", "folderB/docC.xml"
     public class Database : IDisposable, IEquatable<Database>, IQuery
     {
-        private static string _home = null;
+        #region Static
 
-        public static void SetHome(string path)
+        private static readonly ReaderWriterLockSlim GlobalLockSlim = new ReaderWriterLockSlim();
+
+        // The global locks also lock all databases individually, this helper class needed
+        // to unlock all the database when the lock is disposed
+        internal class LockWrapper : IDisposable
         {
-            if (path == null) throw new ArgumentNullException("path");
-            if (path == String.Empty) throw new ArgumentException("path");
+            private readonly DisposableLock _globalLock;
+            private readonly IDisposable[] _databaseLocks;
 
-            _home = path;
-
-            // Create the home path
-            if (!Directory.Exists(path))
+            public LockWrapper(DisposableLock globalLock, Func<Database, IDisposable> action)
             {
-                Directory.CreateDirectory(path);
+                _globalLock = globalLock;
+                using (Databases.ReadLock())
+                {
+                    _databaseLocks = new IDisposable[Databases.Unsync.Count];
+                    int c = 0;
+                    foreach (Database database in Databases.Unsync.Values)
+                    {
+                        _databaseLocks[c++] = action(database);
+                    }
+                }
             }
 
-            // Set the home path so the BaseX preference file will go there (rather than user path)
-            Prop.HOME = Path.Combine(_home, "pref");
+            public void Dispose()
+            {
+                foreach(IDisposable databaseLock in _databaseLocks)
+                {
+                    databaseLock.Dispose();
+                }
+                _globalLock.Dispose();
+            }
+        }
+
+        internal static LockWrapper GlobalWriteLock()
+        {
+            return new LockWrapper(new WriteLock(GlobalLockSlim), d => d.WriteLock());
+        }
+
+        internal static LockWrapper GlobalReadLock()
+        {
+            return new LockWrapper(new ReadLock(GlobalLockSlim), d => d.ReadLock());
+        }
+
+        internal static LockWrapper GlobalUpgradeableReadLock()
+        {
+            return new LockWrapper(new UpgradeableReadLock(GlobalLockSlim), d => d.UpgradeableReadLock());
+        }
+
+        //This runs some one-time initialization and needs to be called before use
+        //Useful because several Java classes use reflection on their first construction
+        //which hurts performance when the first construction is done during an operation
+        //This method is not thread-safe, but that's okay because it should only be called once
+        public static void Initialize(string path)
+        {
+            if (_context == null)
+            {
+                // Make sure we have a valid path
+                if(String.IsNullOrEmpty(path))
+                {
+                    path = Path.Combine(Environment.CurrentDirectory, "Nxdb");
+                }
+
+                // Create the home path
+                if (!Directory.Exists(path))
+                {
+                    Directory.CreateDirectory(path);
+                }
+
+                // Set the home path so the BaseX preference file will go there (rather than user path)
+                Prop.HOME = Path.Combine(path, "pref");
+
+                // Now we can create the context since the path for preferences has been set
+                Context context = new Context();
+                _properties = new NxdbProp();
+
+                // Now set the database path
+                context.mprop.set(MainProp.DBPATH, path);
+
+                // Do some Java initialization by instantiating objects
+                new QueryContext(context);
+                new FElem(new QNm("init".Token()));
+
+                // Set the context at the very end (to provide a little threading safety)
+                _context = context;
+            }
+        }
+
+        private static void Initialize()
+        {
+            Initialize(null);
         }
 
         //Use one static Context object - all opened databases will get added ("pinned") to the context
@@ -54,20 +131,9 @@ namespace Nxdb
         {
             get
             {
-                if (_context == null)
+                if(_context == null)
                 {
-                    // Set a default home if one hasn't been provided yet
-                    if (_home == null)
-                    {
-                        SetHome(Path.Combine(Environment.CurrentDirectory, "Nxdb"));
-                    }
-
-                    // Now we can create the context since the path for preferences has been set
-                    _context = new Context();
-                    _properties = new NxdbProp();
-
-                    // Now set the database path
-                    _context.mprop.set(MainProp.DBPATH, _home);
+                    Initialize();
                 }
                 return _context;
             }
@@ -75,11 +141,12 @@ namespace Nxdb
 
         private static NxdbProp _properties = null;
 
+        // Not thread-safe - need to surround with lock from caller
         internal static NxdbProp Properties
         {
             get
             {
-                Context context = Context;
+                Initialize();    // Need to make sure we're initialized before getting the properties object
                 return _properties;
             }
         }
@@ -89,62 +156,65 @@ namespace Nxdb
             if (name == null) throw new ArgumentNullException("name");
             if (name == String.Empty) throw new ArgumentException("name");
 
-            //Only drop if not currently pinned
-            if (Context.pinned(name))
+            using (GlobalWriteLock())
             {
-                throw new ArgumentException("Database is currently open, please dispose all references and try again.");
-            }
+                //Only drop if not currently pinned
+                if (Context.pinned(name))
+                {
+                    throw new ArgumentException("Database is currently open, please dispose all references and try again.");
+                }
 
-            //Attempt to drop
-            if(!DropDB.drop(name, Context.mprop))
-            {
-                throw new Exception("Could not drop database.");
-            }
-        }
-
-        private static bool _initialized = false;
-
-        //This runs some one-time initialization
-        //Useful because several Java classes use reflection on their first construction
-        //which hurts performance when the first construction is done during an operation
-        private static void Initialize()
-        {
-            if (!_initialized)
-            {
-                Context context = Context;
-                new QueryContext(Context);
-                new FElem(new QNm("init".Token()));
-                _initialized = true;
+                //Attempt to drop
+                if (!DropDB.drop(name, Context.mprop))
+                {
+                    throw new Exception("Could not drop database.");
+                }
             }
         }
-
+        
         // Return value = opened (true = opened; false = created)
         public static bool Get(string name, out Database database)
         {
-            Initialize();
-
             if (name == null) throw new ArgumentNullException("name");
             if (name == String.Empty) throw new ArgumentException("name");
 
             //Try to open or create the database
             database = null;
-            try
-            {
-                database = Get(Open.open(name, Context));
-                return true;
-            }
-            catch (Exception)
+            using (GlobalWriteLock())
             {
                 try
                 {
-                    database = Get(CreateDB.create(name, Parser.emptyParser(), Context));
-                    return false;
+                    database = Get(Open.open(name, Context));
+                    return true;
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
-                    throw new ArgumentException("Could not create database.", ex);
+                    try
+                    {
+                        database = Get(CreateDB.create(name, Parser.emptyParser(), Context));
+                        return false;
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new ArgumentException("Could not create database.", ex);
+                    }
                 }
             }
+        }
+
+        internal static Database Get(Data data)
+        {
+            if (data == null) throw new ArgumentNullException("data");
+            Database database;
+            using (Databases.WriteLock())
+            {
+                if (!Databases.Unsync.TryGetValue(data, out database))
+                {
+                    database = new Database(data);
+                    Databases.Unsync.Add(data, database);
+                }
+            }
+            return database;
         }
 
         public static Database Get(string name)
@@ -154,27 +224,41 @@ namespace Nxdb
             return database;
         }
 
-        internal static Database Get(Data data)
+        // A cache of all databases - the same instance should be returned for the same Data
+        private static readonly ReadOnlySyncObject<Dictionary<Data, Database>> Databases 
+            = new ReadOnlySyncObject<Dictionary<Data, Database>>(new Dictionary<Data, Database>()); 
+
+        #endregion
+
+        private readonly ReaderWriterLockSlim _lockSlim = new ReaderWriterLockSlim();
+
+        internal ReaderWriterLockSlim LockSlim
         {
-            if (data == null) throw new ArgumentNullException("data");
-            Database database;
-            if(!Databases.TryGetValue(data, out database))
-            {
-                database = new Database(data);
-                Databases.Add(data, database);
-            }
-            return database;
+            get { return _lockSlim; }
         }
 
-        // A cache of all databases - the same instance should be returned for the same Data
-        private static readonly Dictionary<Data, Database> Databases
-            = new Dictionary<Data, Database>(); 
+        internal WriteLock WriteLock()
+        {
+            return new WriteLock(_lockSlim);
+        }
+
+        internal ReadLock ReadLock()
+        {
+            return new ReadLock(_lockSlim);
+        }
+
+        internal UpgradeableReadLock UpgradeableReadLock()
+        {
+            return new UpgradeableReadLock(_lockSlim);
+        }
 
         // A cache of all nodes for this database indexed by pre value
-        private WeakReference[] _nodes;
+        private readonly SyncObject<WeakReference[]> _nodes
+            = new SyncObject<WeakReference[]>(null);
 
         private Data _data;
         
+        // Not thread-safe
         internal Data Data
         {
             get { return _data; }
@@ -183,96 +267,108 @@ namespace Nxdb
         private Database(Data data)
         {
             _data = data;
-            _nodes = new WeakReference[data.meta.size];
+            _nodes = new SyncObject<WeakReference[]>(new WeakReference[data.meta.size]);
         }
 
         public void Dispose()
         {
-            if(_data == null) throw new ObjectDisposedException("Database");
-            if(Context.unpin(_data))
+            string dropName = Name; //This also checks for disposal
+            using(GlobalWriteLock())
             {
-                string name = Name;
-                Databases.Remove(_data);
-                _data.close();  
-                _data = null;   
-                _nodes = null;
-                if(Nxdb.Properties.DropOnDispose)
+                if(Context.unpin(_data))
                 {
-                    Drop(name);
+                    Databases.DoWrite(d => d.Remove(_data));
+                    _data.close();
+                    _data = null;
+                    _nodes.DoWrite(n => _nodes.Unsync = null);
                 }
+            }
+            if (dropName != null && Nxdb.Properties.DropOnDispose)
+            {
+                Drop(dropName);
             }
         }
 
         // Only called from the Node.Get() static methods - use those to get new nodes
         internal Node GetNode(int pre)
         {
-            if (_data == null) throw new ObjectDisposedException("Database");
-            if (_nodes[pre] != null)
+            using (_nodes.ReadLock())
             {
-                Node node = (Node)_nodes[pre].Target;
-                if (node != null)
+                if (_nodes.Unsync == null) throw new ObjectDisposedException("Database");
+                if (_nodes.Unsync[pre] != null)
                 {
-                    return node;
+                    Node node = (Node) _nodes.Unsync[pre].Target;
+                    if (node != null)
+                    {
+                        return node;
+                    }
                 }
+                return null;
             }
-            return null;
         }
 
         internal void SetNode(int pre, Node node)
         {
-            if (_data == null) throw new ObjectDisposedException("Database");
-            _nodes[pre] = new WeakReference(node);
+            using (_nodes.WriteLock())
+            {
+                if (_nodes.Unsync == null) throw new ObjectDisposedException("Database");
+                _nodes.Unsync[pre] = new WeakReference(node);
+            }
         }
 
+        // Called by Updates.Apply()
         internal void Update()
         {
-            if (_data == null) throw new ObjectDisposedException("Database");
-
-            //Raise the Updated event
-            EventHandler<EventArgs> handler = Updated;
-            if (handler != null) handler(this, EventArgs.Empty);
-
-            // Grow the nodes cache if needed (but never shrink it)
-            if(_data.meta.size > _nodes.Length)
+            using (_nodes.WriteLock())
             {
-                Array.Resize(ref _nodes, _data.meta.size);
-            }
+                if (_nodes.Unsync == null) throw new ObjectDisposedException("Database");
 
-            // Check validity and reposition nodes
-            LinkedList<Node> reposition = new LinkedList<Node>();
-            for(int c = 0; c < _nodes.Length ; c++)
-            {
-                if (_nodes[c] != null)
+                //Raise the Updated event
+                EventHandler<EventArgs> handler = Updated;
+                if (handler != null) handler(this, EventArgs.Empty);
+
+                // Grow the nodes cache if needed (but never shrink it)
+                if (_data.meta.size > _nodes.Unsync.Length)
                 {
-                    Node node = (Node)_nodes[c].Target;
-                    if (node != null)
+                    Array.Resize(ref _nodes.UnsyncField, _data.meta.size);
+                }
+
+                // Check validity and reposition nodes
+                LinkedList<Node> reposition = new LinkedList<Node>();
+                for (int c = 0; c < _nodes.Unsync.Length; c++)
+                {
+                    if (_nodes.Unsync[c] != null)
                     {
-                        if(!node.Validate())
+                        Node node = (Node)_nodes.Unsync[c].Target;
+                        if (node != null)
                         {
-                            // The node is now invalid, remove it from the cache
-                            _nodes[c] = null;
+                            if (!node.Validate())
+                            {
+                                // The node is now invalid, remove it from the cache
+                                _nodes.Unsync[c] = null;
+                            }
+                            else
+                            {
+                                // The node is still valid, but if it moved add it to the reposition list
+                                if (node.UnsyncIndex != c)
+                                {
+                                    reposition.AddLast(node);
+                                    _nodes.Unsync[c] = null;
+                                }
+                            }
                         }
                         else
                         {
-                            // The node is still valid, but if it moved add it to the reposition list
-                            if(node.Index != c)
-                            {
-                                reposition.AddLast(node);
-                                _nodes[c] = null;
-                            }
+                            _nodes.Unsync[c] = null;
                         }
                     }
-                    else
-                    {
-                        _nodes[c] = null;
-                    }
                 }
-            }
 
-            // Reposition any nodes that moved
-            foreach(Node node in reposition)
-            {
-                _nodes[node.Index] = new WeakReference(node);
+                // Reposition any nodes that moved
+                foreach (Node node in reposition)
+                {
+                    _nodes.Unsync[node.UnsyncIndex] = new WeakReference(node);
+                }
             }
         }
 
@@ -282,8 +378,11 @@ namespace Nxdb
         {
             get
             {
-                if (_data == null) throw new ObjectDisposedException("Database");
-                return Data.meta.name;
+                using (ReadLock())
+                {
+                    if (_data == null) throw new ObjectDisposedException("Database");
+                    return Data.meta.name;
+                }
             }
         }
 
@@ -295,8 +394,11 @@ namespace Nxdb
         {
             get
             {
-                if (_data == null) throw new ObjectDisposedException("Database");
-                return Data.meta.time;
+                using (ReadLock())
+                {
+                    if (_data == null) throw new ObjectDisposedException("Database");
+                    return Data.meta.time;
+                }
             }
         }
 
@@ -336,37 +438,46 @@ namespace Nxdb
         /// </returns>
         public override int GetHashCode()
         {
-            return Data == null ? 0 : Data.GetHashCode();
+            using (ReadLock())
+            {
+                return Data == null ? 0 : Data.GetHashCode();
+            }
         }
         
         //Many of the following are ported from FNDb.java to eliminate the overhead of the XQuery function evaluation
 
         public void Delete(string path)
-        {
-            if (_data == null) throw new ObjectDisposedException("Database");
-            IntList docs = Data.docs(path);
-            using(new Updates())
+        {   
+            using (UpgradeableReadLock())
             {
-                for (int i = 0, s = docs.size(); i < s; i++)
+                if (_data == null) throw new ObjectDisposedException("Database");
+                IntList docs = Data.docs(path);
+                using(new Updates())
                 {
-                    Updates.Add(new DeleteNode(docs.get(i), Data, null));
+                    for (int i = 0, s = docs.size(); i < s; i++)
+                    {
+                        Updates.Add(new DeleteNode(docs.get(i), Data, null));
+                    }
                 }
             }
         }
 
         public void Rename(string path, string newName)
         {
-            if (_data == null) throw new ObjectDisposedException("Database");
-            IntList docs = Data.docs(path);
-            using (new Updates())
+            using (UpgradeableReadLock())
             {
-                for (int i = 0, s = docs.size(); i < s; i++)
+                if (_data == null) throw new ObjectDisposedException("Database");
+                IntList docs = Data.docs(path);
+                using (new Updates())
                 {
-                    int pre = docs.get(i);
-                    string target = org.basex.core.cmd.Rename.target(Data, pre, path, newName);
-                    if (!String.IsNullOrEmpty(target))
+                    for (int i = 0, s = docs.size(); i < s; i++)
                     {
-                        Updates.Add(new ReplaceValue(pre, Data, null, target.Token()));
+                        int pre = docs.get(i);
+                        string target = org.basex.core.cmd.Rename.target(Data, pre, path, newName);
+                        if (!String.IsNullOrEmpty(target))
+                        {
+                            Updates.Add(new ReplaceValue(pre, Data, null, target.Token()));
+                        }
                     }
                 }
             }
@@ -374,14 +485,20 @@ namespace Nxdb
 
         public void Optimize()
         {
-            if (_data == null) throw new ObjectDisposedException("Database");
-            Updates.Add(new DBOptimize(Data, Context, false, null));
+            using (UpgradeableReadLock())
+            {
+                if (_data == null) throw new ObjectDisposedException("Database");
+                Updates.Add(new DBOptimize(Data, Context, false, null));
+            }
         }
 
         public void OptimizeAll()
         {
-            if (_data == null) throw new ObjectDisposedException("Database");
-            Updates.Add(new DBOptimize(Data, Context, true, null));
+            using (UpgradeableReadLock())
+            {
+                if (_data == null) throw new ObjectDisposedException("Database");
+                Updates.Add(new DBOptimize(Data, Context, true, null));
+            }
         }
         
         public virtual void Add(string path, XmlReader xmlReader)
@@ -409,7 +526,16 @@ namespace Nxdb
 
         private void Add(string path, NodeCache nodeCache)
         {
-            if (_data == null) throw new ObjectDisposedException("Database");
+            using (UpgradeableReadLock())
+            {
+                if (_data == null) throw new ObjectDisposedException("Database");
+                UnsyncAdd(path, nodeCache);
+            }
+        }
+
+        // Not thread-safe, intended for use by thread-safe callers - also does not check for disposal
+        private void UnsyncAdd(string path, NodeCache nodeCache)
+        {
             if (nodeCache != null)
             {
                 FDoc doc = new FDoc(nodeCache, path.Token());
@@ -442,48 +568,64 @@ namespace Nxdb
 
         private void Replace(string path, NodeCache nodeCache)
         {
-            if (_data == null) throw new ObjectDisposedException("Database");
-            using (new Updates())
+            using (UpgradeableReadLock())
             {
-                int pre = Data.doc(path);
-                if (pre != -1)
+                if (_data == null) throw new ObjectDisposedException("Database");
+                using (new Updates())
                 {
-                    if (Data.docs(path).size() != 1) throw new ArgumentException("Simple document expected as replacement target");
-                    Updates.Add(new DeleteNode(pre, Data, null));
-                    Add(path, nodeCache);
+                    int pre = Data.doc(path);
+                    if (pre != -1)
+                    {
+                        if (Data.docs(path).size() != 1) throw new ArgumentException("Simple document expected as replacement target");
+                        Updates.Add(new DeleteNode(pre, Data, null));
+                        UnsyncAdd(path, nodeCache);
+                    }
                 }
             }
         }
         
         public Document GetDocument(string name)
         {
-            if (_data == null) throw new ObjectDisposedException("Database");
-            int pre = Data.doc(name);
-            return pre == -1 ? null : (Document)Node.Get(pre, Data);
+            using (ReadLock())
+            {
+                if (_data == null) throw new ObjectDisposedException("Database");
+                int pre = Data.doc(name);
+                return pre == -1 ? null : (Document)Node.Get(pre, Data);    
+            }
         }
 
         public IEnumerable<Document> GetDocuments(string path)
         {
-            if (_data == null) throw new ObjectDisposedException("Database");
-            IntList docs = Data.docs(path);
-            for (int i = 0, s = docs.size(); i < s; i++)
+            List<Document> documents = new List<Document>();
+            using (ReadLock())
             {
-                int pre = docs.get(i);
-                yield return (Document)Node.Get(pre, Data);
+                if (_data == null) throw new ObjectDisposedException("Database");
+                IntList docs = Data.docs(path);
+                for (int i = 0, s = docs.size(); i < s; i++)
+                {
+                    int pre = docs.get(i);
+                    documents.Add((Document) Node.Get(pre, Data));
+                }
             }
+            return documents;
         }
 
         public IEnumerable<Document> Documents
         {
             get
             {
-                if (_data == null) throw new ObjectDisposedException("Database");
-                IntList il = Data.docs();
-                for(int c = 0 ; c < il.size() ; c++ )
+                List<Document> documents = new List<Document>();
+                using (ReadLock())
                 {
-                    int pre = il.get(c);
-                    yield return (Document)Node.Get(pre, Data);
+                    if (_data == null) throw new ObjectDisposedException("Database");
+                    IntList il = Data.docs();
+                    for (int c = 0; c < il.size(); c++)
+                    {
+                        int pre = il.get(c);
+                        documents.Add((Document)Node.Get(pre, Data));
+                    }
                 }
+                return documents;
             }
         }
 
@@ -491,19 +633,23 @@ namespace Nxdb
         {
             get
             {
-                if (_data == null) throw new ObjectDisposedException("Database");
-                IntList il = Data.docs();
-                for (int c = 0; c < il.size(); c++)
+                List<string> names = new List<string>();
+                using (ReadLock())
                 {
-                    int pre = il.get(c);
-                    yield return Data.text(pre, true).Token();
+                    if (_data == null) throw new ObjectDisposedException("Database");
+                    IntList il = Data.docs();
+                    for (int c = 0; c < il.size(); c++)
+                    {
+                        int pre = il.get(c);
+                        names.Add(Data.text(pre, true).Token());
+                    }
                 }
+                return names;
             }
         }
 
         public IEnumerable<object> Eval(string expression)
         {
-            if (_data == null) throw new ObjectDisposedException("Database");
             return new Query(this).Eval(expression);
         }
 

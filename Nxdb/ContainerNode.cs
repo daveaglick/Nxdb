@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Xml;
+using Drac.Threading;
 using Nxdb.Io;
 using org.basex.query.item;
 using org.basex.query.iter;
@@ -17,7 +18,7 @@ namespace Nxdb
     /// </summary>
     public abstract class ContainerNode : TreeNode
     {
-        protected ContainerNode(ANode aNode, int kind) : base(aNode, kind) { }
+        protected ContainerNode(ANode aNode, int kind, Database database) : base(aNode, kind, database) { }
 
         #region Content
 
@@ -26,9 +27,12 @@ namespace Nxdb
         /// </summary>
         public virtual void RemoveAll()
         {
-            Check(true);
-            ANode[] nodes = EnumerateANodes(ANode.children()).ToArray();
-            Updates.Add(new Delete(null, Seq.get(nodes, nodes.Length)));
+            using (UpgradeableReadLock())
+            {
+                Check(true);
+                ANode[] nodes = EnumerateANodes(ANode.children()).ToArray();
+                Updates.Add(new Delete(null, Seq.get(nodes, nodes.Length)));
+            }
         }
 
         /// <summary>
@@ -60,10 +64,13 @@ namespace Nxdb
 
         private void Append(NodeCache nodeCache)
         {
-            Check(true);
-            if (nodeCache != null)
+            using (UpgradeableReadLock())
             {
-                Updates.Add(new Insert(null, nodeCache.value(), false, true, false, false, DbNode));
+                Check(true);
+                if (nodeCache != null)
+                {
+                    Updates.Add(new Insert(null, nodeCache.value(), false, true, false, false, DbNode));
+                }
             }
         }
 
@@ -96,10 +103,13 @@ namespace Nxdb
 
         private void Prepend(NodeCache nodeCache)
         {
-            Check(true);
-            if (nodeCache != null)
+            using (UpgradeableReadLock())
             {
-                Updates.Add(new Insert(null, nodeCache.value(), true, false, false, false, DbNode));
+                Check(true);
+                if (nodeCache != null)
+                {
+                    Updates.Add(new Insert(null, nodeCache.value(), true, false, false, false, DbNode));
+                }
             }
         }
 
@@ -133,12 +143,15 @@ namespace Nxdb
         public void WriteInnerXml(XmlWriter xmlWriter)
         {
             if (xmlWriter == null) throw new ArgumentNullException("xmlWriter");
-            Check();
-            using (XmlWriterSerializer serializer = new XmlWriterSerializer(xmlWriter, false))
+            using (ReadLock())
             {
-                foreach (ANode node in EnumerateANodes(ANode.children()))
+                Check();
+                using (XmlWriterSerializer serializer = new XmlWriterSerializer(xmlWriter, false))
                 {
-                    node.serialize(serializer);
+                    foreach (ANode node in EnumerateANodes(ANode.children()))
+                    {
+                        node.serialize(serializer);
+                    }
                 }
             }
         }
@@ -150,8 +163,11 @@ namespace Nxdb
         public void ReadInnerXml(XmlReader xmlReader)
         {
             if (xmlReader == null) throw new ArgumentNullException("xmlReader");
-            Check(true);
-            ReplaceChildren(Helper.GetNodeCache(xmlReader));
+            using (UpgradeableReadLock())
+            {
+                Check(true);
+                ReplaceChildren(Helper.GetNodeCache(xmlReader));
+            }
         }
 
         /// <summary>
@@ -177,10 +193,13 @@ namespace Nxdb
         public void WriteOuterXml(XmlWriter xmlWriter)
         {
             if (xmlWriter == null) throw new ArgumentNullException("xmlWriter");
-            Check();
-            using (XmlWriterSerializer serializer = new XmlWriterSerializer(xmlWriter, false))
+            using (ReadLock())
             {
-                ANode.serialize(serializer);
+                Check();
+                using (XmlWriterSerializer serializer = new XmlWriterSerializer(xmlWriter, false))
+                {
+                    ANode.serialize(serializer);
+                }
             }
         }
 
@@ -204,21 +223,27 @@ namespace Nxdb
             set
             {
                 if (value == null) throw new ArgumentNullException("value");
-                Check(true);
-                ReplaceChildren(Helper.GetNodeCache(new FTxt(value.Token())));
+                using (UpgradeableReadLock())
+                {
+                    Check(true);
+                    ReplaceChildren(Helper.GetNodeCache(new FTxt(value.Token())));
+                }
             }
         }
 
         /// <summary>
-        /// Gets a TextReader that can be used to stream inner text content for this node.
+        /// Gets a TextReader that can be used to stream inner text content for this node. The TextReader
+        /// must be disposed and while it is not, the database cannot be accessed except through the TextReader
         /// </summary>
         public TextReader InnerTextReader
         {
             get
             {
+                ReadLock readLock = ReadLock(); //Don't dispose - the InnerTextReader will do that
                 Check();
                 return new InnerTextReader(EnumerateANodes(ANode.descendant())
-                    .Where(n => n.nodeType() == org.basex.query.item.NodeType.TXT).GetEnumerator());
+                    .Where(n => n.nodeType() == org.basex.query.item.NodeType.TXT).GetEnumerator(),
+                    readLock);
             }
         }
 
@@ -229,10 +254,13 @@ namespace Nxdb
         public void WriteInnerText(TextWriter textWriter)
         {
             if (textWriter == null) throw new ArgumentNullException("textWriter");
-            Check();
-            using (TextWriterSerializer serializer = new TextWriterSerializer(textWriter))
+            using (ReadLock())
             {
-                ANode.serialize(serializer);
+                Check();
+                using (TextWriterSerializer serializer = new TextWriterSerializer(textWriter))
+                {
+                    ANode.serialize(serializer);
+                }
             }
         }
 
@@ -243,12 +271,16 @@ namespace Nxdb
         public void ReadInnerText(TextReader textReader)
         {
             if (textReader == null) throw new ArgumentNullException("textReader");
-            Check(true);
-            ReplaceChildren(Helper.GetNodeCache(new FTxt(textReader.ReadToEnd().Token())));
+            using (UpgradeableReadLock())
+            {
+                Check(true);
+                ReplaceChildren(Helper.GetNodeCache(new FTxt(textReader.ReadToEnd().Token())));
+            }
         }
 
         // Used by ReadInnerXml(), ReadInnerText(), and set_Value()
         // Deletes all the child nodes and adds the nodeCache nodes, does nothing if nodeCache is null
+        // This method is not thread-safe, called should lock the database
         private void ReplaceChildren(NodeCache nodeCache)
         {
             if (nodeCache != null)

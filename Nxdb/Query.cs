@@ -11,6 +11,7 @@ using Type = System.Type;
 
 namespace Nxdb
 {
+    // Query objects are not thread-safe
     public class Query : IQuery
     {
         private readonly Dictionary<string, Value> _namedCollections
@@ -125,50 +126,57 @@ namespace Nxdb
             if (expression == null) throw new ArgumentNullException("expression");
             if (expression == String.Empty) throw new ArgumentException("expression");
 
-            // Create the query context
-            QueryContext queryContext = new QueryContext(Database.Context);
-
-            // Add variables
-            foreach(KeyValuePair<string, Value> kvp in _variables)
+            using (Database.GlobalUpgradeableReadLock())
             {
-                queryContext.bind(kvp.Key, kvp.Value);
-            }
+                // Create the query context
+                QueryContext queryContext = new QueryContext(Database.Context);
 
-            // Add default collection
-            queryContext.resource.addCollection(_defaultCollection ?? Empty.SEQ, String.Empty);
+                // Add variables
+                foreach (KeyValuePair<string, Value> kvp in _variables)
+                {
+                    queryContext.bind(kvp.Key, kvp.Value);
+                }
 
-            // Add named collections
-            foreach(KeyValuePair<string, Value> kvp in _namedCollections)
-            {
-                queryContext.resource.addCollection(kvp.Value, kvp.Key);
-            }
+                // Add default collection
+                queryContext.resource.addCollection(_defaultCollection ?? Empty.SEQ, String.Empty);
 
-            // Set the initial context item
-            queryContext.ctxItem = _context;
+                // Add named collections
+                foreach (KeyValuePair<string, Value> kvp in _namedCollections)
+                {
+                    queryContext.resource.addCollection(kvp.Value, kvp.Key);
+                }
 
-            // Add external namespaces
-            foreach(KeyValuePair<string, string> kvp in _externals)
-            {
-                queryContext.sc.@namespace(kvp.Key, "java:" + kvp.Value);
-            }
+                // Set the initial context item
+                queryContext.ctxItem = _context;
 
-            using (new Updates())
-            {
-                // Reset the update collection to the common one in our update operation
-                queryContext.updates = Updates.QueryUpdates;
+                // Add external namespaces
+                foreach (KeyValuePair<string, string> kvp in _externals)
+                {
+                    queryContext.sc.@namespace(kvp.Key, "java:" + kvp.Value);
+                }
 
-                // Parse the expression
-                queryContext.parse(expression);
+                using (new Updates())
+                {
+                    //This locks the Updates so no other updates can be applied while the query is evaluating
+                    using (Updates.WriteLock())
+                    {
+                        // Reset the update collection to the common one in our update operation
+                        queryContext.updates = Updates.QueryUpdates;
 
-                // Compile the query
-                queryContext.compile();
+                        // Parse the expression
+                        queryContext.parse(expression);
 
-                // Reset the updating flag (so they aren't applied here)
-                queryContext.updating = false;
+                        // Compile the query
+                        queryContext.compile();
 
-                // Get the iterator and return the results
-                Iter iter = queryContext.iter();
-                return new IterEnum(iter);
+                        // Reset the updating flag (so they aren't applied here)
+                        queryContext.updating = false;
+
+                        // Get the iterator and return the results
+                        Iter iter = queryContext.iter();
+                        return new IterEnum(iter);
+                    }
+                }
             }
         }
 

@@ -20,7 +20,7 @@ namespace NxdbTests
         {
             //Set the home path (and clear any previous test data)
             Reset();
-            Database.SetHome(Path);
+            Database.Initialize(Path);
         }
 
         [TearDown]

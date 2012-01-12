@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using Drac.Threading;
 using org.basex.data;
 using org.basex.query.item;
 
@@ -10,13 +11,15 @@ namespace Nxdb.Io
     internal class InnerTextReader : TextReader
     {
         private readonly IEnumerator<ANode> _textNodes;
+        private readonly ReadLock _readLock;
 
         //The text buffer - when empty go to the next text node
         private readonly StringBuilder _buffer = new StringBuilder();
 
-        public InnerTextReader(IEnumerator<ANode> textNodes)
+        public InnerTextReader(IEnumerator<ANode> textNodes, ReadLock readLock)
         {
             _textNodes = textNodes;
+            _readLock = readLock;
             FillBuffer();
         }
 
@@ -76,6 +79,12 @@ namespace Nxdb.Io
         public override int ReadBlock(char[] buffer, int index, int count)
         {
             throw new NotSupportedException();
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+            _readLock.Dispose();
         }
     }
 }

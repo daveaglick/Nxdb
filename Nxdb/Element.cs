@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml;
+using Nxdb.Dom;
 using org.basex.data;
 using org.basex.query.item;
 using org.basex.query.up.expr;
@@ -13,9 +14,9 @@ namespace Nxdb
     public class Element : ContainerNode
     {
         //Should only be called from Node.Get()
-        internal Element(ANode aNode) : base(aNode, Data.ELEM) { }
+        internal Element(ANode aNode, Database database) : base(aNode, Data.ELEM, database) { }
 
-        public Element(string name) : base(new FElem(new QNm(name.Token())), Data.ELEM) { }
+        public Element(string name) : base(new FElem(new QNm(name.Token())), Data.ELEM, null) { }
 
         public override System.Xml.XmlNodeType NodeType
         {
@@ -23,6 +24,7 @@ namespace Nxdb
         }
         
         // Gets a specific attribute ANode for a given attribute name
+        // Not thread-safe, caller should lock the database
         private ANode AttributeANode(string name)
         {
             QNm qnm = new QNm(name.Token());
@@ -39,9 +41,12 @@ namespace Nxdb
         {
             if (name == null) throw new ArgumentNullException("name");
             if (name == String.Empty) throw new ArgumentException("name");
-            Check();
-            ANode node = AttributeANode(name);
-            return node == null ? null : (Attribute)Get(node);
+            using (ReadLock())
+            {
+                Check();
+                ANode node = AttributeANode(name);
+                return node == null ? null : (Attribute) Get(node);
+            }
         }
 
         /// <summary>
@@ -56,9 +61,12 @@ namespace Nxdb
         {
             if (name == null) throw new ArgumentNullException("name");
             if (name == String.Empty) throw new ArgumentException("name");
-            Check();
-            ANode node = AttributeANode(name);
-            return node == null ? String.Empty : node.@string().Token();
+            using (ReadLock())
+            {
+                Check();
+                ANode node = AttributeANode(name);
+                return node == null ? String.Empty : node.@string().Token();
+            }
         }
 
         /// <summary>
@@ -68,9 +76,12 @@ namespace Nxdb
         /// <exception cref="NotSupportedException">The node is not a database node.</exception>
         public void RemoveAllAttributes()
         {
-            Check(true);
-            ANode[] nodes = EnumerateANodes(ANode.attributes()).ToArray();
-            Updates.Add(new Delete(null, Seq.get(nodes, nodes.Length)));
+            using (UpgradeableReadLock())
+            {
+                Check(true);
+                ANode[] nodes = EnumerateANodes(ANode.attributes()).ToArray();
+                Updates.Add(new Delete(null, Seq.get(nodes, nodes.Length)));
+            }
         }
 
         /// <summary>
@@ -83,11 +94,14 @@ namespace Nxdb
         {
             if (name == null) throw new ArgumentNullException("name");
             if (name == String.Empty) throw new ArgumentException("name");
-            Check(true);
-            DBNode node = AttributeANode(name) as DBNode;
-            if (node != null)
+            using (UpgradeableReadLock())
             {
-                Updates.Add(new Delete(null, node));
+                Check(true);
+                DBNode node = AttributeANode(name) as DBNode;
+                if (node != null)
+                {
+                    Updates.Add(new Delete(null, node));
+                }
             }
         }
 
@@ -101,15 +115,18 @@ namespace Nxdb
             if (name == null) throw new ArgumentNullException("name");
             if (value == null) throw new ArgumentNullException("value");
             if (name == String.Empty) throw new ArgumentException("name");
-            Check();
-            FAttr attr = new FAttr(new QNm(name.Token()), value.Token());
-            if(DbNode != null)
+            using (UpgradeableReadLock())
             {
-                Updates.Add(new Insert(null, attr, false, false, false, false, DbNode));
-            }
-            else if(FNode != null)
-            {
-                ((FElem)FNode).add(attr);
+                Check();
+                FAttr attr = new FAttr(new QNm(name.Token()), value.Token());
+                if (DbNode != null)
+                {
+                    Updates.Add(new Insert(null, attr, false, false, false, false, DbNode));
+                }
+                else if (FNode != null)
+                {
+                    ((FElem) FNode).add(attr);
+                }
             }
         }
         
@@ -145,7 +162,7 @@ namespace Nxdb
 
         protected override XmlNode CreateXmlNode()
         {
-            throw new NotImplementedException();
+            return new DomElement(this);
         }
     }
 }

@@ -15,7 +15,7 @@ namespace Nxdb
     /// </summary>
     public abstract class TreeNode : Node
     {
-        protected TreeNode(ANode aNode, int kind) : base(aNode, kind) { }
+        protected TreeNode(ANode aNode, int kind, Database database) : base(aNode, kind, database) { }
 
         #region Content
 
@@ -48,10 +48,13 @@ namespace Nxdb
 
         private void InsertBefore(NodeCache nodeCache)
         {
-            Check(true);
-            if (nodeCache != null)
+            using (UpgradeableReadLock())
             {
-                Updates.Add(new Insert(null, nodeCache.value(), false, false, true, false, DbNode));
+                Check(true);
+                if (nodeCache != null)
+                {
+                    Updates.Add(new Insert(null, nodeCache.value(), false, false, true, false, DbNode));
+                }
             }
         }
 
@@ -84,10 +87,13 @@ namespace Nxdb
 
         private void InsertAfter(NodeCache nodeCache)
         {
-            Check(true);
-            if (nodeCache != null)
+            using (UpgradeableReadLock())
             {
-                Updates.Add(new Insert(null, nodeCache.value(), false, false, false, true, DbNode));
+                Check(true);
+                if (nodeCache != null)
+                {
+                    Updates.Add(new Insert(null, nodeCache.value(), false, false, false, true, DbNode));
+                }
             }
         }
 

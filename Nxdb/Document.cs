@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml;
+using Nxdb.Dom;
 using org.basex.data;
 using org.basex.query.item;
 using org.basex.query.up.expr;
@@ -13,9 +14,9 @@ namespace Nxdb
     public class Document : ContainerNode
     {
         //Should only be called from Node.Get()
-        internal Document(ANode aNode) : base(aNode, Data.DOC) { }
+        internal Document(ANode aNode, Database database) : base(aNode, Data.DOC, database) { }
 
-        public Document(string name) : base(new FDoc(name.Token()), Data.DOC) { }
+        public Document(string name) : base(new FDoc(name.Token()), Data.DOC, null) { }
 
         public override System.Xml.XmlNodeType NodeType
         {
@@ -52,14 +53,17 @@ namespace Nxdb
             {
                 //Need to use the update primitive (as opposed to the expression) because documents can't be renamed through the expression
                 if (value == null) throw new ArgumentNullException("value");
-                Check(true);
-                Updates.Add(new ReplaceValue(DbNode.pre, DbNode.data(), null, value.Token()));
+                using (UpgradeableReadLock())
+                {
+                    Check(true);
+                    Updates.Add(new ReplaceValue(DbNode.pre, DbNode.data(), null, value.Token()));
+                }
             }
         }
 
         protected override XmlNode CreateXmlNode()
         {
-            throw new NotImplementedException();
+            return new DomDocument(this);
         }
     }
 }

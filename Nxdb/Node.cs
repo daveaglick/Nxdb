@@ -4,8 +4,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Xml;
 using System.Xml.Linq;
+using Drac.Threading;
 using org.basex.data;
 using org.basex.query.item;
 using org.basex.query.iter;
@@ -31,10 +33,12 @@ namespace Nxdb
         private XmlNode _xmlNode = null; // Cached XmlNode inastance for DOM interoperability
         private readonly int _id = -1; // The unique immutable ID for the node, -1 if not a database node
         private readonly int _kind; // The database kind supported by the subclass
+        private Database _database; // Cache the database that this node belongs to
+        private readonly ReaderWriterLockSlim _lockSlim; //Since the node may or may not be a part of the database, all locks should be done on this cached lock object
 
         #region Construction
 
-        protected Node(ANode aNode, int kind)
+        protected Node(ANode aNode, int kind, Database database)
         {
             _dbNode = aNode as DBNode;
             if (aNode == null) throw new ArgumentNullException("aNode");
@@ -42,12 +46,15 @@ namespace Nxdb
             _aNode = aNode;
             _fNode = aNode as FNode;
             _kind = kind;
+            _database = database;
+            _lockSlim = database == null ? new ReaderWriterLockSlim() : database.LockSlim;
             if (_dbNode != null)
             {
                 _id = _dbNode.data().id(_dbNode.pre);
             }
         }
 
+        // Not thread-safe, caller should lock the database
         internal static Node Get(ANode aNode)
         {
             if (aNode == null) throw new ArgumentNullException("aNode");
@@ -56,54 +63,58 @@ namespace Nxdb
             DBNode dbNode = aNode as DBNode;
             if (dbNode != null)
             {
-                return Get(dbNode);
+                Database database = Database.Get(dbNode.data());
+                return Get(dbNode, database);
             }
 
             // If not, create the appropriate non-database node class
             NodeType nodeType = aNode.nodeType();
             if (nodeType == org.basex.query.item.NodeType.ELM)
             {
-                return new Element(aNode);
+                return new Element(aNode, null);
             }
             if (nodeType == org.basex.query.item.NodeType.TXT)
             {
-                return new Text(aNode);
+                return new Text(aNode, null);
             }
             if (nodeType == org.basex.query.item.NodeType.ATT)
             {
-                return new Attribute(aNode);
+                return new Attribute(aNode, null);
             }
             if (nodeType == org.basex.query.item.NodeType.DOC)
             {
-                return new Document(aNode);
+                return new Document(aNode, null);
             }
             if (nodeType == org.basex.query.item.NodeType.COM)
             {
-                return new Comment(aNode);
+                return new Comment(aNode, null);
             }
             if (nodeType == org.basex.query.item.NodeType.PI)
             {
-                return new ProcessingInstruction(aNode);
+                return new ProcessingInstruction(aNode, null);
             }
             throw new ArgumentException("Invalid node type");
         }
 
+        // Not thread-safe, caller should lock the database
         internal static Node Get(int pre, Data data)
         {
             if (data == null) throw new ArgumentNullException("data");
             if (pre < 0) throw new ArgumentOutOfRangeException("pre");
             
             //Is it already created?
-            Node node = Database.Get(data).GetNode(pre);
-            return node ?? Get(new DBNode(data, pre), false);
+            Database database = Database.Get(data);
+            Node node = database.GetNode(pre);
+            return node ?? Get(new DBNode(data, pre), database, false);
         }
 
-        internal static Node Get(DBNode dbNode, bool check = true)
+        // Not thread-safe, caller should lock the database
+        internal static Node Get(DBNode dbNode, Database database, bool check = true)
         {
             if (dbNode == null) throw new ArgumentNullException("dbNode");
+            if (database == null) throw new ArgumentNullException("database");
 
             // Copy the DBNode if it wasn't created from scratch
-            Database database = Database.Get(dbNode.data());
             if (check)
             {
                 // Is it already created?
@@ -122,27 +133,27 @@ namespace Nxdb
             NodeType nodeType = dbNode.nodeType();
             if (nodeType == org.basex.query.item.NodeType.ELM)
             {
-                newNode = new Element(dbNode);
+                newNode = new Element(dbNode, database);
             }
             else if (nodeType == org.basex.query.item.NodeType.TXT)
             {
-                newNode = new Text(dbNode);
+                newNode = new Text(dbNode, database);
             }
             else if (nodeType == org.basex.query.item.NodeType.ATT)
             {
-                newNode = new Attribute(dbNode);
+                newNode = new Attribute(dbNode, database);
             }
             else if (nodeType == org.basex.query.item.NodeType.DOC)
             {
-                newNode = new Document(dbNode);
+                newNode = new Document(dbNode, database);
             }
             else if (nodeType == org.basex.query.item.NodeType.COM)
             {
-                newNode = new Comment(dbNode);
+                newNode = new Comment(dbNode, database);
             }
             else if (nodeType == org.basex.query.item.NodeType.PI)
             {
-                newNode = new ProcessingInstruction(dbNode);
+                newNode = new ProcessingInstruction(dbNode, database);
             }
             else
             {
@@ -154,6 +165,7 @@ namespace Nxdb
             return newNode;
         }
 
+        // Not thread-safe, caller should lock the database
         public static Node Get(XmlNode node)
         {
             IList<ANode> nodes = Helper.GetNodes(new XmlNodeReader(node));
@@ -161,11 +173,36 @@ namespace Nxdb
             return Get(nodes[0]);
         }
 
+        // Not thread-safe, caller should lock the database
         public static Node Get(XNode node)
         {
             IList<ANode> nodes = Helper.GetNodes(node.CreateReader());
             if (nodes.Count != 1) throw new Exception("Unexpected behavior: the XNode resulted in more than one Node");
             return Get(nodes[0]);
+        }
+
+        #endregion
+
+        #region Threading
+
+        protected ReaderWriterLockSlim LockSlim
+        {
+            get { return _lockSlim; }            
+        }
+
+        protected WriteLock WriteLock()
+        {
+            return new WriteLock(_lockSlim);
+        }
+
+        protected ReadLock ReadLock()
+        {
+            return new ReadLock(_lockSlim);
+        }
+
+        protected UpgradeableReadLock UpgradeableReadLock()
+        {
+            return new UpgradeableReadLock(_lockSlim);
         }
 
         #endregion
@@ -177,19 +214,22 @@ namespace Nxdb
         /// </summary>
         public Database Database
         {
-            get { return DbNode == null ? null : Database.Get(DbNode.data()); }
+            get { using(ReadLock()) return _database; }
         }
 
+        // Not thread-safe
         protected internal ANode ANode
         {
             get { return _aNode; }
         }
 
+        // Not thread-safe
         protected DBNode DbNode
         {
             get { return _dbNode; }
         }
 
+        // Not thread-safe
         protected FNode FNode
         {
             get { return _fNode; }
@@ -202,8 +242,11 @@ namespace Nxdb
         {
             get
             {
-                Check();
-                return _id;
+                using (ReadLock())
+                {
+                    Check();
+                    return _id;
+                }
             }
         }
 
@@ -216,9 +259,18 @@ namespace Nxdb
         {
             get
             {
-                Check();
-                return DbNode != null ? DbNode.pre : -1;
+                using (ReadLock())
+                {
+                    Check();
+                    return UnsyncIndex;
+                }
             }
+        }
+
+        //Not thread-safe and doesn't check validity - used in Database.Update()
+        internal int UnsyncIndex
+        {
+            get { return DbNode != null ? DbNode.pre : -1; }
         }
 
         public abstract XmlNodeType NodeType { get; }
@@ -227,6 +279,8 @@ namespace Nxdb
 
         #region Validity
 
+        // Updates.Apply() (which locks the database) -> Database.Update() -> Node.Validate()
+        // Database is already locked when this gets called
         internal bool Validate()
         {
             // If no ANode, then we're invalid
@@ -268,6 +322,7 @@ namespace Nxdb
             _dbNode = null;
             _fNode = null;
             _xmlNode = null;
+            _database = null;
             EventHandler<EventArgs> handler = Invalidated;
             if (handler != null) handler(this, EventArgs.Empty);
         }
@@ -281,13 +336,14 @@ namespace Nxdb
         /// </value>
         public bool Valid
         {
-            get { return _aNode != null; }
+            get { using(ReadLock()) return _aNode != null; }
         }
 
         // Checks node validity and optionally checks if this is a database node
+        // Not thread-safe
         protected void Check(bool requireDatabase = false)
         {
-            if (!Valid) throw new InvalidOperationException("the node is no longer valid");
+            if (_aNode == null) throw new InvalidOperationException("the node is no longer valid");
             if (requireDatabase && DbNode == null)
                 throw new NotSupportedException("this operation is only supported for database nodes");
         }
@@ -298,13 +354,19 @@ namespace Nxdb
 
         // Provides typed enumeration for BaseX NodeIter, which are limited to ANode results
         // and thus the enumeration results are guaranteed to produce Node objects
-        protected IEnumerable<T> EnumerateNodes<T>(NodeIter iter)
+        // The method is not thread-safe and caller should lock the database
+        private IEnumerable<T> EnumerateNodes<T>(NodeIter iter)
         {
             Check();
-            return new IterEnum(iter).Cast<T>();
+
+            // Need to copy to a new collection so the database doesn't stay locked
+            // This is probably less efficient then on-the-fly enumeration, but it's thread-safe
+            return (new IterEnum(iter).Cast<T>()).ToList();
         }
 
         // Enumerate the BaseX ANodes in a NodeIter
+        // The method is not thread-safe, caller should lock the database
+        // Also, does not do a validity check
         protected IEnumerable<ANode> EnumerateANodes(NodeIter iter)
         {
             while (true)
@@ -323,7 +385,10 @@ namespace Nxdb
         /// </summary>
         public IEnumerable<TreeNode> Children
         {
-            get { return EnumerateNodes<TreeNode>(ANode.children()); }
+            get
+            {
+                using(ReadLock()) return EnumerateNodes<TreeNode>(ANode.children());
+            }
         }
 
         /// <summary>
@@ -345,7 +410,10 @@ namespace Nxdb
         /// </summary>
         public IEnumerable<Attribute> Attributes
         {
-            get { return EnumerateNodes<Attribute>(ANode.attributes()); }
+            get
+            {
+                using (ReadLock()) return EnumerateNodes<Attribute>(ANode.attributes());
+            }
         }
 
         /// <summary>
@@ -353,7 +421,10 @@ namespace Nxdb
         /// </summary>
         public IEnumerable<TreeNode> FollowingSiblings
         {
-            get { return EnumerateNodes<TreeNode>(ANode.followingSibling()); }
+            get
+            {
+                using (ReadLock()) return EnumerateNodes<TreeNode>(ANode.followingSibling());
+            }
         }
 
         /// <summary>
@@ -361,7 +432,10 @@ namespace Nxdb
         /// </summary>
         public IEnumerable<TreeNode> PrecedingSiblings
         {
-            get { return EnumerateNodes<TreeNode>(ANode.precedingSibling()); }
+            get
+            {
+                using (ReadLock()) return EnumerateNodes<TreeNode>(ANode.precedingSibling());
+            }
         }
         
         /// <summary>
@@ -369,7 +443,10 @@ namespace Nxdb
         /// </summary>
         public IEnumerable<TreeNode> Following
         {
-            get { return EnumerateNodes<TreeNode>(ANode.following()); }
+            get
+            {
+                using (ReadLock()) return EnumerateNodes<TreeNode>(ANode.following());
+            }
         }
 
         /// <summary>
@@ -377,7 +454,10 @@ namespace Nxdb
         /// </summary>
         public IEnumerable<TreeNode> Preceding
         {
-            get { return EnumerateNodes<TreeNode>(ANode.preceding()); }
+            get
+            {
+                using (ReadLock()) return EnumerateNodes<TreeNode>(ANode.preceding());
+            }
         }
 
         /// <summary>
@@ -390,13 +470,16 @@ namespace Nxdb
         {
             get
             {
-                Check();
-                ANode parent = ANode.parent();
-                if (parent != null)
+                using (ReadLock())
                 {
-                    return (ContainerNode)Get(parent);
+                    Check();
+                    ANode parent = ANode.parent();
+                    if (parent != null)
+                    {
+                        return (ContainerNode) Get(parent);
+                    }
+                    return null;
                 }
-                return null;
             }
         }
 
@@ -405,7 +488,10 @@ namespace Nxdb
         /// </summary>
         public IEnumerable<ContainerNode> Ancestors
         {
-            get { return EnumerateNodes<ContainerNode>(ANode.ancestor()); }
+            get
+            {
+                using (ReadLock()) return EnumerateNodes<ContainerNode>(ANode.ancestor());
+            }
         }
 
         /// <summary>
@@ -413,22 +499,28 @@ namespace Nxdb
         /// </summary>
         public IEnumerable<TreeNode> AncestorsOrSelf
         {
-            get { return EnumerateNodes<TreeNode>(ANode.ancestorOrSelf()); }
+            get
+            {
+                using (ReadLock()) return EnumerateNodes<TreeNode>(ANode.ancestorOrSelf());
+            }
         }
 
         public Document Document
         {
             get
             {
-                Check();
-                foreach(ANode ancestor in EnumerateANodes(ANode.ancestorOrSelf()))
+                using (ReadLock())
                 {
-                    if(ancestor.nodeType() == org.basex.query.item.NodeType.DOC)
+                    Check();
+                    foreach (ANode ancestor in EnumerateANodes(ANode.ancestorOrSelf()))
                     {
-                        return Get(ancestor) as Document;
+                        if (ancestor.nodeType() == org.basex.query.item.NodeType.DOC)
+                        {
+                            return Get(ancestor) as Document;
+                        }
                     }
+                    return null;
                 }
-                return null;
             }
         }
 
@@ -437,7 +529,10 @@ namespace Nxdb
         /// </summary>
         public IEnumerable<TreeNode> Descendants
         {
-            get { return EnumerateNodes<TreeNode>(ANode.descendant()); }
+            get
+            {
+                using (ReadLock()) return EnumerateNodes<TreeNode>(ANode.descendant());
+            }
         }
 
         /// <summary>
@@ -445,7 +540,10 @@ namespace Nxdb
         /// </summary>
         public IEnumerable<TreeNode> DescendantsOrSelf
         {
-            get { return EnumerateNodes<TreeNode>(ANode.descendantOrSelf()); }
+            get
+            {
+                using (ReadLock()) return EnumerateNodes<TreeNode>(ANode.descendantOrSelf());
+            }
         }
 
         #endregion
@@ -457,8 +555,11 @@ namespace Nxdb
         /// </summary>
         public void Remove()
         {
-            Check(true);
-            Updates.Add(new Delete(null, DbNode));
+            using (UpgradeableReadLock())
+            {
+                Check(true);
+                Updates.Add(new Delete(null, DbNode));
+            }
         }
 
         /// <summary>
@@ -472,14 +573,20 @@ namespace Nxdb
         {
             get
             {
-                Check();
-                return ANode.@string().Token();
+                using (ReadLock())
+                {
+                    Check();
+                    return ANode.@string().Token();
+                }
             }
             set
             {
                 if (value == null) throw new ArgumentNullException("value");
-                Check(true);
-                Updates.Add(new Replace(null, DbNode, new Atm(value.Token()), true));
+                using (UpgradeableReadLock())
+                {
+                    Check(true);
+                    Updates.Add(new Replace(null, DbNode, new Atm(value.Token()), true));
+                }
             }
         }
 
@@ -492,13 +599,19 @@ namespace Nxdb
         {
             get
             {
-                Check();
-                return String.Empty;
+                using (ReadLock())
+                {
+                    Check();
+                    return String.Empty;
+                }
             }
             set
             {
                 if (value == null) throw new ArgumentNullException("value");
-                Check(true);
+                using (ReadLock())
+                {
+                    Check(true);
+                }
             }
         }
 
@@ -507,14 +620,20 @@ namespace Nxdb
         {
             get
             {
-                Check();
-                return ANode.name().Token();
+                using (ReadLock())
+                {
+                    Check();
+                    return ANode.name().Token();
+                }
             }
             set
             {
                 if (value == null) throw new ArgumentNullException("value");
-                Check(true);
-                Updates.Add(new Rename(null, DbNode, new QNm(value.Token())));
+                using (UpgradeableReadLock())
+                {
+                    Check(true);
+                    Updates.Add(new Rename(null, DbNode, new QNm(value.Token())));
+                }
             }
         }
 
@@ -526,8 +645,11 @@ namespace Nxdb
         {
             get
             {
-                Check();
-                return String.Empty;
+                using (ReadLock())
+                {
+                    Check();
+                    return String.Empty;
+                }
             }
         }
 
@@ -536,8 +658,11 @@ namespace Nxdb
         {
             get
             {
-                Check();
-                return ANode.qname().local().Token();
+                using (ReadLock())
+                {
+                    Check();
+                    return ANode.qname().local().Token();
+                }
             }
         }
 
@@ -549,8 +674,11 @@ namespace Nxdb
         {
             get
             {
-                Check();
-                return String.Empty;
+                using (ReadLock())
+                {
+                    Check();
+                    return String.Empty;
+                }
             }
         }
 
@@ -559,8 +687,11 @@ namespace Nxdb
         {
             get
             {
-                Check();
-                return ANode.qname().prefix().Token();
+                using (ReadLock())
+                {
+                    Check();
+                    return ANode.qname().prefix().Token();
+                }
             }
         }
 
@@ -572,8 +703,11 @@ namespace Nxdb
         {
             get
             {
-                Check();
-                return String.Empty;
+                using (ReadLock())
+                {
+                    Check();
+                    return String.Empty;
+                }
             }
         }
 
@@ -582,8 +716,11 @@ namespace Nxdb
         {
             get
             {
-                Check();
-                return ANode.qname().uri().Token();
+                using (ReadLock())
+                {
+                    Check();
+                    return ANode.qname().uri().Token();
+                }
             }
         }
 
@@ -594,8 +731,11 @@ namespace Nxdb
         {
             get
             {
-                Check();
-                return ANode.baseURI().Token();
+                using (ReadLock())
+                {
+                    Check();
+                    return ANode.baseURI().Token();
+                }
             }
         }
 
@@ -641,8 +781,11 @@ namespace Nxdb
         {
             get
             {
-                Check();
-                return _xmlNode ?? (_xmlNode = CreateXmlNode());
+                using (ReadLock())
+                {
+                    Check();
+                    return _xmlNode ?? (_xmlNode = CreateXmlNode());
+                }
             }
         }
 
@@ -665,15 +808,19 @@ namespace Nxdb
         public bool Equals(Node other)
         {
             //Do a validity check without throwing exceptions (Equals should never throw exceptions)
-            if (other == null)
+            //The ReadLock violates the never throw exceptions rule, but not sure how else to ensure thread safety
+            using (ReadLock())
             {
-                return false;
+                if (other == null)
+                {
+                    return false;
+                }
+                if (DbNode != null)
+                {
+                    return this == other;
+                }
+                return ANode.id == other.ANode.id;
             }
-            if(DbNode != null)
-            {
-                return this == other;
-            }
-            return ANode.id == other.ANode.id;
         }
 
         /// <summary>
@@ -697,17 +844,20 @@ namespace Nxdb
         /// </returns>
         public override int GetHashCode()
         {
-            int result = 17;
-            if(DbNode != null)
+            using (ReadLock())
             {
-                result = 37 * result + _id.GetHashCode();
-                result = 37 * result + DbNode.data().GetHashCode(); 
+                int result = 17;
+                if (DbNode != null)
+                {
+                    result = 37*result + _id.GetHashCode();
+                    result = 37*result + DbNode.data().GetHashCode();
+                }
+                else if (ANode != null)
+                {
+                    result = 37*ANode.id;
+                }
+                return result;
             }
-            else if(ANode != null)
-            {
-                result = 37 * ANode.id;
-            }
-            return result;
         }
 
         #endregion

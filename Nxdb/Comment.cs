@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml;
+using Nxdb.Dom;
 using org.basex.data;
 using org.basex.query.item;
 
@@ -11,9 +12,9 @@ namespace Nxdb
     public class Comment : TreeNode
     {
         //Should only be called from Node.Get()
-        internal Comment(ANode aNode) : base(aNode, Data.COMM) { }
+        internal Comment(ANode aNode, Database database) : base(aNode, Data.COMM, database) { }
 
-        public Comment(string comment) : base(new FComm(comment.Token()), Data.COMM) { }
+        public Comment(string comment) : base(new FComm(comment.Token()), Data.COMM, null) { }
 
         public override System.Xml.XmlNodeType NodeType
         {
@@ -22,7 +23,7 @@ namespace Nxdb
 
         protected override XmlNode CreateXmlNode()
         {
-            throw new NotImplementedException();
+            return new DomComment(this);
         }
     }
 }
