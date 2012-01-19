@@ -31,7 +31,7 @@ namespace Nxdb
     {
         #region Static
 
-        private static readonly ReaderWriterLockSlim GlobalLockSlim = new ReaderWriterLockSlim();
+        private static readonly ILocker GlobalLocker = new ReaderWriterLockSlimLocker();
 
         // The global locks also lock all databases individually, this helper class needed
         // to unlock all the database when the lock is disposed
@@ -66,17 +66,17 @@ namespace Nxdb
 
         internal static LockWrapper GlobalWriteLock()
         {
-            return new LockWrapper(new WriteLock(GlobalLockSlim), d => d.WriteLock());
+            return new LockWrapper(new WriteLock(GlobalLocker), d => d.WriteLock());
         }
 
         internal static LockWrapper GlobalReadLock()
         {
-            return new LockWrapper(new ReadLock(GlobalLockSlim), d => d.ReadLock());
+            return new LockWrapper(new ReadLock(GlobalLocker), d => d.ReadLock());
         }
 
         internal static LockWrapper GlobalUpgradeableReadLock()
         {
-            return new LockWrapper(new UpgradeableReadLock(GlobalLockSlim), d => d.UpgradeableReadLock());
+            return new LockWrapper(new UpgradeableReadLock(GlobalLocker), d => d.UpgradeableReadLock());
         }
 
         //This runs some one-time initialization and needs to be called before use
@@ -230,26 +230,26 @@ namespace Nxdb
 
         #endregion
 
-        private readonly ReaderWriterLockSlim _lockSlim = new ReaderWriterLockSlim();
+        private readonly ILocker _locker = new ReaderWriterLockSlimLocker();
 
-        internal ReaderWriterLockSlim LockSlim
+        internal ILocker Locker
         {
-            get { return _lockSlim; }
+            get { return _locker; }
         }
 
         internal WriteLock WriteLock()
         {
-            return new WriteLock(_lockSlim);
+            return new WriteLock(_locker);
         }
 
         internal ReadLock ReadLock()
         {
-            return new ReadLock(_lockSlim);
+            return new ReadLock(_locker);
         }
 
         internal UpgradeableReadLock UpgradeableReadLock()
         {
-            return new UpgradeableReadLock(_lockSlim);
+            return new UpgradeableReadLock(_locker);
         }
 
         // A cache of all nodes for this database indexed by pre value

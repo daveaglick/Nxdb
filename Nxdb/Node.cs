@@ -34,7 +34,8 @@ namespace Nxdb
         private readonly int _id = -1; // The unique immutable ID for the node, -1 if not a database node
         private readonly int _kind; // The database kind supported by the subclass
         private Database _database; // Cache the database that this node belongs to
-        private readonly ReaderWriterLockSlim _lockSlim; //Since the node may or may not be a part of the database, all locks should be done on this cached lock object
+        private readonly ILocker _locker; // Since the node may or may not be a part of the database, all locks should be done on this cached lock object
+        private readonly static ILocker CreationLocker = new MonitorLocker(); // A lightweight locker to ensure we don't create a second duplicate node while checking the cache
 
         #region Construction
 
@@ -47,7 +48,7 @@ namespace Nxdb
             _fNode = aNode as FNode;
             _kind = kind;
             _database = database;
-            _lockSlim = database == null ? new ReaderWriterLockSlim() : database.LockSlim;
+            _locker = database == null ? new ReaderWriterLockSlimLocker() : database.Locker;
             if (_dbNode != null)
             {
                 _id = _dbNode.data().id(_dbNode.pre);
@@ -107,62 +108,66 @@ namespace Nxdb
             Node node = database.GetNode(pre);
             return node ?? Get(new DBNode(data, pre), database, false);
         }
-
+        
         // Not thread-safe, caller should lock the database
         internal static Node Get(DBNode dbNode, Database database, bool check = true)
         {
             if (dbNode == null) throw new ArgumentNullException("dbNode");
             if (database == null) throw new ArgumentNullException("database");
 
-            // Copy the DBNode if it wasn't created from scratch
-            if (check)
+            // Use an overarching lock for node caching and construction
+            using (new WriteLock(CreationLocker))
             {
-                // Is it already created?
-                Node node = database.GetNode(dbNode.pre);
-                if(node != null)
+                // Copy the DBNode if it wasn't created from scratch
+                if (check)
                 {
-                    return node;
+                    // Is it already created?
+                    Node node = database.GetNode(dbNode.pre);
+                    if (node != null)
+                    {
+                        return node;
+                    }
+
+                    // Otherwise, copy the DBNode so we can make a new Node
+                    dbNode = dbNode.copy();
                 }
 
-                // Otherwise, copy the DBNode so we can make a new Node
-                dbNode = dbNode.copy();
-            }
+                // Create the appropriate database node class
+                Node newNode;
+                NodeType nodeType = dbNode.nodeType();
+                if (nodeType == org.basex.query.item.NodeType.ELM)
+                {
+                    newNode = new Element(dbNode, database);
+                }
+                else if (nodeType == org.basex.query.item.NodeType.TXT)
+                {
+                    newNode = new Text(dbNode, database);
+                }
+                else if (nodeType == org.basex.query.item.NodeType.ATT)
+                {
+                    newNode = new Attribute(dbNode, database);
+                }
+                else if (nodeType == org.basex.query.item.NodeType.DOC)
+                {
+                    newNode = new Document(dbNode, database);
+                }
+                else if (nodeType == org.basex.query.item.NodeType.COM)
+                {
+                    newNode = new Comment(dbNode, database);
+                }
+                else if (nodeType == org.basex.query.item.NodeType.PI)
+                {
+                    newNode = new ProcessingInstruction(dbNode, database);
+                }
+                else
+                {
+                    throw new ArgumentException("Invalid node type");
+                }
 
-            // Create the appropriate database node class
-            Node newNode;
-            NodeType nodeType = dbNode.nodeType();
-            if (nodeType == org.basex.query.item.NodeType.ELM)
-            {
-                newNode = new Element(dbNode, database);
+                // Cache and return the node
+                database.SetNode(dbNode.pre, newNode);
+                return newNode;
             }
-            else if (nodeType == org.basex.query.item.NodeType.TXT)
-            {
-                newNode = new Text(dbNode, database);
-            }
-            else if (nodeType == org.basex.query.item.NodeType.ATT)
-            {
-                newNode = new Attribute(dbNode, database);
-            }
-            else if (nodeType == org.basex.query.item.NodeType.DOC)
-            {
-                newNode = new Document(dbNode, database);
-            }
-            else if (nodeType == org.basex.query.item.NodeType.COM)
-            {
-                newNode = new Comment(dbNode, database);
-            }
-            else if (nodeType == org.basex.query.item.NodeType.PI)
-            {
-                newNode = new ProcessingInstruction(dbNode, database);
-            }
-            else
-            {
-                throw new ArgumentException("Invalid node type");
-            }
-
-            // Cache and return the node
-            database.SetNode(dbNode.pre, newNode);
-            return newNode;
         }
 
         // Not thread-safe, caller should lock the database
@@ -185,24 +190,24 @@ namespace Nxdb
 
         #region Threading
 
-        protected ReaderWriterLockSlim LockSlim
+        protected ILocker Locker
         {
-            get { return _lockSlim; }            
+            get { return _locker; }            
         }
 
         protected WriteLock WriteLock()
         {
-            return new WriteLock(_lockSlim);
+            return new WriteLock(_locker);
         }
 
         protected ReadLock ReadLock()
         {
-            return new ReadLock(_lockSlim);
+            return new ReadLock(_locker);
         }
 
         protected UpgradeableReadLock UpgradeableReadLock()
         {
-            return new UpgradeableReadLock(_lockSlim);
+            return new UpgradeableReadLock(_locker);
         }
 
         #endregion
