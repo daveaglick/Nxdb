@@ -1,4 +1,21 @@
-﻿using System;
+﻿/*
+ * Copyright 2012 WildCard, LLC
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ */
+
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -7,7 +24,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Xml;
-using Drac.Threading;
+using NiceThreads;
 using org.basex.core;
 using org.basex.core.cmd;
 using org.basex.data;
@@ -22,11 +39,11 @@ using String = System.String;
 
 namespace Nxdb
 {
-    // Represents a single BaseX database into which all documents should be stored
-    // Unlike the previous versions, it's recommended just one overall NxDatabase be used
-    // and querying between them is not supported
-    // The documents in the database can be grouped using paths in the document name,
-    // i.e.: "folderA/docA.xml", "folderA/docB.xml", "folderB/docC.xml"
+    /// <summary>
+    /// Represents a single database into which all documents should be stored.
+    /// The documents in the database can be grouped using paths in the document name,
+    /// i.e.: "folderA/docA.xml", "folderA/docB.xml", "folderB/docC.xml"
+    /// </summary>
     public class Database : IDisposable, IEquatable<Database>, IQuery
     {
         #region Static
@@ -79,7 +96,10 @@ namespace Nxdb
             return new LockWrapper(new UpgradeableReadLock(GlobalLocker), d => d.UpgradeableReadLock());
         }
 
-        //This runs some one-time initialization and needs to be called before use
+        /// <summary>
+        /// This runs some one-time initialization and needs to be called once (and only once) before use.
+        /// </summary>
+        /// <param name="path">The path in which to store the database(s).</param>
         //Useful because several Java classes use reflection on their first construction
         //which hurts performance when the first construction is done during an operation
         //This method is not thread-safe, but that's okay because it should only be called once
@@ -150,7 +170,11 @@ namespace Nxdb
                 return _properties;
             }
         }
-        
+
+        /// <summary>
+        /// Drops the specified database.
+        /// </summary>
+        /// <param name="name">The name of the database to drop.</param>
         public static void Drop(string name)
         {
             if (name == null) throw new ArgumentNullException("name");
@@ -172,7 +196,12 @@ namespace Nxdb
             }
         }
         
-        // Return value = opened (true = opened; false = created)
+        /// <summary>
+        /// Gets an existing database or creates a new one.
+        /// </summary>
+        /// <param name="name">The name of the database to get or create.</param>
+        /// <param name="database">The database.</param>
+        /// <returns>true if the database was opened, false if it was created.</returns>
         public static bool Get(string name, out Database database)
         {
             if (name == null) throw new ArgumentNullException("name");
@@ -217,6 +246,11 @@ namespace Nxdb
             return database;
         }
 
+        /// <summary>
+        /// Gets an existing database or creates a new one.
+        /// </summary>
+        /// <param name="name">The name of the database to get or create.</param>
+        /// <returns>The opened or newly created database.</returns>
         public static Database Get(string name)
         {
             Database database;
@@ -270,6 +304,9 @@ namespace Nxdb
             _nodes = new SyncObject<WeakReference[]>(new WeakReference[data.meta.size]);
         }
 
+        /// <summary>
+        /// Closes the database and optionally drops it (if Nxdb.Properties.DropOnDispose == true).
+        /// </summary>
         public void Dispose()
         {
             string dropName = Name; //This also checks for disposal
@@ -372,8 +409,14 @@ namespace Nxdb
             }
         }
 
+        /// <summary>
+        /// Occurs when the database is updated.
+        /// </summary>
         public event EventHandler<EventArgs> Updated;
 
+        /// <summary>
+        /// Gets the name of the database.
+        /// </summary>
         public string Name
         {
             get
@@ -446,6 +489,10 @@ namespace Nxdb
         
         //Many of the following are ported from FNDb.java to eliminate the overhead of the XQuery function evaluation
 
+        /// <summary>
+        /// Deletes the document at the specified path.
+        /// </summary>
+        /// <param name="path">The path of the document to delete.</param>
         public void Delete(string path)
         {   
             using (UpgradeableReadLock())
@@ -462,6 +509,11 @@ namespace Nxdb
             }
         }
 
+        /// <summary>
+        /// Renames the document at the specified path.
+        /// </summary>
+        /// <param name="path">The path of the document to rename.</param>
+        /// <param name="newName">The new name of the document.</param>
         public void Rename(string path, string newName)
         {
             using (UpgradeableReadLock())
@@ -483,6 +535,9 @@ namespace Nxdb
             }
         }
 
+        /// <summary>
+        /// Optimizes database structures.
+        /// </summary>
         public void Optimize()
         {
             using (UpgradeableReadLock())
@@ -492,6 +547,9 @@ namespace Nxdb
             }
         }
 
+        /// <summary>
+        /// Optimizes database structures and minimizes size.
+        /// </summary>
         public void OptimizeAll()
         {
             using (UpgradeableReadLock())
@@ -500,24 +558,44 @@ namespace Nxdb
                 Updates.Add(new DBOptimize(Data, Context, true, null));
             }
         }
-        
+
+        /// <summary>
+        /// Adds a new document at the specified path.
+        /// </summary>
+        /// <param name="path">The path at which to add the document.</param>
+        /// <param name="xmlReader">The XML reader containing the new content.</param>
         public virtual void Add(string path, XmlReader xmlReader)
         {
             if (xmlReader == null) throw new ArgumentNullException("xmlReader");
             Add(path, Helper.GetNodeCache(xmlReader));
         }
 
+        /// <summary>
+        /// Adds a new document at the specified path.
+        /// </summary>
+        /// <param name="path">The path at which to add the document.</param>
+        /// <param name="content">The XML content to add.</param>
         public virtual void Add(string path, string content)
         {
             Helper.CallWithString(content, path, Add);
         }
 
+        /// <summary>
+        /// Adds new document(s) at the specified path.
+        /// </summary>
+        /// <param name="path">The path at which to add the document(s).</param>
+        /// <param name="nodes">The document nodes to add.</param>
         public void Add(string path, params Document[] nodes)
         {
             if (nodes == null) throw new ArgumentNullException("nodes");
             Add(path, Helper.GetNodeCache(nodes));
         }
 
+        /// <summary>
+        /// Adds new document(s) at the specified path.
+        /// </summary>
+        /// <param name="path">The path at which to add the document(s).</param>
+        /// <param name="nodes">The document nodes to add.</param>
         public void Add(string path, IEnumerable<Document> nodes)
         {
             if (nodes == null) throw new ArgumentNullException("nodes");
@@ -543,23 +621,43 @@ namespace Nxdb
             }
         }
 
+        /// <summary>
+        /// Replaces a document at the specified path.
+        /// </summary>
+        /// <param name="path">The path of the document to replace.</param>
+        /// <param name="xmlReader">The XML reader containing the replacing content.</param>
         public virtual void Replace(string path, XmlReader xmlReader)
         {
             if (xmlReader == null) throw new ArgumentNullException("xmlReader");
             Replace(path, Helper.GetNodeCache(xmlReader));
         }
 
+        /// <summary>
+        /// Replaces a document at the specified path.
+        /// </summary>
+        /// <param name="path">The path of the document to replace.</param>
+        /// <param name="content">The replacing XML content.</param>
         public virtual void Replace(string path, string content)
         {
             Helper.CallWithString(content, path, Replace);
         }
 
+        /// <summary>
+        /// Replaces document(s) at the specified path.
+        /// </summary>
+        /// <param name="path">The path of the document(s) to replace.</param>
+        /// <param name="nodes">The replacing document nodes.</param>
         public void Replace(string path, params Document[] nodes)
         {
             if (nodes == null) throw new ArgumentNullException("nodes");
             Replace(path, Helper.GetNodeCache(nodes));
         }
 
+        /// <summary>
+        /// Replaces document(s) at the specified path.
+        /// </summary>
+        /// <param name="path">The path of the document(s) to replace.</param>
+        /// <param name="nodes">The replacing document nodes.</param>
         public void Replace(string path, IEnumerable<Document> nodes)
         {
             if (nodes == null) throw new ArgumentNullException("nodes");
@@ -583,7 +681,12 @@ namespace Nxdb
                 }
             }
         }
-        
+
+        /// <summary>
+        /// Gets the document with the specified name, or null if a document with the specified name is not found.
+        /// </summary>
+        /// <param name="name">The name of the document to get.</param>
+        /// <returns></returns>
         public Document GetDocument(string name)
         {
             using (ReadLock())
@@ -594,6 +697,11 @@ namespace Nxdb
             }
         }
 
+        /// <summary>
+        /// Gets all documents at the specified path.
+        /// </summary>
+        /// <param name="path">The path at which to get documents.</param>
+        /// <returns></returns>
         public IEnumerable<Document> GetDocuments(string path)
         {
             List<Document> documents = new List<Document>();
@@ -610,6 +718,9 @@ namespace Nxdb
             return documents;
         }
 
+        /// <summary>
+        /// Gets all documents in the database.
+        /// </summary>
         public IEnumerable<Document> Documents
         {
             get
@@ -629,6 +740,9 @@ namespace Nxdb
             }
         }
 
+        /// <summary>
+        /// Gets all document names in the database.
+        /// </summary>
         public IEnumerable<string> DocumentNames
         {
             get
@@ -648,31 +762,70 @@ namespace Nxdb
             }
         }
 
+        /// <summary>
+        /// Evaluates the specified expression and returns the result as a enumeration of objects.
+        /// </summary>
+        /// <param name="expression">The expression to evaluate.</param>
+        /// <returns>An enumeration of the result objects.</returns>
         public IEnumerable<object> Eval(string expression)
         {
             return new Query(this).Eval(expression);
         }
 
+        /// <summary>
+        /// Evaluates the specified expression and returns an enumeration of all resultant
+        /// objects matching the given type.
+        /// </summary>
+        /// <typeparam name="T">The type of result objects to return.</typeparam>
+        /// <param name="expression">The expression to evaluate.</param>
+        /// <returns>An enumeration of all result objects matching the specified type.</returns>
         public IEnumerable<T> Eval<T>(string expression)
         {
             return Eval(expression).OfType<T>();
         }
 
+        /// <summary>
+        /// Evaluates the specified expression and returns an IList of objects.
+        /// </summary>
+        /// <param name="expression">The expression to evaluate.</param>
+        /// <returns>An IList of the result objects.</returns>
         public IList<object> EvalList(string expression)
         {
             return new List<object>(Eval(expression));
         }
 
+        /// <summary>
+        /// Evaluates the specified expression and returns an IList of all resultant
+        /// objects matching the given type.
+        /// </summary>
+        /// <typeparam name="T">The type of result objects to return.</typeparam>
+        /// <param name="expression">The expression to evaluate.</param>
+        /// <returns>An IList of all result objects matching the specified type.</returns>
         public IList<T> EvalList<T>(string expression)
         {
             return new List<T>(Eval(expression).OfType<T>());
         }
 
+        /// <summary>
+        /// Evaluates the specified expression and returns a single result object (the first
+        /// if the expression resulted in more than one result). If
+        /// the expression does not evaluate to any results, null is returned.
+        /// </summary>
+        /// <param name="expression">The expression to evaluate.</param>
+        /// <returns>The first result object (or null).</returns>
         public object EvalSingle(string expression)
         {
             return Eval(expression).FirstOrDefault();
         }
 
+        /// <summary>
+        /// Evaluates the specified expression and returns a single result object of the
+        /// specified type. If the first resultant object is not of the given type or if
+        /// the expression does not evaluate to any results, null is returned.
+        /// </summary>
+        /// <typeparam name="T">The type of result object to return.</typeparam>
+        /// <param name="expression">The expression to evaluate.</param>
+        /// <returns>The first result object as the specified type (or null).</returns>
         public T EvalSingle<T>(string expression) where T : class
         {
             return EvalSingle(expression) as T;

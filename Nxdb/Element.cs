@@ -1,4 +1,21 @@
-﻿using System;
+﻿/*
+ * Copyright 2012 WildCard, LLC
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ */
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,13 +28,22 @@ using org.basex.query.up.primitives;
 
 namespace Nxdb
 {
+    /// <summary>
+    /// Representation of an XML element node.
+    /// </summary>
     public class Element : ContainerNode
     {
         //Should only be called from Node.Get()
         internal Element(ANode aNode, Database database) : base(aNode, Data.ELEM, database) { }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Element"/> class.
+        /// Manually constructed nodes are immutable and are not added to the database.
+        /// </summary>
+        /// <param name="name">The name of the element.</param>
         public Element(string name) : base(new FElem(new QNm(name.Token())), Data.ELEM, null) { }
 
+        /// <inheritdoc />
         public override System.Xml.XmlNodeType NodeType
         {
             get { return System.Xml.XmlNodeType.Element; }
@@ -129,7 +155,8 @@ namespace Nxdb
                 }
             }
         }
-        
+
+        /// <inheritdoc />
         public override void RemoveAll()
         {
             using(new Updates())
@@ -139,27 +166,32 @@ namespace Nxdb
             }
         }
 
+        /// <inheritdoc />
         public override string Name
         {
             get { return NameImpl; }
             set { NameImpl = value; }
         }
 
+        /// <inheritdoc />
         public override string LocalName
         {
             get { return LocalNameImpl; }
         }
 
+        /// <inheritdoc />
         public override string Prefix
         {
             get { return PrefixImpl; }
         }
 
+        /// <inheritdoc />
         public override string NamespaceUri
         {
             get { return NamespaceUriImpl; }
         }
 
+        /// <inheritdoc />
         protected override XmlNode CreateXmlNode()
         {
             return new DomElement(this);
