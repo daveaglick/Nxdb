@@ -33,12 +33,17 @@ using org.basex.util;
 
 namespace Nxdb
 {
-    //Extension methods and other helper functionality
+    /// <summary>
+    /// Static class that includes some extension methods and other helper functionality.
+    /// </summary>
     public static class Helper
     {
-        //Static XmlReader and XmlWriter settings
-        //Most permisive possible, don't want the writer/reader doing any post-processing
         private static XmlWriterSettings _writerSettings;
+        private static XmlReaderSettings _readerSettings;
+
+        /// <summary>
+        /// Gets an instance of very permissive XmlWriterSettings designed to restrict post-processing by an XmlWriter.
+        /// </summary>
         public static XmlWriterSettings WriterSettings
         {
             get
@@ -57,7 +62,9 @@ namespace Nxdb
             }
         }
 
-        private static XmlReaderSettings _readerSettings;
+        /// <summary>
+        /// Gets an instance of very permissive XmlReaderSettings designed to restrict post-processing by an XmlReader.
+        /// </summary>
         public static XmlReaderSettings ReaderSettings
         {
             get

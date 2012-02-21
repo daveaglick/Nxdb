@@ -156,7 +156,6 @@
     <Compile Include="Dom\DomNodeList.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="FuncCommand.cs" />
     <Compile Include="Database.cs">
       <SubType>Code</SubType>
     </Compile>

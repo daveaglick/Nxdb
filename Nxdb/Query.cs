@@ -28,7 +28,9 @@ using Type = System.Type;
 
 namespace Nxdb
 {
-    // Query objects are not thread-safe
+    /// <summary>
+    /// Encapsulates an XQuery. This class is not thread-safe.
+    /// </summary>
     public class Query : IQuery
     {
         private readonly Dictionary<string, Value> _namedCollections
@@ -40,23 +42,36 @@ namespace Nxdb
         private readonly Dictionary<string, string> _externals
             = new Dictionary<string, string>();
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Query"/> class.
+        /// </summary>
         public Query()
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Query"/> class.
+        /// </summary>
+        /// <param name="context">The context of the query. Can be a node type, a database, or any other simple type.</param>
         public Query(object context)
         {
             SetContext(context);
         }
 
+        /// <summary>
+        /// Sets the context.
+        /// </summary>
+        /// <param name="context">The context of the query. Can be a node type, a database, or any other simple type.</param>
         public void SetContext(object context)
         {
             _context = context.ToValue();
         }
 
-        // name == null or String.Empty -> set the default (first) collection
-        // name == text -> set a named collection
-        // value == null -> clear the specified context/collection
+        /// <summary>
+        /// Sets a collection.
+        /// </summary>
+        /// <param name="name">The name of the collection. If null or String.Empty, sets the default collection.</param>
+        /// <param name="value">The contents of the collection. If null, clears the specified collection.</param>
         public void SetCollection(string name, object value)
         {
             Value v = value.ToValue();
@@ -77,7 +92,11 @@ namespace Nxdb
             }
         }
 
-        // value == null -> clear variable
+        /// <summary>
+        /// Sets a variable.
+        /// </summary>
+        /// <param name="name">The name of the variable to set.</param>
+        /// <param name="value">The value of the variable. If null, clears the named variable.</param>
         public void SetVariable(string name, object value)
         {
             if (name == null) throw new ArgumentNullException("name");
@@ -138,6 +157,7 @@ namespace Nxdb
             SetExternal(type.Name, type);
         }
 
+        /// <inheritdoc />
         public IEnumerable<object> Eval(string expression)
         {
             if (expression == null) throw new ArgumentNullException("expression");
@@ -197,56 +217,108 @@ namespace Nxdb
             }
         }
 
+        /// <inheritdoc />
         public IEnumerable<T> Eval<T>(string expression)
         {
             return Eval(expression).OfType<T>();
         }
 
+        /// <inheritdoc />
         public IList<object> EvalList(string expression)
         {
             return new List<object>(Eval(expression));
         }
 
+        /// <inheritdoc />
         public IList<T> EvalList<T>(string expression)
         {
             return new List<T>(Eval(expression).OfType<T>());
         }
 
+        /// <inheritdoc />
         public object EvalSingle(string expression)
         {
             return Eval(expression).FirstOrDefault();
         }
 
+        /// <inheritdoc />
         public T EvalSingle<T>(string expression) where T : class
         {
             return EvalSingle(expression) as T;
         }
 
+        /// <summary>
+        /// Evaluates the specified expression and returns the result as a enumeration of objects.
+        /// </summary>
+        /// <param name="context">The context to use.</param>
+        /// <param name="expression">The expression to evaluate.</param>
+        /// <returns>
+        /// An enumeration of the result objects.
+        /// </returns>
         public static IEnumerable<object> Eval(object context, string expression)
         {
             return new Query(context).Eval(expression);
         }
 
+        /// <summary>
+        /// Evaluates the specified expression and returns an enumeration of all resultant
+        /// objects matching the given type.
+        /// </summary>
+        /// <typeparam name="T">The type of result objects to return.</typeparam>
+        /// <param name="context">The context to use.</param>
+        /// <param name="expression">The expression to evaluate.</param>
+        /// <returns>An enumeration of all result objects matching the specified type.</returns>
         public static IEnumerable<T> Eval<T>(object context, string expression)
         {
             return new Query(context).Eval<T>(expression);
         }
 
+        /// <summary>
+        /// Evaluates the specified expression and returns an IList of objects.
+        /// </summary>
+        /// <param name="context">The context to use.</param>
+        /// <param name="expression">The expression to evaluate.</param>
+        /// <returns>An IList of the result objects.</returns>
         public static IList<object> EvalList(object context, string expression)
         {
             return new Query(context).EvalList(expression);
         }
 
+        /// <summary>
+        /// Evaluates the specified expression and returns an IList of all resultant
+        /// objects matching the given type.
+        /// </summary>
+        /// <typeparam name="T">The type of result objects to return.</typeparam>
+        /// <param name="context">The context to use.</param>
+        /// <param name="expression">The expression to evaluate.</param>
+        /// <returns>An IList of all result objects matching the specified type.</returns>
         public static IList<T> EvalList<T>(object context, string expression)
         {
             return new Query(context).EvalList<T>(expression);
         }
 
+        /// <summary>
+        /// Evaluates the specified expression and returns a single result object (the first
+        /// if the expression resulted in more than one result). If
+        /// the expression does not evaluate to any results, null is returned.
+        /// </summary>
+        /// <param name="context">The context to use.</param>
+        /// <param name="expression">The expression to evaluate.</param>
+        /// <returns>The first result object (or null).</returns>
         public static object EvalSingle(object context, string expression)
         {
             return new Query(context).EvalSingle(expression);
         }
 
+        /// <summary>
+        /// Evaluates the specified expression and returns a single result object of the
+        /// specified type. If the first resultant object is not of the given type or if
+        /// the expression does not evaluate to any results, null is returned.
+        /// </summary>
+        /// <typeparam name="T">The type of result object to return.</typeparam>
+        /// <param name="context">The context to use.</param>
+        /// <param name="expression">The expression to evaluate.</param>
+        /// <returns>The first result object as the specified type (or null).</returns>
         public static T EvalSingle<T>(object context, string expression) where T : class
         {
             return new Query(context).EvalSingle<T>(expression);

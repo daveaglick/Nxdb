@@ -762,70 +762,38 @@ namespace Nxdb
             }
         }
 
-        /// <summary>
-        /// Evaluates the specified expression and returns the result as a enumeration of objects.
-        /// </summary>
-        /// <param name="expression">The expression to evaluate.</param>
-        /// <returns>An enumeration of the result objects.</returns>
+        /// <inheritdoc />
         public IEnumerable<object> Eval(string expression)
         {
             return new Query(this).Eval(expression);
         }
 
-        /// <summary>
-        /// Evaluates the specified expression and returns an enumeration of all resultant
-        /// objects matching the given type.
-        /// </summary>
-        /// <typeparam name="T">The type of result objects to return.</typeparam>
-        /// <param name="expression">The expression to evaluate.</param>
-        /// <returns>An enumeration of all result objects matching the specified type.</returns>
+        /// <inheritdoc />
         public IEnumerable<T> Eval<T>(string expression)
         {
             return Eval(expression).OfType<T>();
         }
 
-        /// <summary>
-        /// Evaluates the specified expression and returns an IList of objects.
-        /// </summary>
-        /// <param name="expression">The expression to evaluate.</param>
-        /// <returns>An IList of the result objects.</returns>
+        /// <inheritdoc />
         public IList<object> EvalList(string expression)
         {
             return new List<object>(Eval(expression));
         }
-
-        /// <summary>
-        /// Evaluates the specified expression and returns an IList of all resultant
-        /// objects matching the given type.
-        /// </summary>
-        /// <typeparam name="T">The type of result objects to return.</typeparam>
-        /// <param name="expression">The expression to evaluate.</param>
-        /// <returns>An IList of all result objects matching the specified type.</returns>
+        
+        /// <inheritdoc />
         public IList<T> EvalList<T>(string expression)
         {
             return new List<T>(Eval(expression).OfType<T>());
         }
 
-        /// <summary>
-        /// Evaluates the specified expression and returns a single result object (the first
-        /// if the expression resulted in more than one result). If
-        /// the expression does not evaluate to any results, null is returned.
-        /// </summary>
-        /// <param name="expression">The expression to evaluate.</param>
-        /// <returns>The first result object (or null).</returns>
+        /// <inheritdoc />
         public object EvalSingle(string expression)
         {
             return Eval(expression).FirstOrDefault();
         }
 
-        /// <summary>
-        /// Evaluates the specified expression and returns a single result object of the
-        /// specified type. If the first resultant object is not of the given type or if
-        /// the expression does not evaluate to any results, null is returned.
-        /// </summary>
-        /// <typeparam name="T">The type of result object to return.</typeparam>
-        /// <param name="expression">The expression to evaluate.</param>
-        /// <returns>The first result object as the specified type (or null).</returns>
+
+        /// <inheritdoc />
         public T EvalSingle<T>(string expression) where T : class
         {
             return EvalSingle(expression) as T;

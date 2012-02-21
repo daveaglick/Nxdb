@@ -765,31 +765,37 @@ namespace Nxdb
 
         #region IQuery
 
+        /// <inheritdoc />
         public IEnumerable<object> Eval(string expression)
         {
             return new Query(this).Eval(expression);
         }
 
+        /// <inheritdoc />
         public IEnumerable<T> Eval<T>(string expression)
         {
             return Eval(expression).OfType<T>();
         }
 
+        /// <inheritdoc />
         public IList<object> EvalList(string expression)
         {
             return new List<object>(Eval(expression));
         }
 
+        /// <inheritdoc />
         public IList<T> EvalList<T>(string expression)
         {
             return new List<T>(Eval(expression).OfType<T>());
         }
 
+        /// <inheritdoc />
         public object EvalSingle(string expression)
         {
             return Eval(expression).FirstOrDefault();
         }
 
+        /// <inheritdoc />
         public T EvalSingle<T>(string expression) where T : class
         {
             return EvalSingle(expression) as T;

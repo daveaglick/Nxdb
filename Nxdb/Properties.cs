@@ -23,50 +23,77 @@ using org.basex.core;
 
 namespace Nxdb
 {
+    /// <summary>
+    /// Static class used to get and set global properties.
+    /// </summary>
     public static class Properties
     {
+        /// <summary>
+        /// Gets or sets a value indicating whether whitespace should be chopped (removed).
+        /// </summary>
         public static bool ChopWhitespace
         {
             get { using(Database.GlobalReadLock()) return Is(Database.Context.prop, Prop.CHOP); }
             set { using (Database.GlobalWriteLock()) Set(Database.Context.prop, Prop.CHOP, value); }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether a path index should be used.
+        /// </summary>
         public static bool UsePathIndex
         {
             get { using(Database.GlobalReadLock()) return Is(Database.Context.prop, Prop.PATHINDEX); }
             set { using (Database.GlobalWriteLock()) Set(Database.Context.prop, Prop.PATHINDEX, value); }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether a text index should be used.
+        /// </summary>
         public static bool UseTextIndex
         {
             get { using(Database.GlobalReadLock()) return Is(Database.Context.prop, Prop.TEXTINDEX); }
             set { using (Database.GlobalWriteLock()) Set(Database.Context.prop, Prop.TEXTINDEX, value); }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether an attribute index should be used.
+        /// </summary>
         public static bool UseAttributeIndex
         {
             get { using(Database.GlobalReadLock()) return Is(Database.Context.prop, Prop.ATTRINDEX); }
             set { using (Database.GlobalWriteLock()) Set(Database.Context.prop, Prop.ATTRINDEX, value); }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether a full text index should be used.
+        /// </summary>
         public static bool UseFullTextIndex
         {
             get { using(Database.GlobalReadLock()) return Is(Database.Context.prop, Prop.FTINDEX); }
             set { using (Database.GlobalWriteLock()) Set(Database.Context.prop, Prop.FTINDEX, value); }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether indexes should be incrementally updated.
+        /// </summary>
         public static bool UpdateIndexes
         {
             get { using(Database.GlobalReadLock()) return Is(Database.Context.prop, Prop.UPDINDEX); }
             set { using (Database.GlobalWriteLock()) Set(Database.Context.prop, Prop.UPDINDEX, value); }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether databases should be dropped (deleted from disk) when disposed.
+        /// </summary>
         public static bool DropOnDispose
         {
             get { using(Database.GlobalReadLock()) return Is(Database.Properties, NxdbProp.DROPONDISPOSE); }
             set { using (Database.GlobalWriteLock()) Set(Database.Properties, NxdbProp.DROPONDISPOSE, value); }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether databases should be optimized after update operations.
+        /// </summary>
         public static bool OptimizeAfterUpdates
         {
             get { using(Database.GlobalReadLock()) return Is(Database.Properties, NxdbProp.OPTIMIZEAFTERUPDATES); }
@@ -96,7 +123,7 @@ namespace Nxdb
         }
     }
 
-    public class NxdbProp : AProp
+    internal class NxdbProp : AProp
     {
         public static readonly object[] DROPONDISPOSE = { "DROPONDISPOSE", new java.lang.Boolean(false) };
         public static readonly object[] OPTIMIZEAFTERUPDATES = { "OPTIMIZEAFTERUPDATES", new java.lang.Boolean(true) };

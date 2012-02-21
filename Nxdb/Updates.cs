@@ -32,12 +32,22 @@ using org.basex.query.up.primitives;
 
 namespace Nxdb
 {
+    /// <summary>
+    /// Encapsulates all update operations, including those from direct node manipulation as well as
+    /// XQuery Update evaluation. Instances of this class are nested to represent multiple
+    /// update operations. When the outer-most Updates instance is disposed, all pending updates are
+    /// automatically applied.
+    /// </summary>
     public class Updates : IDisposable
     {
         private static int _counter = 0;
         private static readonly SyncObject<QueryContext> _queryContext
             = new SyncObject<QueryContext>(new QueryContext(Database.Context));
-        
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Updates"/> class. Make sure to dispose the
+        /// instance when the encapsulated update operations are complete.
+        /// </summary>
         public Updates()
         {
             Begin();
@@ -55,11 +65,17 @@ namespace Nxdb
             get { return _queryContext.Unsync.updates; }
         }
 
+        /// <summary>
+        /// Begins a set of update operations.
+        /// </summary>
         public static void Begin()
         {
             _queryContext.DoWrite(q => _counter++);
         }
 
+        /// <summary>
+        /// Ends a set of update operations.
+        /// </summary>
         public static void End()
         {
             using (_queryContext.WriteLock())
@@ -69,6 +85,10 @@ namespace Nxdb
             }
         }
 
+        /// <summary>
+        /// Disposes this Updates instance. If this is the outer-most Updates instance, all pending
+        /// updates will be applied.
+        /// </summary>
         public void Dispose()
         {
             End();
@@ -99,7 +119,9 @@ namespace Nxdb
             }
         }
 
-        // Forces update application regardless of update nesting level, resets updates
+        /// <summary>
+        /// Forces all pending updates to be applied, regardless of Updates nesting level.
+        /// </summary>
         public static void Apply()
         {
             _queryContext.DoWrite(q => Apply(true));
