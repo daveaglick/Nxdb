@@ -498,7 +498,7 @@ namespace Nxdb
             using (UpgradeableReadLock())
             {
                 if (_data == null) throw new ObjectDisposedException("Database");
-                IntList docs = Data.docs(path);
+                IntList docs = Data.resources.docs(path);
                 using(new Updates())
                 {
                     for (int i = 0, s = docs.size(); i < s; i++)
@@ -519,7 +519,7 @@ namespace Nxdb
             using (UpgradeableReadLock())
             {
                 if (_data == null) throw new ObjectDisposedException("Database");
-                IntList docs = Data.docs(path);
+                IntList docs = Data.resources.docs(path);
                 using (new Updates())
                 {
                     for (int i = 0, s = docs.size(); i < s; i++)
@@ -671,10 +671,10 @@ namespace Nxdb
                 if (_data == null) throw new ObjectDisposedException("Database");
                 using (new Updates())
                 {
-                    int pre = Data.doc(path);
+                    int pre = Data.resources.doc(path);
                     if (pre != -1)
                     {
-                        if (Data.docs(path).size() != 1) throw new ArgumentException("Simple document expected as replacement target");
+                        if (Data.resources.docs(path).size() != 1) throw new ArgumentException("Simple document expected as replacement target");
                         Updates.Add(new DeleteNode(pre, Data, null));
                         UnsyncAdd(path, nodeCache);
                     }
@@ -692,7 +692,7 @@ namespace Nxdb
             using (ReadLock())
             {
                 if (_data == null) throw new ObjectDisposedException("Database");
-                int pre = Data.doc(name);
+                int pre = Data.resources.doc(name);
                 return pre == -1 ? null : (Document)Node.Get(pre, Data);    
             }
         }
@@ -708,7 +708,7 @@ namespace Nxdb
             using (ReadLock())
             {
                 if (_data == null) throw new ObjectDisposedException("Database");
-                IntList docs = Data.docs(path);
+                IntList docs = Data.resources.docs(path);
                 for (int i = 0, s = docs.size(); i < s; i++)
                 {
                     int pre = docs.get(i);
@@ -729,7 +729,7 @@ namespace Nxdb
                 using (ReadLock())
                 {
                     if (_data == null) throw new ObjectDisposedException("Database");
-                    IntList il = Data.docs();
+                    IntList il = Data.resources.docs();
                     for (int c = 0; c < il.size(); c++)
                     {
                         int pre = il.get(c);
@@ -751,7 +751,7 @@ namespace Nxdb
                 using (ReadLock())
                 {
                     if (_data == null) throw new ObjectDisposedException("Database");
-                    IntList il = Data.docs();
+                    IntList il = Data.resources.docs();
                     for (int c = 0; c < il.size(); c++)
                     {
                         int pre = il.get(c);

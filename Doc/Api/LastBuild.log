@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<shfbBuild product="Sandcastle Help File Builder" version="1.9.3.0" projectFile="C:\Code\Nxdb\Doc\Doc.shfbproj" started="2/21/2012 2:28:48 PM">
+<shfbBuild product="Sandcastle Help File Builder" version="1.9.3.0" projectFile="C:\Code\Nxdb\Doc\Doc.shfbproj" started="2/22/2012 5:00:22 PM">
 <buildStep step="Initializing">
 </buildStep>
 <buildStep step="FindingTools">
@@ -46,11 +46,11 @@ Copying XML comments files
 </buildStep>
 <buildStep step="GenerateSharedContent">
 Generating shared content files (en-US, English (United States))...
-    Last step completed in 00:00:00.1600
+    Last step completed in 00:00:00.0600
 </buildStep>
 <buildStep step="GenerateApiFilter">
 Generating API filter for MRefBuilder...
-    Last step completed in 00:00:00.0110
+    Last step completed in 00:00:00.0200
 </buildStep>
 <buildStep step="GenerateReflectionInfo">
 Generating reflection information...
@@ -58,23 +58,23 @@ Generating reflection information...
   MrefBuilder (v2.6.10621.1)
   Copyright c Microsoft 2006
   Info: Loaded 1 assemblies for reflection and 25 dependency assemblies.
-  Info: Wrote information on 2 namespaces, 23 types, and 426 members
+  Info: Wrote information on 2 namespaces, 24 types, and 428 members
   XslTransform (v2.6.10621.1)
   Copyright c Microsoft 2005-2006
   Info: Applying XSL transformation &#39;C:\Program Files (x86)\Sandcastle\ProductionTransforms\MergeDuplicates.xsl&#39;.
   reflection.all -&gt; reflection.org
-    Last step completed in 00:00:04.3204
+    Last step completed in 00:00:04.2300
 </buildStep>
 <buildStep step="GenerateNamespaceSummaries">
 Generating namespace summary information...
-    Last step completed in 00:00:00.0060
+    Last step completed in 00:00:00.0100
 </buildStep>
 <buildStep step="ApplyVisibilityProperties">
 Applying visibility properties to reflection information file
     0 attribute nodes removed
     0 explicit interface implementations removed
-    12 local and base class EII elements removed
-    Last step completed in 00:00:00.0690
+    13 local and base class EII elements removed
+    Last step completed in 00:00:00.0400
 </buildStep>
 <buildStep step="GenerateInheritedDocumentation">
 Generating inherited documentation...
@@ -88,7 +88,7 @@ Inherited documentation will be written to &#39;_InheritedDocs_.xml&#39;
 Indexing C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\*.xml
 Indexing C:\Program Files (x86)\Reference Assemblies\Microsoft\FSharp\2.0\Runtime\v4.0\*.xml
 Indexing C:\Code\Nxdb\Doc\Api\Working\Nxdb.xml
-Indexed 145584 members in 128 file(s).  1 file(s) to scan for &lt;inheritdoc /&gt; tags.
+Indexed 145585 members in 128 file(s).  1 file(s) to scan for &lt;inheritdoc /&gt; tags.
 Merging inherited documentation...
 
 SHFB: Warning GID0004: No comments found for member &#39;M:Nxdb.Node.Eval``1(System.String)&#39;
@@ -114,7 +114,7 @@ SHFB: Warning GID0004: No comments found for member &#39;M:Nxdb.Query.EvalList``
 SHFB: Warning GID0004: No comments found for member &#39;M:Nxdb.Query.EvalSingle``1(System.String)&#39;
 
 Documentation merged successfully
-    Last step completed in 00:00:03.5484
+    Last step completed in 00:00:03.3900
 </buildStep>
 <buildStep step="TransformReflectionInfo">
 Transforming reflection output...
@@ -122,14 +122,14 @@ Transforming reflection output...
   XslTransform (v2.6.10621.1)
   Copyright c Microsoft 2005-2006
   Info: Applying XSL transformation &#39;C:\Program Files (x86)\Sandcastle\ProductionTransforms\ApplyVSDocModel.xsl&#39;.
-  reflection.org -&gt; C:\Users\dglick\AppData\Local\Temp\tmp8F6B.tmp
+  reflection.org -&gt; C:\Users\dglick\AppData\Local\Temp\tmp3866.tmp
   Info: Applying XSL transformation &#39;C:\Program Files (x86)\Sandcastle\ProductionTransforms\AddGuidFilenames.xsl&#39;.
-  C:\Users\dglick\AppData\Local\Temp\tmp8F6B.tmp -&gt; reflection.xml
+  C:\Users\dglick\AppData\Local\Temp\tmp3866.tmp -&gt; reflection.xml
   XslTransform (v2.6.10621.1)
   Copyright c Microsoft 2005-2006
   Info: Applying XSL transformation &#39;C:\Program Files (x86)\Sandcastle\ProductionTransforms\ReflectionToManifest.xsl&#39;.
   reflection.xml -&gt; manifest.xml
-    Last step completed in 00:00:02.6013
+    Last step completed in 00:00:02.2300
 </buildStep>
 <buildStep step="ModifyHelpTopicFilenames">
 Modifying help topic filenames in reflection information file
@@ -187,7 +187,7 @@ Modifying help topic filenames in reflection information file
     Unique name 3EA02044 generated for M:Nxdb.Dom.DomElement.SetAttributeNode(System.Xml.XmlAttribute)
     Unique name B30CBC75 generated for P:Nxdb.Dom.DomProcessingInstruction.Item(System.String,System.String)
     Unique name 8319650F generated for P:Nxdb.Dom.DomText.Item(System.String,System.String)
-    Last step completed in 00:00:00.0550
+    Last step completed in 00:00:00.0400
 </buildStep>
 <buildStep step="CopyStandardContent">
 Copying standard help content...
@@ -298,16 +298,16 @@ C:\Program Files (x86)\Sandcastle\Presentation\vs2005\scripts\script_manifold.js
 C:\Program Files (x86)\Sandcastle\Presentation\vs2005\scripts\SplitScreen.js -&gt; C:\Code\Nxdb\Doc\Api\Working\Output\Website\scripts\SplitScreen.js
 C:\Program Files (x86)\Sandcastle\Presentation\vs2005\styles\Presentation.css -&gt; C:\Code\Nxdb\Doc\Api\Working\Output\Website\styles\Presentation.css
 C:\Program Files (x86)\Sandcastle\Presentation\vs2005\styles\Whidbey\presentation.css -&gt; C:\Code\Nxdb\Doc\Api\Working\Output\Website\styles\Whidbey\presentation.css
-    Last step completed in 00:00:00.4950
+    Last step completed in 00:00:00.4200
 </buildStep>
 <buildStep step="CopyAdditionalContent">
 Copying additional content files...
 No additional content to copy
-    Last step completed in 00:00:00.0050
+    Last step completed in 00:00:00.0000
 </buildStep>
 <buildStep step="MergeTablesOfContents">
 Merging conceptual and additional tables of contents...
-    Last step completed in 00:00:00.0010
+    Last step completed in 00:00:00.0000
 </buildStep>
 <buildStep step="GenerateIntermediateTableOfContents">
 Generating intermediate table of contents file...
@@ -317,17 +317,17 @@ Generating intermediate table of contents file...
   Info: Applying XSL transformation &#39;C:\Program Files (x86)\Sandcastle\ProductionTransforms\CreateVSToc.xsl&#39;.
   reflection.xml -&gt; toc.xml
 Generating conceptual content intermediate TOC file...
-    Last step completed in 00:00:01.3561
+    Last step completed in 00:00:00.5000
 </buildStep>
 <buildStep step="CreateBuildAssemblerConfigs">
 Creating Sandcastle configuration files...
     sandcastle.config
-    Last step completed in 00:00:00.0700
+    Last step completed in 00:00:00.0200
 </buildStep>
 <buildStep step="MergeCustomConfigs">
 Merging custom build component configurations
 C:\Code\Nxdb\Doc\Api\Working\sandcastle.config
-    Last step completed in 00:00:00.4940
+    Last step completed in 00:00:00.8400
 </buildStep>
 <buildStep step="BuildReferenceTopics">
 Building reference help topics...
@@ -339,7 +339,7 @@ Building reference help topics...
   Info: CopyFromIndexComponent: Instantiating component.
   Info: CopyFromIndexComponent: Searching for files that match &#39;*.xml&#39;.
   Info: CopyFromIndexComponent: Searching for files that match &#39;reflection.xml&#39;.
-  Info: CopyFromIndexComponent: Indexed 203351 elements in 409 files.
+  Info: CopyFromIndexComponent: Indexed 203360 elements in 409 files.
   Info: CopyFromIndexComponent: Loaded 0 copy components.
   Info: CopyFromIndexComponent: Instantiating component.
   Info: CopyFromIndexComponent: Loaded 0 copy components.
@@ -1374,7 +1374,7 @@ Building reference help topics...
   Warn: CopyFromIndexComponent: Entries for the key &#39;M:Nxdb.Query.EvalList``1(System.String)&#39; occur in both &#39;C:\Code\Nxdb\Doc\Api\Working\Nxdb.xml&#39; and &#39;C:\Code\Nxdb\Doc\Api\Working\_InheritedDocs_.xml&#39;. The last entry will be used.
   Warn: CopyFromIndexComponent: Entries for the key &#39;M:Nxdb.Query.EvalSingle(System.String)&#39; occur in both &#39;C:\Code\Nxdb\Doc\Api\Working\Nxdb.xml&#39; and &#39;C:\Code\Nxdb\Doc\Api\Working\_InheritedDocs_.xml&#39;. The last entry will be used.
   Warn: CopyFromIndexComponent: Entries for the key &#39;M:Nxdb.Query.EvalSingle``1(System.String)&#39; occur in both &#39;C:\Code\Nxdb\Doc\Api\Working\Nxdb.xml&#39; and &#39;C:\Code\Nxdb\Doc\Api\Working\_InheritedDocs_.xml&#39;. The last entry will be used.
-  Info: CopyFromIndexComponent: Indexed 145584 elements in 129 files.
+  Info: CopyFromIndexComponent: Indexed 145585 elements in 129 files.
   Info: CopyFromIndexComponent: Loaded 0 copy components.
   Info: ForEachComponent: Instantiating component.
   Info: ForEachComponent: Loading subcomponents.
@@ -1455,7 +1455,7 @@ Building reference help topics...
   Info: ResolveReferenceLinksComponent2: Creating MSDN URL resolver.
   Info: ResolveReferenceLinksComponent2: Searching directory &#39;C:\Program Files (x86)\Sandcastle\Data\Reflection&#39; for targets files of the form &#39;*.xml&#39;.
   Info: ResolveReferenceLinksComponent2: Searching directory &#39;C:\Code\Nxdb\Doc\Api\Working&#39; for targets files of the form &#39;reflection.xml&#39;.
-  Info: ResolveReferenceLinksComponent2: Loaded 203351 reference targets.
+  Info: ResolveReferenceLinksComponent2: Loaded 203360 reference targets.
   Info: SaveComponent: Instantiating component.
   Info: BuildAssembler: Building topic N:Nxdb
   Info: BuildAssembler: Building topic T:Nxdb.Attribute
@@ -1720,6 +1720,174 @@ Building reference help topics...
   Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;T:NiceThreads.WriteLock&#39;.
   Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;T:NiceThreads.WriteLock&#39;.
   Info: BuildAssembler: Building topic P:Nxdb.Node.XmlNode
+  Info: BuildAssembler: Building topic T:Nxdb.NxdbProp
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;T:org.basex.core.AProp&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;T:org.basex.core.AProp&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;T:org.basex.core.AProp&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;T:java.lang.Object&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;T:org.basex.core.AProp&#39;.
+  Info: BuildAssembler: Building topic AllMembers.T:Nxdb.NxdbProp
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;M:java.lang.Object.clone&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;T:java.lang.Object&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;M:java.lang.Object.equals(System.Object)&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;T:java.lang.Object&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;M:java.lang.Object.Equals(System.Object)&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;T:java.lang.Object&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;M:java.lang.Object.finalize&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;T:java.lang.Object&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;M:org.basex.core.AProp.get(System.Object[])&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;T:org.basex.core.AProp&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;M:org.basex.core.AProp.get(System.String)&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;T:org.basex.core.AProp&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;M:java.lang.Object.getClass&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;T:java.lang.Object&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;M:java.lang.Object.GetHashCode&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;T:java.lang.Object&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;M:java.lang.Object.GetType&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;T:java.lang.Object&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;M:java.lang.Object.hashCode&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;T:java.lang.Object&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;M:org.basex.core.AProp.invert(System.Object[])&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;T:org.basex.core.AProp&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;M:org.basex.core.AProp.is(System.Object[])&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;T:org.basex.core.AProp&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;M:org.basex.core.AProp.iterator&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;T:org.basex.core.AProp&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;M:java.lang.Object.notify&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;T:java.lang.Object&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;M:java.lang.Object.notifyAll&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;T:java.lang.Object&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;M:org.basex.core.AProp.num(System.Object[])&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;T:org.basex.core.AProp&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;M:org.basex.core.AProp.nums(System.Object[])&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;T:org.basex.core.AProp&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;M:org.basex.core.AProp.sameAs(System.Object[],System.Object)&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;T:org.basex.core.AProp&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;M:org.basex.core.AProp.set(System.Object[],System.Boolean)&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;T:org.basex.core.AProp&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;M:org.basex.core.AProp.set(System.Object[],System.String)&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;T:org.basex.core.AProp&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;M:org.basex.core.AProp.set(System.Object[],System.Int32)&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;T:org.basex.core.AProp&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;M:org.basex.core.AProp.set(System.Object[],System.String[])&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;T:org.basex.core.AProp&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;M:org.basex.core.AProp.set(System.Object[],System.Int32[])&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;T:org.basex.core.AProp&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;M:org.basex.core.AProp.set(System.String,System.Object)&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;T:org.basex.core.AProp&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;M:org.basex.core.AProp.similar(System.String)&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;T:org.basex.core.AProp&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;M:org.basex.core.AProp.strings(System.Object[])&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;T:org.basex.core.AProp&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;M:org.basex.core.AProp.toString&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;T:org.basex.core.AProp&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;M:java.lang.Object.ToString&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;T:java.lang.Object&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;M:java.lang.Object.wait&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;T:java.lang.Object&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;M:java.lang.Object.wait(System.Int64)&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;T:java.lang.Object&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;M:java.lang.Object.wait(System.Int64,System.Int32)&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;T:java.lang.Object&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;M:org.basex.core.AProp.write&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;T:org.basex.core.AProp&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;F:org.basex.core.AProp.props&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;T:org.basex.core.AProp&#39;.
+  Info: BuildAssembler: Building topic Methods.T:Nxdb.NxdbProp
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;M:java.lang.Object.clone&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;T:java.lang.Object&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;M:java.lang.Object.equals(System.Object)&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;T:java.lang.Object&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;M:java.lang.Object.Equals(System.Object)&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;T:java.lang.Object&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;M:java.lang.Object.finalize&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;T:java.lang.Object&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;M:org.basex.core.AProp.get(System.Object[])&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;T:org.basex.core.AProp&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;M:org.basex.core.AProp.get(System.String)&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;T:org.basex.core.AProp&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;M:java.lang.Object.getClass&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;T:java.lang.Object&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;M:java.lang.Object.GetHashCode&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;T:java.lang.Object&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;M:java.lang.Object.GetType&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;T:java.lang.Object&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;M:java.lang.Object.hashCode&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;T:java.lang.Object&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;M:org.basex.core.AProp.invert(System.Object[])&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;T:org.basex.core.AProp&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;M:org.basex.core.AProp.is(System.Object[])&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;T:org.basex.core.AProp&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;M:org.basex.core.AProp.iterator&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;T:org.basex.core.AProp&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;M:java.lang.Object.notify&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;T:java.lang.Object&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;M:java.lang.Object.notifyAll&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;T:java.lang.Object&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;M:org.basex.core.AProp.num(System.Object[])&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;T:org.basex.core.AProp&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;M:org.basex.core.AProp.nums(System.Object[])&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;T:org.basex.core.AProp&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;M:org.basex.core.AProp.sameAs(System.Object[],System.Object)&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;T:org.basex.core.AProp&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;M:org.basex.core.AProp.set(System.Object[],System.Boolean)&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;T:org.basex.core.AProp&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;M:org.basex.core.AProp.set(System.Object[],System.String)&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;T:org.basex.core.AProp&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;M:org.basex.core.AProp.set(System.Object[],System.Int32)&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;T:org.basex.core.AProp&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;M:org.basex.core.AProp.set(System.Object[],System.String[])&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;T:org.basex.core.AProp&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;M:org.basex.core.AProp.set(System.Object[],System.Int32[])&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;T:org.basex.core.AProp&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;M:org.basex.core.AProp.set(System.String,System.Object)&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;T:org.basex.core.AProp&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;M:org.basex.core.AProp.similar(System.String)&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;T:org.basex.core.AProp&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;M:org.basex.core.AProp.strings(System.Object[])&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;T:org.basex.core.AProp&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;M:org.basex.core.AProp.toString&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;T:org.basex.core.AProp&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;M:java.lang.Object.ToString&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;T:java.lang.Object&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;M:java.lang.Object.wait&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;T:java.lang.Object&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;M:java.lang.Object.wait(System.Int64)&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;T:java.lang.Object&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;M:java.lang.Object.wait(System.Int64,System.Int32)&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;T:java.lang.Object&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;M:org.basex.core.AProp.write&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;T:org.basex.core.AProp&#39;.
+  Info: BuildAssembler: Building topic Fields.T:Nxdb.NxdbProp
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;F:org.basex.core.AProp.props&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;T:org.basex.core.AProp&#39;.
+  Info: BuildAssembler: Building topic Overload:Nxdb.NxdbProp.set
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;M:org.basex.core.AProp.set(System.Object[],System.Boolean)&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;T:org.basex.core.AProp&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;M:org.basex.core.AProp.set(System.Object[],System.String)&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;T:org.basex.core.AProp&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;M:org.basex.core.AProp.set(System.Object[],System.Int32)&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;T:org.basex.core.AProp&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;M:org.basex.core.AProp.set(System.Object[],System.String[])&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;T:org.basex.core.AProp&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;M:org.basex.core.AProp.set(System.Object[],System.Int32[])&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;T:org.basex.core.AProp&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;M:org.basex.core.AProp.set(System.String,System.Object)&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;T:org.basex.core.AProp&#39;.
+  Info: BuildAssembler: Building topic Overload:Nxdb.NxdbProp.get
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;M:org.basex.core.AProp.get(System.Object[])&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;T:org.basex.core.AProp&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;M:org.basex.core.AProp.get(System.String)&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;T:org.basex.core.AProp&#39;.
+  Info: BuildAssembler: Building topic Overload:Nxdb.NxdbProp.wait
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;M:java.lang.Object.wait&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;T:java.lang.Object&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;M:java.lang.Object.wait(System.Int64)&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;T:java.lang.Object&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;M:java.lang.Object.wait(System.Int64,System.Int32)&#39;.
+  Warn: ResolveReferenceLinksComponent2: Unknown reference link target &#39;T:java.lang.Object&#39;.
+  Info: BuildAssembler: Building topic F:Nxdb.NxdbProp.DROPONDISPOSE
+  Info: BuildAssembler: Building topic F:Nxdb.NxdbProp.OPTIMIZEAFTERUPDATES
   Info: BuildAssembler: Building topic T:Nxdb.ProcessingInstruction
   Info: BuildAssembler: Building topic AllMembers.T:Nxdb.ProcessingInstruction
   Info: BuildAssembler: Building topic Methods.T:Nxdb.ProcessingInstruction
@@ -2116,14 +2284,14 @@ Building reference help topics...
   Info: BuildAssembler: Building topic AllMembers.T:Nxdb.Dom.IDomNode
   Info: BuildAssembler: Building topic Properties.T:Nxdb.Dom.IDomNode
   Info: BuildAssembler: Building topic P:Nxdb.Dom.IDomNode.Node
-  Info: Processed 607 topics
-    Last step completed in 00:03:47.8528
+  Info: Processed 616 topics
+    Last step completed in 00:02:48.8406
 </buildStep>
 <buildStep step="CombiningIntermediateTocFiles">
 Combining conceptual and API intermediate TOC files...
 
 Clearing any prior web output
-    Last step completed in 00:00:00.0050
+    Last step completed in 00:00:00.0125
 </buildStep>
 <buildStep step="ExtractingHtmlInfo">
 Extracting HTML info for HTML Help 1 and/or website...
@@ -2135,20 +2303,20 @@ E-Mail: Eric@EWoodruff.us
 Using LCID &#39;1033&#39;, code page &#39;65001&#39;, encoding charset &#39;UTF-8&#39;.
 
 Processing website files in C:\Code\Nxdb\Doc\Api\Working\Output\Website
-Processed 607 HTML files
+Processed 616 HTML files
 Sorting keywords and generating See Also indices
 Saving website keyword index to C:\Code\Nxdb\Doc\Api\Working\WebKI.xml
 Saving website table of contents to C:\Code\Nxdb\Doc\Api\Working\WebTOC.xml
-    Last step completed in 00:00:01.7582
+    Last step completed in 00:00:02.3300
 </buildStep>
 <buildStep step="GenerateHelpFormatTableOfContents">
 Generating website table of contents file...
-    Last step completed in 00:00:00.0010
+    Last step completed in 00:00:00.0000
 </buildStep>
 <buildStep step="GenerateFullTextIndex">
 Generating full-text index for the website...
 
-    Last step completed in 00:00:03.9604
+    Last step completed in 00:00:04.7300
 </buildStep>
 <buildStep step="CopyingWebsiteFiles">
 Copying website files to output folder...
@@ -2198,6 +2366,7 @@ C:\Code\Nxdb\Doc\Api\Working\Output\Website\html\15D420EB.htm -&gt; C:\Code\Nxdb
 C:\Code\Nxdb\Doc\Api\Working\Output\Website\html\15E76AF3.htm -&gt; C:\Code\Nxdb\Doc\Api\html\15E76AF3.htm
 C:\Code\Nxdb\Doc\Api\Working\Output\Website\html\15FE4745.htm -&gt; C:\Code\Nxdb\Doc\Api\html\15FE4745.htm
 C:\Code\Nxdb\Doc\Api\Working\Output\Website\html\15FFA20F.htm -&gt; C:\Code\Nxdb\Doc\Api\html\15FFA20F.htm
+C:\Code\Nxdb\Doc\Api\Working\Output\Website\html\161876B9.htm -&gt; C:\Code\Nxdb\Doc\Api\html\161876B9.htm
 C:\Code\Nxdb\Doc\Api\Working\Output\Website\html\165C84FB.htm -&gt; C:\Code\Nxdb\Doc\Api\html\165C84FB.htm
 C:\Code\Nxdb\Doc\Api\Working\Output\Website\html\168C360D.htm -&gt; C:\Code\Nxdb\Doc\Api\html\168C360D.htm
 C:\Code\Nxdb\Doc\Api\Working\Output\Website\html\168FAFA9.htm -&gt; C:\Code\Nxdb\Doc\Api\html\168FAFA9.htm
@@ -2209,6 +2378,7 @@ C:\Code\Nxdb\Doc\Api\Working\Output\Website\html\19679FC8.htm -&gt; C:\Code\Nxdb
 C:\Code\Nxdb\Doc\Api\Working\Output\Website\html\19F7D347.htm -&gt; C:\Code\Nxdb\Doc\Api\html\19F7D347.htm
 C:\Code\Nxdb\Doc\Api\Working\Output\Website\html\1A2BD1B2.htm -&gt; C:\Code\Nxdb\Doc\Api\html\1A2BD1B2.htm
 C:\Code\Nxdb\Doc\Api\Working\Output\Website\html\1A7DA8CB.htm -&gt; C:\Code\Nxdb\Doc\Api\html\1A7DA8CB.htm
+C:\Code\Nxdb\Doc\Api\Working\Output\Website\html\1B68C129.htm -&gt; C:\Code\Nxdb\Doc\Api\html\1B68C129.htm
 C:\Code\Nxdb\Doc\Api\Working\Output\Website\html\1C47F592.htm -&gt; C:\Code\Nxdb\Doc\Api\html\1C47F592.htm
 C:\Code\Nxdb\Doc\Api\Working\Output\Website\html\1C8F029B.htm -&gt; C:\Code\Nxdb\Doc\Api\html\1C8F029B.htm
 C:\Code\Nxdb\Doc\Api\Working\Output\Website\html\1D66E312.htm -&gt; C:\Code\Nxdb\Doc\Api\html\1D66E312.htm
@@ -2268,6 +2438,7 @@ C:\Code\Nxdb\Doc\Api\Working\Output\Website\html\31793BD8.htm -&gt; C:\Code\Nxdb
 C:\Code\Nxdb\Doc\Api\Working\Output\Website\html\317A3BD8.htm -&gt; C:\Code\Nxdb\Doc\Api\html\317A3BD8.htm
 C:\Code\Nxdb\Doc\Api\Working\Output\Website\html\317B3BD8.htm -&gt; C:\Code\Nxdb\Doc\Api\html\317B3BD8.htm
 C:\Code\Nxdb\Doc\Api\Working\Output\Website\html\323047AB.htm -&gt; C:\Code\Nxdb\Doc\Api\html\323047AB.htm
+C:\Code\Nxdb\Doc\Api\Working\Output\Website\html\327E5F4B.htm -&gt; C:\Code\Nxdb\Doc\Api\html\327E5F4B.htm
 C:\Code\Nxdb\Doc\Api\Working\Output\Website\html\32FCC66C.htm -&gt; C:\Code\Nxdb\Doc\Api\html\32FCC66C.htm
 C:\Code\Nxdb\Doc\Api\Working\Output\Website\html\33B5ABBE.htm -&gt; C:\Code\Nxdb\Doc\Api\html\33B5ABBE.htm
 C:\Code\Nxdb\Doc\Api\Working\Output\Website\html\341A99C4.htm -&gt; C:\Code\Nxdb\Doc\Api\html\341A99C4.htm
@@ -2279,6 +2450,7 @@ C:\Code\Nxdb\Doc\Api\Working\Output\Website\html\354F2F2E.htm -&gt; C:\Code\Nxdb
 C:\Code\Nxdb\Doc\Api\Working\Output\Website\html\35562A47.htm -&gt; C:\Code\Nxdb\Doc\Api\html\35562A47.htm
 C:\Code\Nxdb\Doc\Api\Working\Output\Website\html\3565AA69.htm -&gt; C:\Code\Nxdb\Doc\Api\html\3565AA69.htm
 C:\Code\Nxdb\Doc\Api\Working\Output\Website\html\3591C32B.htm -&gt; C:\Code\Nxdb\Doc\Api\html\3591C32B.htm
+C:\Code\Nxdb\Doc\Api\Working\Output\Website\html\35C0724B.htm -&gt; C:\Code\Nxdb\Doc\Api\html\35C0724B.htm
 C:\Code\Nxdb\Doc\Api\Working\Output\Website\html\364AB8F.htm -&gt; C:\Code\Nxdb\Doc\Api\html\364AB8F.htm
 C:\Code\Nxdb\Doc\Api\Working\Output\Website\html\364AB90.htm -&gt; C:\Code\Nxdb\Doc\Api\html\364AB90.htm
 C:\Code\Nxdb\Doc\Api\Working\Output\Website\html\364AB92.htm -&gt; C:\Code\Nxdb\Doc\Api\html\364AB92.htm
@@ -2336,6 +2508,7 @@ C:\Code\Nxdb\Doc\Api\Working\Output\Website\html\45B644C8.htm -&gt; C:\Code\Nxdb
 C:\Code\Nxdb\Doc\Api\Working\Output\Website\html\45F933F1.htm -&gt; C:\Code\Nxdb\Doc\Api\html\45F933F1.htm
 C:\Code\Nxdb\Doc\Api\Working\Output\Website\html\469D8CF.htm -&gt; C:\Code\Nxdb\Doc\Api\html\469D8CF.htm
 C:\Code\Nxdb\Doc\Api\Working\Output\Website\html\46C5E88.htm -&gt; C:\Code\Nxdb\Doc\Api\html\46C5E88.htm
+C:\Code\Nxdb\Doc\Api\Working\Output\Website\html\4727460B.htm -&gt; C:\Code\Nxdb\Doc\Api\html\4727460B.htm
 C:\Code\Nxdb\Doc\Api\Working\Output\Website\html\4739BFEE.htm -&gt; C:\Code\Nxdb\Doc\Api\html\4739BFEE.htm
 C:\Code\Nxdb\Doc\Api\Working\Output\Website\html\47A48166.htm -&gt; C:\Code\Nxdb\Doc\Api\html\47A48166.htm
 C:\Code\Nxdb\Doc\Api\Working\Output\Website\html\47AE98A8.htm -&gt; C:\Code\Nxdb\Doc\Api\html\47AE98A8.htm
@@ -2419,11 +2592,13 @@ C:\Code\Nxdb\Doc\Api\Working\Output\Website\html\6C1EAED0.htm -&gt; C:\Code\Nxdb
 C:\Code\Nxdb\Doc\Api\Working\Output\Website\html\6D14858D.htm -&gt; C:\Code\Nxdb\Doc\Api\html\6D14858D.htm
 C:\Code\Nxdb\Doc\Api\Working\Output\Website\html\6DA603A2.htm -&gt; C:\Code\Nxdb\Doc\Api\html\6DA603A2.htm
 C:\Code\Nxdb\Doc\Api\Working\Output\Website\html\6DC8FC7C.htm -&gt; C:\Code\Nxdb\Doc\Api\html\6DC8FC7C.htm
+C:\Code\Nxdb\Doc\Api\Working\Output\Website\html\6E403BF2.htm -&gt; C:\Code\Nxdb\Doc\Api\html\6E403BF2.htm
 C:\Code\Nxdb\Doc\Api\Working\Output\Website\html\6E4479E7.htm -&gt; C:\Code\Nxdb\Doc\Api\html\6E4479E7.htm
 C:\Code\Nxdb\Doc\Api\Working\Output\Website\html\6E633FBA.htm -&gt; C:\Code\Nxdb\Doc\Api\html\6E633FBA.htm
 C:\Code\Nxdb\Doc\Api\Working\Output\Website\html\6F676EB8.htm -&gt; C:\Code\Nxdb\Doc\Api\html\6F676EB8.htm
 C:\Code\Nxdb\Doc\Api\Working\Output\Website\html\70055874.htm -&gt; C:\Code\Nxdb\Doc\Api\html\70055874.htm
 C:\Code\Nxdb\Doc\Api\Working\Output\Website\html\7082435F.htm -&gt; C:\Code\Nxdb\Doc\Api\html\7082435F.htm
+C:\Code\Nxdb\Doc\Api\Working\Output\Website\html\717F6193.htm -&gt; C:\Code\Nxdb\Doc\Api\html\717F6193.htm
 C:\Code\Nxdb\Doc\Api\Working\Output\Website\html\71CAB152.htm -&gt; C:\Code\Nxdb\Doc\Api\html\71CAB152.htm
 C:\Code\Nxdb\Doc\Api\Working\Output\Website\html\7210BA30.htm -&gt; C:\Code\Nxdb\Doc\Api\html\7210BA30.htm
 C:\Code\Nxdb\Doc\Api\Working\Output\Website\html\72265018.htm -&gt; C:\Code\Nxdb\Doc\Api\html\72265018.htm
@@ -2655,6 +2830,7 @@ C:\Code\Nxdb\Doc\Api\Working\Output\Website\html\CE0C90ED.htm -&gt; C:\Code\Nxdb
 C:\Code\Nxdb\Doc\Api\Working\Output\Website\html\CE6F2BC3.htm -&gt; C:\Code\Nxdb\Doc\Api\html\CE6F2BC3.htm
 C:\Code\Nxdb\Doc\Api\Working\Output\Website\html\CEB72102.htm -&gt; C:\Code\Nxdb\Doc\Api\html\CEB72102.htm
 C:\Code\Nxdb\Doc\Api\Working\Output\Website\html\CEBC9371.htm -&gt; C:\Code\Nxdb\Doc\Api\html\CEBC9371.htm
+C:\Code\Nxdb\Doc\Api\Working\Output\Website\html\CF026478.htm -&gt; C:\Code\Nxdb\Doc\Api\html\CF026478.htm
 C:\Code\Nxdb\Doc\Api\Working\Output\Website\html\CF56BA88.htm -&gt; C:\Code\Nxdb\Doc\Api\html\CF56BA88.htm
 C:\Code\Nxdb\Doc\Api\Working\Output\Website\html\CFA83EAE.htm -&gt; C:\Code\Nxdb\Doc\Api\html\CFA83EAE.htm
 C:\Code\Nxdb\Doc\Api\Working\Output\Website\html\CFC46662.htm -&gt; C:\Code\Nxdb\Doc\Api\html\CFC46662.htm
@@ -2783,6 +2959,7 @@ C:\Code\Nxdb\Doc\Api\Working\Output\Website\html\FDBA0739.htm -&gt; C:\Code\Nxdb
 C:\Code\Nxdb\Doc\Api\Working\Output\Website\html\FDE4C068.htm -&gt; C:\Code\Nxdb\Doc\Api\html\FDE4C068.htm
 C:\Code\Nxdb\Doc\Api\Working\Output\Website\html\FE728792.htm -&gt; C:\Code\Nxdb\Doc\Api\html\FE728792.htm
 C:\Code\Nxdb\Doc\Api\Working\Output\Website\html\FF0FBD91.htm -&gt; C:\Code\Nxdb\Doc\Api\html\FF0FBD91.htm
+C:\Code\Nxdb\Doc\Api\Working\Output\Website\html\FF4CC129.htm -&gt; C:\Code\Nxdb\Doc\Api\html\FF4CC129.htm
 C:\Code\Nxdb\Doc\Api\Working\Output\Website\html\FFAAA387.htm -&gt; C:\Code\Nxdb\Doc\Api\html\FFAAA387.htm
 C:\Code\Nxdb\Doc\Api\Working\Output\Website\html\FFB3F7B1.htm -&gt; C:\Code\Nxdb\Doc\Api\html\FFB3F7B1.htm
 C:\Code\Nxdb\Doc\Api\Working\Output\Website\icons\adm.gif -&gt; C:\Code\Nxdb\Doc\Api\icons\adm.gif
@@ -2892,15 +3069,15 @@ C:\Code\Nxdb\Doc\Api\Working\Output\Website\scripts\script_manifold.js -&gt; C:\
 C:\Code\Nxdb\Doc\Api\Working\Output\Website\scripts\SplitScreen.js -&gt; C:\Code\Nxdb\Doc\Api\scripts\SplitScreen.js
 C:\Code\Nxdb\Doc\Api\Working\Output\Website\styles\Presentation.css -&gt; C:\Code\Nxdb\Doc\Api\styles\Presentation.css
 C:\Code\Nxdb\Doc\Api\Working\Output\Website\styles\Whidbey\presentation.css -&gt; C:\Code\Nxdb\Doc\Api\styles\Whidbey\presentation.css
-    Last step completed in 00:00:07.7658
+    Last step completed in 00:00:08.7550
 </buildStep>
 <buildStep step="CleanIntermediates">
 Removing intermediate files...
-    Last step completed in 00:00:00.3310
+    Last step completed in 00:00:00.3225
 </buildStep>
 <buildStep step="Completed">
 
-Build completed successfully at 02/21/2012 02:33 PM.  Total time: 00:04:15.4125
+Build completed successfully at 02/22/2012 05:03 PM.  Total time: 00:03:17.6507
 
 </buildStep>
 </shfbBuild>

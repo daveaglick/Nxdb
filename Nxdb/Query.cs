@@ -207,7 +207,7 @@ namespace Nxdb
                         queryContext.compile();
 
                         // Reset the updating flag (so they aren't applied here)
-                        queryContext.updating = false;
+                        queryContext.updating(false);
 
                         // Get the iterator and return the results
                         Iter iter = queryContext.iter();

@@ -80,7 +80,7 @@ namespace Nxdb.Io
         }
 
         //Not supported - only used internally by BaseX
-        protected override void finishItem(Item i)
+        protected override void finishAtomic(Item i)
         {
             throw new NotSupportedException();
         }

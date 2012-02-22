@@ -37,11 +37,11 @@
   <HelpKINode Title="Attributes property" Url="html/3D349467.htm" />
   <HelpKINode Title="Attributes property" Url="html/A2A189F4.htm" />
   <HelpKINode Title="AttributeValue method" Url="html/61F29EEA.htm" />
-  <HelpKINode Title="BaseUri property" Url="html/53AD16BB.htm" />
   <HelpKINode Title="BaseURI property" Url="html/3591C32B.htm" />
   <HelpKINode Title="BaseURI property" Url="html/3BE05B4D.htm" />
   <HelpKINode Title="BaseURI property" Url="html/4E5689DE.htm" />
   <HelpKINode Title="BaseURI property" Url="html/4EAEE9D0.htm" />
+  <HelpKINode Title="BaseUri property" Url="html/53AD16BB.htm" />
   <HelpKINode Title="BaseURI property" Url="html/C1D2AF9.htm" />
   <HelpKINode Title="BaseURI property" Url="html/D10B425A.htm" />
   <HelpKINode Title="Begin method" Url="html/8F10A9A7.htm" />
@@ -465,6 +465,7 @@
   <HelpKINode Title="DomText.Value property" Url="html/12AA5CE.htm" />
   <HelpKINode Title="DomText.WriteTo method" Url="html/CEBC9371.htm" />
   <HelpKINode Title="Drop method" Url="html/38476DE0.htm" />
+  <HelpKINode Title="DROPONDISPOSE field" Url="html/327E5F4B.htm" />
   <HelpKINode Title="DropOnDispose property" Url="html/F917938B.htm" />
   <HelpKINode Title="Element class" Url="html/1F09CAC.htm" />
   <HelpKINode Title="Element class" Url="html/8FDD2BA0.htm" />
@@ -523,8 +524,9 @@
   <HelpKINode Title="FNode property" Url="html/7FDC77CA.htm" />
   <HelpKINode Title="Following property" Url="html/7D409936.htm" />
   <HelpKINode Title="FollowingSiblings property" Url="html/3E7E390E.htm" />
-  <HelpKINode Title="Get method" Url="html/20C67931.htm" />
   <HelpKINode Title="Get method" Url="html/413DA7CE.htm" />
+  <HelpKINode Title="Get method" Url="html/20C67931.htm" />
+  <HelpKINode Title="get method" Url="html/FF4CC129.htm" />
   <HelpKINode Title="GetAttribute method" Url="html/C6817566.htm" />
   <HelpKINode Title="GetAttributeNode method" Url="html/A8C3636F.htm" />
   <HelpKINode Title="GetDocument method" Url="html/6BDB7F6.htm" />
@@ -659,16 +661,16 @@
   <HelpKINode Title="Name property" Url="html/D99982AA.htm" />
   <HelpKINode Title="Name property" Url="html/E1C636DF.htm" />
   <HelpKINode Title="NameImpl property" Url="html/B8B8580E.htm" />
-  <HelpKINode Title="NamespaceURI property" Url="html/C152AB4C.htm" />
-  <HelpKINode Title="NamespaceURI property" Url="html/F919986.htm" />
-  <HelpKINode Title="NamespaceURI property" Url="html/FA7D5A9E.htm" />
-  <HelpKINode Title="NamespaceUri property" Url="html/25ABC66B.htm" />
-  <HelpKINode Title="NamespaceUri property" Url="html/C96C0924.htm" />
-  <HelpKINode Title="NamespaceUri property" Url="html/F46595D3.htm" />
   <HelpKINode Title="NamespaceUri property" Url="html/F607C9CA.htm" />
   <HelpKINode Title="NamespaceURI property" Url="html/43BE9042.htm" />
   <HelpKINode Title="NamespaceURI property" Url="html/B526810C.htm" />
+  <HelpKINode Title="NamespaceUri property" Url="html/F46595D3.htm" />
+  <HelpKINode Title="NamespaceUri property" Url="html/25ABC66B.htm" />
+  <HelpKINode Title="NamespaceURI property" Url="html/C152AB4C.htm" />
   <HelpKINode Title="NamespaceURI property" Url="html/F329E692.htm" />
+  <HelpKINode Title="NamespaceURI property" Url="html/F919986.htm" />
+  <HelpKINode Title="NamespaceURI property" Url="html/FA7D5A9E.htm" />
+  <HelpKINode Title="NamespaceUri property" Url="html/C96C0924.htm" />
   <HelpKINode Title="NamespaceUriImpl property" Url="html/48A1376A.htm" />
   <HelpKINode Title="NextSibling property" Url="html/2608388E.htm" />
   <HelpKINode Title="NextSibling property" Url="html/3BFC1219.htm" />
@@ -790,6 +792,8 @@
   <HelpKINode Title="Nxdb.IQuery interface" Url="html/47A48166.htm" />
   <HelpKINode Title="Nxdb.Node class" Url="html/5E375077.htm" />
   <HelpKINode Title="Nxdb.Node class" Url="html/C76993F.htm" />
+  <HelpKINode Title="Nxdb.NxdbProp class" Url="html/35C0724B.htm" />
+  <HelpKINode Title="Nxdb.NxdbProp class" Url="html/CF026478.htm" />
   <HelpKINode Title="Nxdb.ProcessingInstruction class" Url="html/E54B0735.htm" />
   <HelpKINode Title="Nxdb.ProcessingInstruction class" Url="html/F6DE650A.htm" />
   <HelpKINode Title="Nxdb.Properties class" Url="html/26539056.htm" />
@@ -802,7 +806,21 @@
   <HelpKINode Title="Nxdb.TreeNode class" Url="html/693D6CF0.htm" />
   <HelpKINode Title="Nxdb.Updates class" Url="html/B926B30F.htm" />
   <HelpKINode Title="Nxdb.Updates class" Url="html/EE4EC9CD.htm" />
+  <HelpKINode Title="NxdbProp class" Url="html/35C0724B.htm" />
+  <HelpKINode Title="NxdbProp class" Url="html/CF026478.htm" />
+  <HelpKINode Title="NxdbProp class">
+    <HelpKINode Title="about NxdbProp class" Url="html/35C0724B.htm" />
+    <HelpKINode Title="all members" Url="html/CF026478.htm" />
+    <HelpKINode Title="fields" Url="html/717F6193.htm" />
+    <HelpKINode Title="methods" Url="html/6E403BF2.htm" />
+  </HelpKINode>
+  <HelpKINode Title="NxdbProp.DROPONDISPOSE field" Url="html/327E5F4B.htm" />
+  <HelpKINode Title="NxdbProp.get method" Url="html/FF4CC129.htm" />
+  <HelpKINode Title="NxdbProp.OPTIMIZEAFTERUPDATES field" Url="html/161876B9.htm" />
+  <HelpKINode Title="NxdbProp.set method" Url="html/1B68C129.htm" />
+  <HelpKINode Title="NxdbProp.wait method" Url="html/4727460B.htm" />
   <HelpKINode Title="Optimize method" Url="html/766655E.htm" />
+  <HelpKINode Title="OPTIMIZEAFTERUPDATES field" Url="html/161876B9.htm" />
   <HelpKINode Title="OptimizeAfterUpdates property" Url="html/DEDA6391.htm" />
   <HelpKINode Title="OptimizeAll method" Url="html/2D044DCA.htm" />
   <HelpKINode Title="OuterXml property" Url="html/19F7D347.htm" />
@@ -939,6 +957,7 @@
   <HelpKINode Title="SelectSingleNode method" Url="html/85B0148B.htm" />
   <HelpKINode Title="SelectSingleNode method" Url="html/C093ACB9.htm" />
   <HelpKINode Title="SelectSingleNode method" Url="html/C1BBFE92.htm" />
+  <HelpKINode Title="set method" Url="html/1B68C129.htm" />
   <HelpKINode Title="SetAttribute method" Url="html/D3DD7560.htm" />
   <HelpKINode Title="SetAttributeNode method" Url="html/73276333.htm" />
   <HelpKINode Title="SetCollection method" Url="html/2626AC71.htm" />
@@ -1016,6 +1035,7 @@
   <HelpKINode Title="Value property" Url="html/7BB64737.htm" />
   <HelpKINode Title="Value property" Url="html/CD9402AB.htm" />
   <HelpKINode Title="Value property" Url="html/E8AAC1C6.htm" />
+  <HelpKINode Title="wait method" Url="html/4727460B.htm" />
   <HelpKINode Title="WriteContentTo method" Url="html/15FE4745.htm" />
   <HelpKINode Title="WriteContentTo method" Url="html/3BD6A76C.htm" />
   <HelpKINode Title="WriteContentTo method" Url="html/C5ED59F3.htm" />

@@ -182,7 +182,7 @@ namespace Nxdb
             }
 
             //Get the item
-            return new []{JavaFunc.type(obj).e(obj, null)};
+            return new []{JavaMapping.type(obj).cast(obj, null)};
         }
 
     }

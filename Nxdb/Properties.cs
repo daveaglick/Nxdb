@@ -123,7 +123,10 @@ namespace Nxdb
         }
     }
 
-    internal class NxdbProp : AProp
+    /// <summary>
+    /// Properties container for Nxdb-specific properties. Intended for BaseX - not to be used directly by Nxdb users.
+    /// </summary>
+    public class NxdbProp : AProp
     {
         public static readonly object[] DROPONDISPOSE = { "DROPONDISPOSE", new java.lang.Boolean(false) };
         public static readonly object[] OPTIMIZEAFTERUPDATES = { "OPTIMIZEAFTERUPDATES", new java.lang.Boolean(true) };
