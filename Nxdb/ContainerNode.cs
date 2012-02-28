@@ -21,7 +21,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Xml;
-using NiceThreads;
 using Nxdb.Io;
 using org.basex.query.item;
 using org.basex.query.iter;
@@ -44,12 +43,9 @@ namespace Nxdb
         /// </summary>
         public virtual void RemoveAll()
         {
-            using (UpgradeableReadLock())
-            {
-                Check(true);
-                ANode[] nodes = EnumerateANodes(ANode.children()).ToArray();
-                Updates.Add(new Delete(null, Seq.get(nodes, nodes.Length)));
-            }
+            Check(true);
+            ANode[] nodes = EnumerateANodes(ANode.children()).ToArray();
+            Updates.Add(new Delete(null, Seq.get(nodes, nodes.Length)));
         }
 
         /// <summary>
@@ -93,13 +89,10 @@ namespace Nxdb
 
         private void Append(NodeCache nodeCache)
         {
-            using (UpgradeableReadLock())
+            Check(true);
+            if (nodeCache != null)
             {
-                Check(true);
-                if (nodeCache != null)
-                {
-                    Updates.Add(new Insert(null, nodeCache.value(), false, true, false, false, DbNode));
-                }
+                Updates.Add(new Insert(null, nodeCache.value(), false, true, false, false, DbNode));
             }
         }
 
@@ -144,13 +137,10 @@ namespace Nxdb
 
         private void Prepend(NodeCache nodeCache)
         {
-            using (UpgradeableReadLock())
+            Check(true);
+            if (nodeCache != null)
             {
-                Check(true);
-                if (nodeCache != null)
-                {
-                    Updates.Add(new Insert(null, nodeCache.value(), true, false, false, false, DbNode));
-                }
+                Updates.Add(new Insert(null, nodeCache.value(), true, false, false, false, DbNode));
             }
         }
 
@@ -184,15 +174,12 @@ namespace Nxdb
         public void WriteInnerXml(XmlWriter xmlWriter)
         {
             if (xmlWriter == null) throw new ArgumentNullException("xmlWriter");
-            using (ReadLock())
+            Check();
+            using (XmlWriterSerializer serializer = new XmlWriterSerializer(xmlWriter, false))
             {
-                Check();
-                using (XmlWriterSerializer serializer = new XmlWriterSerializer(xmlWriter, false))
+                foreach (ANode node in EnumerateANodes(ANode.children()))
                 {
-                    foreach (ANode node in EnumerateANodes(ANode.children()))
-                    {
-                        node.serialize(serializer);
-                    }
+                    node.serialize(serializer);
                 }
             }
         }
@@ -204,11 +191,8 @@ namespace Nxdb
         public void ReadInnerXml(XmlReader xmlReader)
         {
             if (xmlReader == null) throw new ArgumentNullException("xmlReader");
-            using (UpgradeableReadLock())
-            {
-                Check(true);
-                ReplaceChildren(Helper.GetNodeCache(xmlReader));
-            }
+            Check(true);
+            ReplaceChildren(Helper.GetNodeCache(xmlReader));
         }
 
         /// <summary>
@@ -234,13 +218,10 @@ namespace Nxdb
         public void WriteOuterXml(XmlWriter xmlWriter)
         {
             if (xmlWriter == null) throw new ArgumentNullException("xmlWriter");
-            using (ReadLock())
+            Check();
+            using (XmlWriterSerializer serializer = new XmlWriterSerializer(xmlWriter, false))
             {
-                Check();
-                using (XmlWriterSerializer serializer = new XmlWriterSerializer(xmlWriter, false))
-                {
-                    ANode.serialize(serializer);
-                }
+                ANode.serialize(serializer);
             }
         }
 
@@ -264,11 +245,8 @@ namespace Nxdb
             set
             {
                 if (value == null) throw new ArgumentNullException("value");
-                using (UpgradeableReadLock())
-                {
-                    Check(true);
-                    ReplaceChildren(Helper.GetNodeCache(new FTxt(value.Token())));
-                }
+                Check(true);
+                ReplaceChildren(Helper.GetNodeCache(new FTxt(value.Token())));
             }
         }
 
@@ -280,11 +258,9 @@ namespace Nxdb
         {
             get
             {
-                ReadLock readLock = ReadLock(); //Don't dispose - the InnerTextReader will do that
                 Check();
                 return new InnerTextReader(EnumerateANodes(ANode.descendant())
-                    .Where(n => n.nodeType() == org.basex.query.item.NodeType.TXT).GetEnumerator(),
-                    readLock);
+                    .Where(n => n.nodeType() == org.basex.query.item.NodeType.TXT).GetEnumerator());
             }
         }
 
@@ -295,13 +271,10 @@ namespace Nxdb
         public void WriteInnerText(TextWriter textWriter)
         {
             if (textWriter == null) throw new ArgumentNullException("textWriter");
-            using (ReadLock())
+            Check();
+            using (TextWriterSerializer serializer = new TextWriterSerializer(textWriter))
             {
-                Check();
-                using (TextWriterSerializer serializer = new TextWriterSerializer(textWriter))
-                {
-                    ANode.serialize(serializer);
-                }
+                ANode.serialize(serializer);
             }
         }
 
@@ -312,16 +285,12 @@ namespace Nxdb
         public void ReadInnerText(TextReader textReader)
         {
             if (textReader == null) throw new ArgumentNullException("textReader");
-            using (UpgradeableReadLock())
-            {
-                Check(true);
-                ReplaceChildren(Helper.GetNodeCache(new FTxt(textReader.ReadToEnd().Token())));
-            }
+            Check(true);
+            ReplaceChildren(Helper.GetNodeCache(new FTxt(textReader.ReadToEnd().Token())));
         }
 
         // Used by ReadInnerXml(), ReadInnerText(), and set_Value()
         // Deletes all the child nodes and adds the nodeCache nodes, does nothing if nodeCache is null
-        // This method is not thread-safe, called should lock the database
         private void ReplaceChildren(NodeCache nodeCache)
         {
             if (nodeCache != null)

@@ -50,7 +50,6 @@ namespace Nxdb
         }
         
         // Gets a specific attribute ANode for a given attribute name
-        // Not thread-safe, caller should lock the database
         private ANode AttributeANode(string name)
         {
             QNm qnm = new QNm(name.Token());
@@ -67,12 +66,9 @@ namespace Nxdb
         {
             if (name == null) throw new ArgumentNullException("name");
             if (name == String.Empty) throw new ArgumentException("name");
-            using (ReadLock())
-            {
-                Check();
-                ANode node = AttributeANode(name);
-                return node == null ? null : (Attribute) Get(node);
-            }
+            Check();
+            ANode node = AttributeANode(name);
+            return node == null ? null : (Attribute) Get(node);
         }
 
         /// <summary>
@@ -87,12 +83,9 @@ namespace Nxdb
         {
             if (name == null) throw new ArgumentNullException("name");
             if (name == String.Empty) throw new ArgumentException("name");
-            using (ReadLock())
-            {
-                Check();
-                ANode node = AttributeANode(name);
-                return node == null ? String.Empty : node.@string().Token();
-            }
+            Check();
+            ANode node = AttributeANode(name);
+            return node == null ? String.Empty : node.@string().Token();
         }
 
         /// <summary>
@@ -102,12 +95,9 @@ namespace Nxdb
         /// <exception cref="NotSupportedException">The node is not a database node.</exception>
         public void RemoveAllAttributes()
         {
-            using (UpgradeableReadLock())
-            {
-                Check(true);
-                ANode[] nodes = EnumerateANodes(ANode.attributes()).ToArray();
-                Updates.Add(new Delete(null, Seq.get(nodes, nodes.Length)));
-            }
+            Check(true);
+            ANode[] nodes = EnumerateANodes(ANode.attributes()).ToArray();
+            Updates.Add(new Delete(null, Seq.get(nodes, nodes.Length)));
         }
 
         /// <summary>
@@ -120,14 +110,11 @@ namespace Nxdb
         {
             if (name == null) throw new ArgumentNullException("name");
             if (name == String.Empty) throw new ArgumentException("name");
-            using (UpgradeableReadLock())
+            Check(true);
+            DBNode node = AttributeANode(name) as DBNode;
+            if (node != null)
             {
-                Check(true);
-                DBNode node = AttributeANode(name) as DBNode;
-                if (node != null)
-                {
-                    Updates.Add(new Delete(null, node));
-                }
+                Updates.Add(new Delete(null, node));
             }
         }
 
@@ -141,18 +128,15 @@ namespace Nxdb
             if (name == null) throw new ArgumentNullException("name");
             if (value == null) throw new ArgumentNullException("value");
             if (name == String.Empty) throw new ArgumentException("name");
-            using (UpgradeableReadLock())
+            Check();
+            FAttr attr = new FAttr(new QNm(name.Token()), value.Token());
+            if (DbNode != null)
             {
-                Check();
-                FAttr attr = new FAttr(new QNm(name.Token()), value.Token());
-                if (DbNode != null)
-                {
-                    Updates.Add(new Insert(null, attr, false, false, false, false, DbNode));
-                }
-                else if (FNode != null)
-                {
-                    ((FElem) FNode).add(attr);
-                }
+                Updates.Add(new Insert(null, attr, false, false, false, false, DbNode));
+            }
+            else if (FNode != null)
+            {
+                ((FElem) FNode).add(attr);
             }
         }
 

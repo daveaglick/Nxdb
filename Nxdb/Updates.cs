@@ -19,8 +19,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading;
-using NiceThreads;
 using org.basex.core;
 using org.basex.core.cmd;
 using org.basex.data;
@@ -41,8 +39,7 @@ namespace Nxdb
     public class Updates : IDisposable
     {
         private static int _counter = 0;
-        private static readonly SyncObject<QueryContext> QueryContext
-            = new SyncObject<QueryContext>(GetQueryContext());
+        private static QueryContext QueryContext = GetQueryContext();
 
         private static QueryContext GetQueryContext()
         {
@@ -61,15 +58,9 @@ namespace Nxdb
         }
 
         // Used by Query when evaluating a query which updates the query context
-        internal static IDisposable WriteLock()
-        {
-            return QueryContext.WriteLock();
-        }
-
-        // Used by Query when evaluating a query which updates the query context
         internal static org.basex.query.up.Updates QueryUpdates
         {
-            get { return QueryContext.Unsync.updates; }
+            get { return QueryContext.updates; }
         }
 
         /// <summary>
@@ -77,7 +68,7 @@ namespace Nxdb
         /// </summary>
         public static void Begin()
         {
-            QueryContext.DoWrite(q => _counter++);
+            _counter++;
         }
 
         /// <summary>
@@ -85,11 +76,8 @@ namespace Nxdb
         /// </summary>
         public static void End()
         {
-            using (QueryContext.WriteLock())
-            {
-                _counter--;
-                Apply(false);
-            }
+            _counter--;
+            Apply(false);
         }
 
         /// <summary>
@@ -104,26 +92,20 @@ namespace Nxdb
         //Adds an update primitive to the sequence of operations
         internal static void Add(UpdatePrimitive update)
         {
-            using (QueryContext.WriteLock())
-            {
-                //Add the update to the query context
-                QueryContext.Unsync.updates.add(update, QueryContext.Unsync);
+            //Add the update to the query context
+            QueryContext.updates.add(update, QueryContext);
 
-                //If a context isn't open, apply the update immediatly
-                Apply(false);
-            }
+            //If a context isn't open, apply the update immediatly
+            Apply(false);
         }
 
         internal static void Add(Expr expr)
         {
-            using (QueryContext.WriteLock())
-            {
-                //Execute the function (which may implicity add to the query context)
-                expr.item(QueryContext.Unsync, null);
+            //Execute the function (which may implicity add to the query context)
+            expr.item(QueryContext, null);
 
-                // If a context isn't open, apply the update immediatly
-                Apply(false);
-            }
+            // If a context isn't open, apply the update immediatly
+            Apply(false);
         }
 
         /// <summary>
@@ -131,47 +113,34 @@ namespace Nxdb
         /// </summary>
         public static void Apply()
         {
-            QueryContext.DoWrite(q => Apply(true));
+            Apply(true);
         }
 
-        // This method not thread-safe - relies on callers for locking
         private static void Apply(bool force)
         {
             if (force || _counter <= 0)
             {
                 // Check if there are any updates to perform (if not, updates.mod will be null)
-                if (QueryContext.Unsync.updates != null && QueryContext.Unsync.updates.mod != null)
+                if (QueryContext.updates != null && QueryContext.updates.mod != null)
                 {
-                    //Need to get the optimize property before locking
-                    bool optimize = Properties.OptimizeAfterUpdates;
-
-                    // Get and lock all updating databases
-                    List<KeyValuePair<Database, WriteLock>> databases
-                        = new List<KeyValuePair<Database, WriteLock>>();
-                    foreach (Data data in QueryContext.Unsync.updates.mod.datas())
-                    {
-                        Database database = Database.Get(data);
-                        databases.Add(new KeyValuePair<Database, WriteLock>(
-                            database, database.WriteLock()));
-                    }
+                    // Get all updating databases
+                    List<Database> databases
+                        = QueryContext.updates.mod.datas().Select(Database.Get).ToList();
 
                     // Apply the updates
-                    QueryContext.Unsync.updates.applyUpdates();
+                    QueryContext.updates.applyUpdates();
 
                     // Update databases
-                    foreach (KeyValuePair<Database, WriteLock> kvp in databases)
+                    foreach (Database database in databases)
                     {
                         // Update database node cache
-                        kvp.Key.Update();
+                        database.Update();
 
                         // Optimize database(s)
-                        if (optimize)
+                        if (Properties.OptimizeAfterUpdates)
                         {
-                            Optimize.optimize(kvp.Key.Data);
+                            Optimize.optimize(database.Data);
                         }
-
-                        // we're done, unlock the database
-                        kvp.Value.Dispose();
                     }
                 }
 
@@ -185,13 +154,12 @@ namespace Nxdb
         /// </summary>
         public static void Reset()
         {
-            QueryContext.DoWrite(q => UnsyncReset());
+            UnsyncReset();
         }
 
-        // This method not thread-safe - relies on callers for locking
         private static void UnsyncReset()
         {
-            QueryContext.Unsync = GetQueryContext();
+            QueryContext = GetQueryContext();
             _counter = 0;
         }
     }

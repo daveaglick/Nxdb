@@ -29,7 +29,7 @@ using Type = System.Type;
 namespace Nxdb
 {
     /// <summary>
-    /// Encapsulates an XQuery. This class is not thread-safe.
+    /// Encapsulates an XQuery.
     /// </summary>
     public class Query : IQuery
     {
@@ -163,57 +163,50 @@ namespace Nxdb
             if (expression == null) throw new ArgumentNullException("expression");
             if (expression == String.Empty) throw new ArgumentException("expression");
 
-            using (Database.GlobalUpgradeableReadLock())
+            // Create the query context
+            QueryContext queryContext = new QueryContext(Database.Context);
+
+            // Add variables
+            foreach (KeyValuePair<string, Value> kvp in _variables)
             {
-                // Create the query context
-                QueryContext queryContext = new QueryContext(Database.Context);
+                queryContext.bind(kvp.Key, kvp.Value);
+            }
 
-                // Add variables
-                foreach (KeyValuePair<string, Value> kvp in _variables)
-                {
-                    queryContext.bind(kvp.Key, kvp.Value);
-                }
+            // Add default collection
+            queryContext.resource.addCollection(_defaultCollection ?? Empty.SEQ, String.Empty);
 
-                // Add default collection
-                queryContext.resource.addCollection(_defaultCollection ?? Empty.SEQ, String.Empty);
+            // Add named collections
+            foreach (KeyValuePair<string, Value> kvp in _namedCollections)
+            {
+                queryContext.resource.addCollection(kvp.Value, kvp.Key);
+            }
 
-                // Add named collections
-                foreach (KeyValuePair<string, Value> kvp in _namedCollections)
-                {
-                    queryContext.resource.addCollection(kvp.Value, kvp.Key);
-                }
+            // Set the initial context item
+            queryContext.ctxItem = _context;
 
-                // Set the initial context item
-                queryContext.ctxItem = _context;
+            // Add external namespaces
+            foreach (KeyValuePair<string, string> kvp in _externals)
+            {
+                queryContext.sc.@namespace(kvp.Key, "java:" + kvp.Value);
+            }
 
-                // Add external namespaces
-                foreach (KeyValuePair<string, string> kvp in _externals)
-                {
-                    queryContext.sc.@namespace(kvp.Key, "java:" + kvp.Value);
-                }
+            using (new Updates())
+            {
+                // Reset the update collection to the common one in our update operation
+                queryContext.updates = Updates.QueryUpdates;
 
-                using (new Updates())
-                {
-                    //This locks the Updates so no other updates can be applied while the query is evaluating
-                    using (Updates.WriteLock())
-                    {
-                        // Reset the update collection to the common one in our update operation
-                        queryContext.updates = Updates.QueryUpdates;
+                // Parse the expression
+                queryContext.parse(expression);
 
-                        // Parse the expression
-                        queryContext.parse(expression);
+                // Compile the query
+                queryContext.compile();
 
-                        // Compile the query
-                        queryContext.compile();
+                // Reset the updating flag (so they aren't applied here)
+                queryContext.updating(false);
 
-                        // Reset the updating flag (so they aren't applied here)
-                        queryContext.updating(false);
-
-                        // Get the iterator and return the results
-                        Iter iter = queryContext.iter();
-                        return new IterEnum(iter);
-                    }
-                }
+                // Get the iterator and return the results
+                Iter iter = queryContext.iter();
+                return new IterEnum(iter);
             }
         }
 

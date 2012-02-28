@@ -65,13 +65,10 @@ namespace Nxdb
 
         private void InsertBefore(NodeCache nodeCache)
         {
-            using (UpgradeableReadLock())
+            Check(true);
+            if (nodeCache != null)
             {
-                Check(true);
-                if (nodeCache != null)
-                {
-                    Updates.Add(new Insert(null, nodeCache.value(), false, false, true, false, DbNode));
-                }
+                Updates.Add(new Insert(null, nodeCache.value(), false, false, true, false, DbNode));
             }
         }
 
@@ -104,13 +101,10 @@ namespace Nxdb
 
         private void InsertAfter(NodeCache nodeCache)
         {
-            using (UpgradeableReadLock())
+            Check(true);
+            if (nodeCache != null)
             {
-                Check(true);
-                if (nodeCache != null)
-                {
-                    Updates.Add(new Insert(null, nodeCache.value(), false, false, false, true, DbNode));
-                }
+                Updates.Add(new Insert(null, nodeCache.value(), false, false, false, true, DbNode));
             }
         }
 

@@ -43,7 +43,6 @@ namespace Nxdb
             return org.basex.util.Token.token(str);
         }
 
-        //Not thread-safe, called should lock the database
         internal static object ToObject(this Value value)
         {
             //Check for null/empty
