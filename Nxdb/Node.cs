@@ -50,9 +50,9 @@ namespace Nxdb
         private XmlNode _xmlNode = null; // Cached XmlNode inastance for DOM interoperability
         private readonly int _id = -1; // The unique immutable ID for the node, -1 if not a database node
         private readonly int _kind; // The database kind supported by the subclass
-        private Database _database; // Cache the database that this node belongs to
-        private readonly ILocker _locker; // Since the node may or may not be a part of the database, all locks should be done on this cached lock object
-        private readonly static ILocker CreationLocker = new MonitorLocker(); // A lightweight locker to ensure we don't create a second duplicate node while checking the cache
+        private readonly Database _database = null; // Cache the database that this node belongs to
+        private readonly Locker _locker; // Since the node may or may not be a part of the database, all locks should be done on this cached lock object
+        private readonly static Locker CreationLocker = new MonitorLocker(); // A lightweight locker to ensure we don't create a second duplicate node while checking the cache
 
         #region Construction
 
@@ -187,7 +187,11 @@ namespace Nxdb
             }
         }
 
-        // Not thread-safe, caller should lock the database
+        /// <summary>
+        /// Gets a new node by copying from an XmlNode.
+        /// </summary>
+        /// <param name="node">The node to copy from.</param>
+        /// <returns></returns>
         public static Node Get(XmlNode node)
         {
             IList<ANode> nodes = Helper.GetNodes(new XmlNodeReader(node));
@@ -195,7 +199,11 @@ namespace Nxdb
             return Get(nodes[0]);
         }
 
-        // Not thread-safe, caller should lock the database
+        /// <summary>
+        /// Gets the a new node by copying from an XNode.
+        /// </summary>
+        /// <param name="node">The XNode to copy from.</param>
+        /// <returns></returns>
         public static Node Get(XNode node)
         {
             IList<ANode> nodes = Helper.GetNodes(node.CreateReader());
@@ -207,7 +215,7 @@ namespace Nxdb
 
         #region Threading
 
-        protected ILocker Locker
+        protected Locker Locker
         {
             get { return _locker; }            
         }
@@ -344,7 +352,6 @@ namespace Nxdb
             _dbNode = null;
             _fNode = null;
             _xmlNode = null;
-            _database = null;
             EventHandler<EventArgs> handler = Invalidated;
             if (handler != null) handler(this, EventArgs.Empty);
         }

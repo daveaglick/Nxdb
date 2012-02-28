@@ -48,7 +48,7 @@ namespace Nxdb
     {
         #region Static
 
-        private static readonly ILocker GlobalLocker = new ReaderWriterLockSlimLocker();
+        private static readonly Locker GlobalLocker = new ReaderWriterLockSlimLocker();
 
         // The global locks also lock all databases individually, this helper class needed
         // to unlock all the database when the lock is disposed
@@ -60,11 +60,11 @@ namespace Nxdb
             public LockWrapper(DisposableLock globalLock, Func<Database, IDisposable> action)
             {
                 _globalLock = globalLock;
-                using (Databases.ReadLock())
+                using (DatabasesCache.ReadLock())
                 {
-                    _databaseLocks = new IDisposable[Databases.Unsync.Count];
+                    _databaseLocks = new IDisposable[DatabasesCache.Unsync.Count];
                     int c = 0;
-                    foreach (Database database in Databases.Unsync.Values)
+                    foreach (Database database in DatabasesCache.Unsync.Values)
                     {
                         _databaseLocks[c++] = action(database);
                     }
@@ -175,7 +175,8 @@ namespace Nxdb
         /// Drops the specified database.
         /// </summary>
         /// <param name="name">The name of the database to drop.</param>
-        public static void Drop(string name)
+        /// <returns>True if the database was found and successfully dropped, false otherwise.</returns>
+        public static bool Drop(string name)
         {
             if (name == null) throw new ArgumentNullException("name");
             if (name == String.Empty) throw new ArgumentException("name");
@@ -189,10 +190,7 @@ namespace Nxdb
                 }
 
                 //Attempt to drop
-                if (!DropDB.drop(name, Context.mprop))
-                {
-                    throw new Exception("Could not drop database.");
-                }
+                return DropDB.drop(name, Context.mprop);
             }
         }
         
@@ -235,12 +233,12 @@ namespace Nxdb
         {
             if (data == null) throw new ArgumentNullException("data");
             Database database;
-            using (Databases.WriteLock())
+            using (DatabasesCache.WriteLock())
             {
-                if (!Databases.Unsync.TryGetValue(data, out database))
+                if (!DatabasesCache.Unsync.TryGetValue(data, out database))
                 {
                     database = new Database(data);
-                    Databases.Unsync.Add(data, database);
+                    DatabasesCache.Unsync.Add(data, database);
                 }
             }
             return database;
@@ -259,14 +257,26 @@ namespace Nxdb
         }
 
         // A cache of all databases - the same instance should be returned for the same Data
-        private static readonly ReadOnlySyncObject<Dictionary<Data, Database>> Databases 
-            = new ReadOnlySyncObject<Dictionary<Data, Database>>(new Dictionary<Data, Database>()); 
+        private static readonly ReadOnlySyncObject<Dictionary<Data, Database>> DatabasesCache 
+            = new ReadOnlySyncObject<Dictionary<Data, Database>>(new Dictionary<Data, Database>());
+
+        /// <summary>
+        /// Gets all open databases.
+        /// </summary>
+        public static IEnumerable<Database> Databases
+        {
+            get
+            {
+                List<Database> databases = new List<Database>(DatabasesCache.DoRead(d => d.Values));
+                return databases;
+            }
+        }
 
         #endregion
 
-        private readonly ILocker _locker = new ReaderWriterLockSlimLocker();
+        private readonly Locker _locker = new ReaderWriterLockSlimLocker();
 
-        internal ILocker Locker
+        internal Locker Locker
         {
             get { return _locker; }
         }
@@ -309,12 +319,17 @@ namespace Nxdb
         /// </summary>
         public void Dispose()
         {
-            string dropName = Name; //This also checks for disposal
+            string dropName = null;
+            using (ReadLock())
+            {
+                if (_data == null) return;
+                dropName = Data.meta.name;
+            }
             using(GlobalWriteLock())
             {
                 if(Context.unpin(_data))
                 {
-                    Databases.DoWrite(d => d.Remove(_data));
+                    DatabasesCache.DoWrite(d => d.Remove(_data));
                     _data.close();
                     _data = null;
                     _nodes.DoWrite(n => _nodes.Unsync = null);

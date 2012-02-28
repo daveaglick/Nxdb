@@ -4,19 +4,157 @@
         <name>NiceThreads</name>
     </assembly>
     <members>
+        <member name="T:NiceThreads.Globals">
+            <summary>
+            Contains global methods and properties.
+            </summary>
+        </member>
+        <member name="P:NiceThreads.Globals.Timeout">
+            <summary>
+            Gets or sets a global timeout value. This is used in debug builds for disposable locks as a failsafe.
+            Even if no timeout is specified, if this is not null (default is 5 minutes) a TimeoutException
+            will be thrown if the lock cannot be acquired.
+            </summary>
+            <value>
+            The global timeout or null for no global timeout.
+            </value>
+        </member>
+        <member name="P:NiceThreads.Globals.EnableLogging">
+            <summary>
+            Gets or sets a value indicating whether the call stack and initiator thread should be logged
+            for disposable locks when running in debug mode . This helps with debugging by allowing a
+            view into all held locks and their points of origination.
+            </summary>
+            <value>
+              <c>true</c> if logging should be enabled; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="P:NiceThreads.Globals.DefaultLockerFunc">
+            <summary>
+            Sets the default locker function that is used when a new lock is created (such as for a SyncObject)
+            an a default Locker instance is needed. By default, this is set to create a new ReaderWriteLockSlimLocker.
+            </summary>
+            <value>
+            The default locker function.
+            </value>
+        </member>
+        <member name="T:NiceThreads.Locker">
+            <summary>
+            A consistent wrapper for different types of locking primitives. Not all
+            methods have appropriate analogs for all lock types (for example, the standard
+            Monitor class does not distinguish between read and write locks, so all methods
+            in this class just lock the Monitor).
+            </summary>
+        </member>
+        <member name="M:NiceThreads.Locker.EnterReadLock">
+            <summary>
+            Enters a read lock.
+            </summary>
+        </member>
+        <member name="M:NiceThreads.Locker.EnterWriteLock">
+            <summary>
+            Enters a write lock.
+            </summary>
+        </member>
+        <member name="M:NiceThreads.Locker.EnterUpgradeableReadLock">
+            <summary>
+            Enters an upgradeable read lock.
+            </summary>
+        </member>
+        <member name="M:NiceThreads.Locker.TryEnterReadLock(System.TimeSpan)">
+            <summary>
+            Tries to enter a read lock.
+            </summary>
+            <param name="timeout">The timeout.</param>
+            <returns>True if the lock was succesfully entered before the timeout.</returns>
+        </member>
+        <member name="M:NiceThreads.Locker.TryEnterWriteLock(System.TimeSpan)">
+            <summary>
+            Tries to enter a write lock.
+            </summary>
+            <param name="timeout">The timeout.</param>
+            <returns>True if the lock was succesfully entered before the timeout.</returns>
+        </member>
+        <member name="M:NiceThreads.Locker.TryEnterUpgradeableReadLock(System.TimeSpan)">
+            <summary>
+            Tries to enter an upgradeable read lock.
+            </summary>
+            <param name="timeout">The timeout.</param>
+            <returns>True if the lock was succesfully entered before the timeout.</returns>
+        </member>
+        <member name="M:NiceThreads.Locker.ExitReadLock">
+            <summary>
+            Exits a read lock.
+            </summary>
+        </member>
+        <member name="M:NiceThreads.Locker.ExitWriteLock">
+            <summary>
+            Exits a write lock.
+            </summary>
+        </member>
+        <member name="M:NiceThreads.Locker.ExitUpgradeableReadLock">
+            <summary>
+            Exits an upgradeable read lock.
+            </summary>
+        </member>
+        <member name="M:NiceThreads.Locker.EnterReadLock(System.TimeSpan)">
+            <summary>
+            Enters a read lock.
+            </summary>
+            <param name="timeout">The timeout after which, if a lock hasn't been
+            acquired, a TimeoutException will be thrown.</param>
+        </member>
+        <member name="M:NiceThreads.Locker.EnterWriteLock(System.TimeSpan)">
+            <summary>
+            Enters a write lock.
+            </summary>
+            <param name="timeout">The timeout after which, if a lock hasn't been
+            acquired, a TimeoutException will be thrown.</param>
+        </member>
+        <member name="M:NiceThreads.Locker.EnterUpgradeableReadLock(System.TimeSpan)">
+            <summary>
+            Enters an upgradeable read lock.
+            </summary>
+            <param name="timeout">The timeout after which, if a lock hasn't been
+            acquired, a TimeoutException will be thrown.</param>
+        </member>
         <member name="T:NiceThreads.DisposableLock">
             <summary>
-            Base class for ILocker wrappers that implement the disposable pattern.
+            Base class for Locker wrappers that implements the disposable pattern.
             </summary>
+        </member>
+        <member name="M:NiceThreads.DisposableLock.AppendLog(System.Text.StringBuilder)">
+            <summary>
+            Appends the log information (if logging is enabled) to the StringBuilder.
+            </summary>
+            <param name="builder">The builder to append log information to.</param>
+        </member>
+        <member name="M:NiceThreads.DisposableLock.Log">
+            <summary>
+            Outputs log information (if logging is enabled).
+            </summary>
+        </member>
+        <member name="M:NiceThreads.DisposableLock.#ctor(NiceThreads.Locker,System.TimeSpan)">
+            <summary>
+            Initializes a new instance.
+            </summary>
+            <param name="locker">The locker.</param>
+            <param name="timeout">The timeout.</param>
+        </member>
+        <member name="M:NiceThreads.DisposableLock.#ctor(NiceThreads.Locker)">
+            <summary>
+            Initializes a new instance.
+            </summary>
+            <param name="locker">The locker.</param>
         </member>
         <member name="M:NiceThreads.DisposableLock.Dispose">
             <summary>
-            Unlocks the ILocker.
+            Unlocks the Locker.
             </summary>
         </member>
         <member name="P:NiceThreads.DisposableLock.Locker">
             <summary>
-            Gets the ILocker that this DisposableLock wraps.
+            Gets the Locker that this lock wraps.
             </summary>
         </member>
         <member name="T:NiceThreads.ISyncObject`1">
@@ -106,7 +244,7 @@
         </member>
         <member name="P:NiceThreads.ISyncObject`1.Locker">
             <summary>
-            Gets the ILocker used to manage access to the wrapped object.
+            Gets the Locker used to manage access to the wrapped object.
             </summary>
         </member>
         <member name="P:NiceThreads.ISyncObject`1.Sync">
@@ -126,37 +264,296 @@
             </summary>
             <typeparam name="T">The type of the objects being enumerated.</typeparam>
         </member>
+        <member name="M:NiceThreads.SyncEnumerator`1.#ctor(System.Collections.Generic.IEnumerable{`0},NiceThreads.Locker)">
+            <summary>
+            Initializes a new instance of the <see cref="T:NiceThreads.SyncEnumerator`1"/> class.
+            </summary>
+            <param name="enumerable">The enumerable to protect.</param>
+            <param name="locker">The locker to use.</param>
+        </member>
+        <member name="M:NiceThreads.SyncEnumerator`1.#ctor(System.Collections.Generic.IEnumerable{`0},NiceThreads.Locker,System.TimeSpan)">
+            <summary>
+            Initializes a new instance of the <see cref="T:NiceThreads.SyncEnumerator`1"/> class.
+            </summary>
+            <param name="enumerable">The enumerable to protect.</param>
+            <param name="locker">The locker to use.</param>
+            <param name="timeout">The timeout - if a lock can't be obtained a TimeoutException will be thrown.</param>
+        </member>
+        <member name="M:NiceThreads.SyncEnumerator`1.Dispose">
+            <inheritdoc />
+        </member>
+        <member name="M:NiceThreads.SyncEnumerator`1.MoveNext">
+            <inheritdoc />
+        </member>
+        <member name="M:NiceThreads.SyncEnumerator`1.Reset">
+            <inheritdoc />
+        </member>
+        <member name="M:NiceThreads.SyncEnumerator`1.GetEnumerator">
+            <inheritdoc />
+        </member>
+        <member name="M:NiceThreads.SyncEnumerator`1.System#Collections#IEnumerable#GetEnumerator">
+            <inheritdoc />
+        </member>
+        <member name="P:NiceThreads.SyncEnumerator`1.Current">
+            <inheritdoc />
+        </member>
+        <member name="P:NiceThreads.SyncEnumerator`1.System#Collections#IEnumerator#Current">
+            <inheritdoc />
+        </member>
+        <member name="T:NiceThreads.ReadLock">
+            <summary>
+            A disposable locking object for read locks.
+            </summary>
+        </member>
+        <member name="M:NiceThreads.ReadLock.#ctor(NiceThreads.Locker,System.TimeSpan)">
+            <summary>
+            Initializes a new instance of the <see cref="T:NiceThreads.ReadLock"/> class.
+            </summary>
+            <param name="locker">The locker.</param>
+            <param name="timeout">The timeout.</param>
+        </member>
+        <member name="M:NiceThreads.ReadLock.#ctor(NiceThreads.Locker)">
+            <summary>
+            Initializes a new instance of the <see cref="T:NiceThreads.ReadLock"/> class.
+            </summary>
+            <param name="locker">The locker.</param>
+        </member>
         <member name="T:NiceThreads.SyncObject`1">
             <summary>
             Implements a thread-safe wrapper around objects that normally wouldn't be thread-safe.
-            Uses a ReaderWriterLockSlim locking object if an alternate ILocker isn't specified.
+            Uses a ReaderWriterLockSlim locking object if an alternate Locker isn't specified.
             </summary>
             <typeparam name="T">The type of the object to be wrapped.</typeparam>
+        </member>
+        <member name="M:NiceThreads.SyncObject`1.#ctor(`0)">
+            <summary>
+            Initializes a new instance of the <see cref="T:NiceThreads.SyncObject`1"/> class.
+            </summary>
+            <param name="value">The object to wrap.</param>
+        </member>
+        <member name="M:NiceThreads.SyncObject`1.#ctor(`0,NiceThreads.Locker)">
+            <summary>
+            Initializes a new instance of the <see cref="T:NiceThreads.SyncObject`1"/> class.
+            </summary>
+            <param name="value">The object to wrap.</param>
+            <param name="locker">The locker to use.</param>
+        </member>
+        <member name="F:NiceThreads.SyncObject`1.UnsyncField">
+            <inheritdoc />
+        </member>
+        <member name="M:NiceThreads.SyncObject`1.ReadLock">
+            <inheritdoc />
+        </member>
+        <member name="M:NiceThreads.SyncObject`1.UpgradeableReadLock">
+            <inheritdoc />
+        </member>
+        <member name="M:NiceThreads.SyncObject`1.WriteLock">
+            <inheritdoc />
+        </member>
+        <member name="M:NiceThreads.SyncObject`1.ReadLock(System.TimeSpan)">
+            <inheritdoc />
+        </member>
+        <member name="M:NiceThreads.SyncObject`1.UpgradeableReadLock(System.TimeSpan)">
+            <inheritdoc />
+        </member>
+        <member name="M:NiceThreads.SyncObject`1.WriteLock(System.TimeSpan)">
+            <inheritdoc />
+        </member>
+        <member name="M:NiceThreads.SyncObject`1.DoRead(System.Action{`0})">
+            <inheritdoc />
+        </member>
+        <member name="M:NiceThreads.SyncObject`1.DoWrite(System.Action{`0})">
+            <inheritdoc />
+        </member>
+        <member name="M:NiceThreads.SyncObject`1.DoRead``1(System.Func{`0,``0})">
+            <inheritdoc />
+        </member>
+        <member name="M:NiceThreads.SyncObject`1.DoWrite``1(System.Func{`0,``0})">
+            <inheritdoc />
+        </member>
+        <member name="P:NiceThreads.SyncObject`1.Locker">
+            <inheritdoc />
+        </member>
+        <member name="P:NiceThreads.SyncObject`1.Unsync">
+            <inheritdoc />
+        </member>
+        <member name="P:NiceThreads.SyncObject`1.Sync">
+            <inheritdoc />
         </member>
         <member name="T:NiceThreads.ReadOnlySyncObject`1">
             <summary>
             Mimics the semantics of a readonly field in that the underlying object cannot be changed once constructed.
-            Uses a ReaderWriterLockSlim locking object if an alternate ILocker isn't specified.
+            Uses a ReaderWriterLockSlim locking object if an alternate Locker isn't specified.
             </summary>
             <typeparam name="T">The type of the object to be wrapped.</typeparam>
         </member>
+        <member name="M:NiceThreads.ReadOnlySyncObject`1.#ctor(`0)">
+            <summary>
+            Initializes a new instance of the <see cref="T:NiceThreads.ReadOnlySyncObject`1"/> class.
+            </summary>
+            <param name="value">The object to wrap.</param>
+        </member>
+        <member name="M:NiceThreads.ReadOnlySyncObject`1.#ctor(`0,NiceThreads.Locker)">
+            <summary>
+            Initializes a new instance of the <see cref="T:NiceThreads.ReadOnlySyncObject`1"/> class.
+            </summary>
+            <param name="value">The object to wrap.</param>
+            <param name="locker">The locker to use.</param>
+        </member>
+        <member name="F:NiceThreads.ReadOnlySyncObject`1.UnsyncField">
+            <inheritdoc />
+        </member>
+        <member name="M:NiceThreads.ReadOnlySyncObject`1.ReadLock">
+            <inheritdoc />
+        </member>
+        <member name="M:NiceThreads.ReadOnlySyncObject`1.UpgradeableReadLock">
+            <inheritdoc />
+        </member>
+        <member name="M:NiceThreads.ReadOnlySyncObject`1.WriteLock">
+            <inheritdoc />
+        </member>
+        <member name="M:NiceThreads.ReadOnlySyncObject`1.ReadLock(System.TimeSpan)">
+            <inheritdoc />
+        </member>
+        <member name="M:NiceThreads.ReadOnlySyncObject`1.UpgradeableReadLock(System.TimeSpan)">
+            <inheritdoc />
+        </member>
+        <member name="M:NiceThreads.ReadOnlySyncObject`1.WriteLock(System.TimeSpan)">
+            <inheritdoc />
+        </member>
+        <member name="M:NiceThreads.ReadOnlySyncObject`1.DoRead(System.Action{`0})">
+            <inheritdoc />
+        </member>
+        <member name="M:NiceThreads.ReadOnlySyncObject`1.DoWrite(System.Action{`0})">
+            <inheritdoc />
+        </member>
+        <member name="M:NiceThreads.ReadOnlySyncObject`1.DoRead``1(System.Func{`0,``0})">
+            <inheritdoc />
+        </member>
+        <member name="M:NiceThreads.ReadOnlySyncObject`1.DoWrite``1(System.Func{`0,``0})">
+            <inheritdoc />
+        </member>
+        <member name="P:NiceThreads.ReadOnlySyncObject`1.Locker">
+            <inheritdoc />
+        </member>
+        <member name="P:NiceThreads.ReadOnlySyncObject`1.Unsync">
+            <inheritdoc />
+        </member>
+        <member name="P:NiceThreads.ReadOnlySyncObject`1.Sync">
+            <inheritdoc />
+        </member>
         <member name="T:NiceThreads.ReaderWriterLockSlimLocker">
             <summary>
-            Provides an ILocker implementation for the ReaderWriterLockSlim class.
+            Provides an Locker implementation for the ReaderWriterLockSlim class.
             </summary>
         </member>
-        <member name="T:NiceThreads.ILocker">
+        <member name="M:NiceThreads.ReaderWriterLockSlimLocker.#ctor">
             <summary>
-            A consistent wrapper for different types of locking primitives. Not all
-            methods have appropriate analogs for all lock types (for example, the standard
-            Monitor class does not distinguish between read and write locks, so all methods
-            in this class just lock the Monitor).
+            Initializes a new instance of the <see cref="T:NiceThreads.ReaderWriterLockSlimLocker"/> class
+            with a new ReaderWriterLockSlim.
             </summary>
+        </member>
+        <member name="M:NiceThreads.ReaderWriterLockSlimLocker.#ctor(System.Threading.ReaderWriterLockSlim)">
+            <summary>
+            Initializes a new instance of the <see cref="T:NiceThreads.ReaderWriterLockSlimLocker"/> class.
+            </summary>
+            <param name="readerWriterLockSlim">The ReaderWriterLockSlim to use.</param>
+        </member>
+        <member name="M:NiceThreads.ReaderWriterLockSlimLocker.EnterReadLock">
+            <inheritdoc />
+        </member>
+        <member name="M:NiceThreads.ReaderWriterLockSlimLocker.EnterWriteLock">
+            <inheritdoc />
+        </member>
+        <member name="M:NiceThreads.ReaderWriterLockSlimLocker.EnterUpgradeableReadLock">
+            <inheritdoc />
+        </member>
+        <member name="M:NiceThreads.ReaderWriterLockSlimLocker.TryEnterReadLock(System.TimeSpan)">
+            <inheritdoc />
+        </member>
+        <member name="M:NiceThreads.ReaderWriterLockSlimLocker.TryEnterWriteLock(System.TimeSpan)">
+            <inheritdoc />
+        </member>
+        <member name="M:NiceThreads.ReaderWriterLockSlimLocker.TryEnterUpgradeableReadLock(System.TimeSpan)">
+            <inheritdoc />
+        </member>
+        <member name="M:NiceThreads.ReaderWriterLockSlimLocker.ExitReadLock">
+            <inheritdoc />
+        </member>
+        <member name="M:NiceThreads.ReaderWriterLockSlimLocker.ExitWriteLock">
+            <inheritdoc />
+        </member>
+        <member name="M:NiceThreads.ReaderWriterLockSlimLocker.ExitUpgradeableReadLock">
+            <inheritdoc />
         </member>
         <member name="T:NiceThreads.MonitorLocker">
             <summary>
-            Provides an ILocker implementation for the Monitor class.
+            Provides an Locker implementation for the Monitor class.
+            Uses the static Monitor methods with this instance as the object.
             </summary>
+        </member>
+        <member name="M:NiceThreads.MonitorLocker.EnterReadLock">
+            <inheritdoc />
+        </member>
+        <member name="M:NiceThreads.MonitorLocker.EnterWriteLock">
+            <inheritdoc />
+        </member>
+        <member name="M:NiceThreads.MonitorLocker.EnterUpgradeableReadLock">
+            <inheritdoc />
+        </member>
+        <member name="M:NiceThreads.MonitorLocker.TryEnterReadLock(System.TimeSpan)">
+            <inheritdoc />
+        </member>
+        <member name="M:NiceThreads.MonitorLocker.TryEnterWriteLock(System.TimeSpan)">
+            <inheritdoc />
+        </member>
+        <member name="M:NiceThreads.MonitorLocker.TryEnterUpgradeableReadLock(System.TimeSpan)">
+            <inheritdoc />
+        </member>
+        <member name="M:NiceThreads.MonitorLocker.ExitReadLock">
+            <inheritdoc />
+        </member>
+        <member name="M:NiceThreads.MonitorLocker.ExitWriteLock">
+            <inheritdoc />
+        </member>
+        <member name="M:NiceThreads.MonitorLocker.ExitUpgradeableReadLock">
+            <inheritdoc />
+        </member>
+        <member name="T:NiceThreads.WriteLock">
+            <summary>
+            A disposable locking object for write locks.
+            </summary>
+        </member>
+        <member name="M:NiceThreads.WriteLock.#ctor(NiceThreads.Locker,System.TimeSpan)">
+            <summary>
+            Initializes a new instance of the <see cref="T:NiceThreads.WriteLock"/> class.
+            </summary>
+            <param name="locker">The locker.</param>
+            <param name="timeout">The timeout.</param>
+        </member>
+        <member name="M:NiceThreads.WriteLock.#ctor(NiceThreads.Locker)">
+            <summary>
+            Initializes a new instance of the <see cref="T:NiceThreads.WriteLock"/> class.
+            </summary>
+            <param name="locker">The locker.</param>
+        </member>
+        <member name="T:NiceThreads.UpgradeableReadLock">
+            <summary>
+            A disposable locking object for upgradeable read locks.
+            </summary>
+        </member>
+        <member name="M:NiceThreads.UpgradeableReadLock.#ctor(NiceThreads.Locker,System.TimeSpan)">
+            <summary>
+            Initializes a new instance of the <see cref="T:NiceThreads.UpgradeableReadLock"/> class.
+            </summary>
+            <param name="locker">The locker.</param>
+            <param name="timeout">The timeout.</param>
+        </member>
+        <member name="M:NiceThreads.UpgradeableReadLock.#ctor(NiceThreads.Locker)">
+            <summary>
+            Initializes a new instance of the <see cref="T:NiceThreads.UpgradeableReadLock"/> class.
+            </summary>
+            <param name="locker">The locker.</param>
         </member>
     </members>
 </doc>
