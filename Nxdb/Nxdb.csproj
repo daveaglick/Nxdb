@@ -160,6 +160,17 @@
     <Compile Include="Io\InnerTextReader.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Persistence\CustomBehavior.cs" />
+    <Compile Include="Persistence\ExplicitBehavior.cs" />
+    <Compile Include="Persistence\ImplicitBehavior.cs" />
+    <Compile Include="Persistence\IPersistentObject.cs" />
+    <Compile Include="Persistence\ObjectWrapper.cs" />
+    <Compile Include="Persistence\PersistenceManager.cs" />
+    <Compile Include="Persistence\PersistentCollection.cs" />
+    <Compile Include="Persistence\PersistentObjectAttribute.cs" />
+    <Compile Include="Persistence\IPersistenceBehavior.cs" />
+    <Compile Include="Persistence\TypeCache.cs" />
+    <Compile Include="Persistence\Cache.cs" />
     <Compile Include="ProcessingInstruction.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Io\TextWriterSerializer.cs">

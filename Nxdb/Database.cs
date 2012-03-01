@@ -275,10 +275,6 @@ namespace Nxdb
         {
             if (_nodes == null) throw new ObjectDisposedException("Database");
 
-            //Raise the Updated event
-            EventHandler<EventArgs> handler = Updated;
-            if (handler != null) handler(this, EventArgs.Empty);
-
             // Grow the nodes cache if needed (but never shrink it)
             if (_data.meta.size > _nodes.Length)
             {
@@ -321,6 +317,10 @@ namespace Nxdb
             {
                 _nodes[node.Index] = new WeakReference(node);
             }
+
+            //Raise the Updated event
+            EventHandler<EventArgs> handler = Updated;
+            if (handler != null) handler(this, EventArgs.Empty);
         }
 
         /// <summary>

@@ -64,6 +64,19 @@ namespace Nxdb
         }
 
         /// <summary>
+        /// Gets a value indicating whether there are open Updates instances (in which
+        /// case new update operations will not get applied until the outer-most Updates
+        /// instance is disposed or the update operations are explicitly applied.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if there are open updates; otherwise, <c>false</c>.
+        /// </value>
+        public static bool Open
+        {
+            get { return _counter > 0; }
+        }
+
+        /// <summary>
         /// Begins a set of update operations.
         /// </summary>
         public static void Begin()
