@@ -12,10 +12,16 @@ namespace Nxdb.Persistence
 
     public class PersistenceManager
     {
-        //private readonly Dictionary<Wrapper, ContainerNode> _wrappers
-        //    = new Dictionary<Wrapper, ContainerNode>();
-        //private readonly Dictionary<Type, TypeCache> _typeCaches = new Dictionary<Type, TypeCache>();
-        //private readonly Dictionary<Database, int> _databases = new Dictionary<Database, int>();
+        private static PersistenceManager _default = null;
+
+        /// <summary>
+        /// Gets the default PersistenceManager. This is the
+        /// instance that is used for the extension methods.
+        /// </summary>
+        public static PersistenceManager Default
+        {
+            get { return _default ?? (_default = new PersistenceManager()); }
+        }
 
         private readonly Cache _cache;
 

@@ -165,6 +165,7 @@
     <Compile Include="Persistence\ImplicitBehavior.cs" />
     <Compile Include="Persistence\IPersistentObject.cs" />
     <Compile Include="Persistence\ObjectWrapper.cs" />
+    <Compile Include="Persistence\PersistenceExtensions.cs" />
     <Compile Include="Persistence\PersistenceManager.cs" />
     <Compile Include="Persistence\PersistentCollection.cs" />
     <Compile Include="Persistence\PersistentObjectAttribute.cs" />
