@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Nxdb.Persistence.Behaviors;
 
 namespace Nxdb.Persistence
 {
@@ -11,6 +12,6 @@ namespace Nxdb.Persistence
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
     public class PersistentObjectAttribute : System.Attribute
     {
-
+        public Type BehaviorType { get; set; }
     }
 }

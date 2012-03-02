@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using Nxdb.Persistence.Behaviors;
 
 namespace Nxdb.Persistence
 {
@@ -14,7 +15,12 @@ namespace Nxdb.Persistence
         private readonly Type _type;
         private readonly Dictionary<ContainerNode, HashSet<ObjectWrapper>> _nodeToWrappers
             = new Dictionary<ContainerNode, HashSet<ObjectWrapper>>();
+
+        // These are lazy initialized for performance
         private ConstructorInfo _constructor = null;
+        private FieldInfo[] _fields = null;
+        private PersistenceBehavior _behavior = null;
+        private PersistentObjectAttribute _persistentObjectAttribute = null;
 
         public TypeCache(Type type)
         {
@@ -37,6 +43,67 @@ namespace Nxdb.Persistence
 
             // Construct the new object
             return _constructor.Invoke(new object[0]);
+        }
+
+        public IEnumerable<FieldInfo> Fields
+        {
+            get { return _fields ?? (_fields = _type.GetFields(
+                BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)); }
+        }
+
+        public PersistenceBehavior Behavior
+        {
+            get
+            {
+                if(_behavior == null)
+                {
+                    // Does it implement custom behaviors?
+                    if(typeof(ICustomPersistence).IsAssignableFrom(_type))
+                    {
+                        _behavior = new CustomBehavior();
+                    }
+                    else
+                    {
+                        // Does it declare a behavior type via the attribute
+                        Type behaviorType = PersistentObjectAttribute.BehaviorType;
+                        if(behaviorType != null && typeof(PersistenceBehavior).IsAssignableFrom(behaviorType))
+                        {
+                            // Create the behavior instance
+                            ConstructorInfo ctor = behaviorType.GetConstructor(
+                                BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance,
+                                null, Type.EmptyTypes, null);
+                            if(ctor != null)
+                            {
+                                _behavior = ctor.Invoke(new object[0]) as PersistenceBehavior;
+                            }
+                        }
+
+                        // If we still don't have one, use the default
+                        _behavior = new DefaultBehavior();
+                    }
+                }
+                return _behavior;
+            }
+        }
+
+        public PersistentObjectAttribute PersistentObjectAttribute
+        {
+            get
+            {
+                if(_persistentObjectAttribute == null)
+                {
+                    object[] attributes = _type.GetCustomAttributes(typeof(PersistentObjectAttribute), false);
+                    if(attributes.Length > 0)
+                    {
+                        _persistentObjectAttribute = attributes[0] as PersistentObjectAttribute;
+                    }
+                    if(_persistentObjectAttribute == null)
+                    {
+                        _persistentObjectAttribute = new PersistentObjectAttribute();
+                    }
+                }
+                return _persistentObjectAttribute;
+            }
         }
 
         // Returns the first object in the cache for the specified node (or null if none exists)

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
+using Nxdb.Persistence.Behaviors;
 
 namespace Nxdb.Persistence
 {
@@ -16,7 +17,7 @@ namespace Nxdb.Persistence
 
         // These are lazy initialized for performance
         private TypeCache _typeCache = null;
-        private IPersistenceBehavior _behavior = null;   
+        private PersistenceBehavior _behavior = null;   
         
         public ObjectWrapper(object obj, Cache cache)
         {
@@ -26,24 +27,17 @@ namespace Nxdb.Persistence
             _cache = cache;
         }
 
-        public static IPersistenceBehavior GetBehavior(object obj)
+        // Directly specifies a behavior to use
+        // TODO: Implement overloads in the PersistenceManager that allows passing an override behavior in
+        public ObjectWrapper(object obj, Cache cache, PersistenceBehavior behavior)
+            : this(obj, cache)
         {
-            if (obj is ICustomPersistentObject)
-            {
-                return new CustomBehavior();
-            }
-
-            if (obj is IPersistentObject)
-            {
-                return new ExplicitBehavior();
-            }
-
-            return new ImplicitBehavior();
+            _behavior = behavior;
         }
 
-        private IPersistenceBehavior GetCachedBehavior(object obj)
+        private PersistenceBehavior Behavior
         {
-            return _behavior ?? (_behavior = GetBehavior(obj));
+            get { return _behavior ?? (_behavior = TypeCache.Behavior); }
         }
 
         public object Object
@@ -112,7 +106,7 @@ namespace Nxdb.Persistence
                 _cache.Detach(this, false);
                 return;
             }
-            GetCachedBehavior(obj).Fetch(Node, obj);
+            Behavior.Fetch(Node, obj, TypeCache);
         }
 
         public void Store()
@@ -124,7 +118,7 @@ namespace Nxdb.Persistence
                 _cache.Detach(this, false);
                 return;
             }
-            GetCachedBehavior(obj).Store(Node, obj);
+            Behavior.Store(Node, obj, TypeCache);
         }
     }
 }

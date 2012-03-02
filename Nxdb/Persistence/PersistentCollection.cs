@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Nxdb.Persistence.Behaviors;
 
 namespace Nxdb.Persistence
 {
@@ -10,7 +11,7 @@ namespace Nxdb.Persistence
     /// Implements an enumerable type for top-level persistent collections.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    internal class PersistentCollection<T> : ICustomPersistentObject, IEnumerable<T> where T : class
+    internal class PersistentCollection<T> : ICustomPersistence, IEnumerable<T> where T : class
     {
         private readonly PersistenceManager _manager;
         private readonly string _expression;

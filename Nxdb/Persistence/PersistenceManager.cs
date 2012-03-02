@@ -8,8 +8,6 @@ using System.Text;
 
 namespace Nxdb.Persistence
 {
-    // TODO: Make sure to deal with invalid nodes on refresh, save, etc. - should it be done proactivaly via events?
-
     public class PersistenceManager
     {
         private static PersistenceManager _default = null;
@@ -237,7 +235,8 @@ namespace Nxdb.Persistence
             if (node == null) throw new ArgumentNullException("node");
             if (!node.Valid) throw new ArgumentException("The specified node is invalid.");
 
-            ObjectWrapper.GetBehavior(obj).Fetch(node, obj);
+            TypeCache typeCache = _cache.GetTypeCache(type);
+            typeCache.Behavior.Fetch(node, obj, typeCache);
         }
 
         /// <summary>
@@ -281,8 +280,9 @@ namespace Nxdb.Persistence
             if (type.IsValueType) throw new ArgumentException("obj must not be a value type.");
             if (node == null) throw new ArgumentNullException("node");
             if (!node.Valid) throw new ArgumentException("The specified node is invalid.");
-            
-            ObjectWrapper.GetBehavior(obj).Store(node, obj);
+
+            TypeCache typeCache = _cache.GetTypeCache(type);
+            typeCache.Behavior.Store(node, obj, typeCache);
         }
 
         /// <summary>
