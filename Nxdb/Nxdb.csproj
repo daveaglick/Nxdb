@@ -110,6 +110,7 @@
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml.Linq">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
@@ -160,7 +161,6 @@
     <Compile Include="Io\InnerTextReader.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Persistence\DataContractSerializerBehavior.cs" />
     <Compile Include="Persistence\XmlSerializerBehavior.cs" />
     <Compile Include="Persistence\CustomBehavior.cs" />
     <Compile Include="Persistence\DefaultBehavior.cs" />
