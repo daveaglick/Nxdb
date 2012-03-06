@@ -16,11 +16,8 @@
  */
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
 using System.Xml;
 using System.Xml.Linq;
 using org.basex.data;
@@ -28,7 +25,7 @@ using org.basex.query.item;
 using org.basex.query.iter;
 using org.basex.query.up.expr;
 
-namespace Nxdb
+namespace Nxdb.Node
 {
     /// <summary>
     /// The base class for XML nodes in Nxdb. There are two types of nodes, database nodes and query nodes (or

@@ -23,6 +23,8 @@ using System.Text;
 using System.Xml;
 using NUnit.Framework;
 using Nxdb;
+using Nxdb.Node;
+using Attribute = Nxdb.Node.Attribute;
 
 namespace NxdbTests
 {
@@ -550,7 +552,7 @@ namespace NxdbTests
                 element.Value = "456";
                 Assert.AreEqual("<BB d=\"Bbd\" e=\"Bbe\">456</BB>", element.OuterXml);
 
-                Nxdb.Attribute attribute = database.GetDocument("C").Child(0).Child(0).Attributes.First();
+                Attribute attribute = database.GetDocument("C").Child(0).Child(0).Attributes.First();
                 attribute.Value = "789";
                 Assert.AreEqual("789", ((Element)database.GetDocument("C").Child(0).Child(0)).AttributeValue(attribute.Name));
 

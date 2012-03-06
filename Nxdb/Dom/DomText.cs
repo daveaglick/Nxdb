@@ -23,6 +23,7 @@ using System.Text;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.XPath;
+using Nxdb.Node;
 using org.basex.query.item;
 using org.basex.util;
 
@@ -31,7 +32,7 @@ namespace Nxdb.Dom
     public class DomText : XmlText, IDomNode
     {
         private readonly Text _node;
-        public Node Node
+        public Node.Node Node
         {
             get { return _node; }
         }

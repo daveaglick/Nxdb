@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright 2012 WildCard, LLC
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,16 +16,16 @@
  */
 
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
-using System.Xml;
-using org.basex.query.item;
 
-namespace Nxdb.Dom
+namespace Nxdb.Persistence
 {
-    public interface IDomNode
+    /// <summary>
+    /// Base attribute for persistence behavior attributes. Persistent behaviors should
+    /// provide an attribute that derives from this one.
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
+    public abstract class PersistenceAttribute : System.Attribute
     {
-        Node.Node Node { get; }
+        internal abstract PersistenceBehavior Behavior { get; }
     }
 }

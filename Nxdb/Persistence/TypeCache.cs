@@ -1,9 +1,26 @@
-﻿using System;
+﻿/*
+ * Copyright 2012 WildCard, LLC
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ */
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using Nxdb.Persistence.Behaviors;
+using Nxdb.Node;
 
 namespace Nxdb.Persistence
 {
@@ -13,18 +30,23 @@ namespace Nxdb.Persistence
     internal class TypeCache
     {
         private readonly Type _type;
-        private readonly Dictionary<ContainerNode, HashSet<ObjectWrapper>> _nodeToWrappers
-            = new Dictionary<ContainerNode, HashSet<ObjectWrapper>>();
+        private readonly Dictionary<Element, HashSet<ObjectWrapper>> _elementToWrappers
+            = new Dictionary<Element, HashSet<ObjectWrapper>>();
 
         // These are lazy initialized for performance
         private ConstructorInfo _constructor = null;
         private FieldInfo[] _fields = null;
         private PersistenceBehavior _behavior = null;
-        private PersistentObjectAttribute _persistentObjectAttribute = null;
+        private PersistenceAttribute _persistenceAttribute = null;
 
         public TypeCache(Type type)
         {
             _type = type;
+        }
+
+        public Type Type
+        {
+            get { return _type; }
         }
 
         public object CreateInstance()
@@ -57,61 +79,39 @@ namespace Nxdb.Persistence
             {
                 if(_behavior == null)
                 {
-                    // Does it implement custom behaviors?
-                    if(typeof(ICustomPersistence).IsAssignableFrom(_type))
-                    {
-                        _behavior = new CustomBehavior();
-                    }
-                    else
-                    {
-                        // Does it declare a behavior type via the attribute
-                        Type behaviorType = PersistentObjectAttribute.BehaviorType;
-                        if(behaviorType != null && typeof(PersistenceBehavior).IsAssignableFrom(behaviorType))
-                        {
-                            // Create the behavior instance
-                            ConstructorInfo ctor = behaviorType.GetConstructor(
-                                BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance,
-                                null, Type.EmptyTypes, null);
-                            if(ctor != null)
-                            {
-                                _behavior = ctor.Invoke(new object[0]) as PersistenceBehavior;
-                            }
-                        }
-
-                        // If we still don't have one, use the default
-                        _behavior = new DefaultBehavior();
-                    }
+                    _behavior = typeof(ICustomPersistence).IsAssignableFrom(_type)
+                        ? new CustomBehavior() : PersistenceAttribute.Behavior;
                 }
                 return _behavior;
             }
         }
 
-        public PersistentObjectAttribute PersistentObjectAttribute
+        public PersistenceAttribute PersistenceAttribute
         {
             get
             {
-                if(_persistentObjectAttribute == null)
+                if(_persistenceAttribute == null)
                 {
-                    object[] attributes = _type.GetCustomAttributes(typeof(PersistentObjectAttribute), false);
+                    object[] attributes = _type.GetCustomAttributes(typeof(PersistenceAttribute), false);
                     if(attributes.Length > 0)
                     {
-                        _persistentObjectAttribute = attributes[0] as PersistentObjectAttribute;
+                        _persistenceAttribute = attributes[0] as PersistenceAttribute;
                     }
-                    if(_persistentObjectAttribute == null)
+                    if(_persistenceAttribute == null)
                     {
-                        _persistentObjectAttribute = new PersistentObjectAttribute();
+                        _persistenceAttribute = new DefaultPersistenceAttribute();
                     }
                 }
-                return _persistentObjectAttribute;
+                return _persistenceAttribute;
             }
         }
 
-        // Returns the first object in the cache for the specified node (or null if none exists)
+        // Returns the first object in the cache for the specified element (or null if none exists)
         // Also cleans the cache of disposed objects
-        public object FindObject(ContainerNode node)
+        public object FindObject(Element element)
         {
             HashSet<ObjectWrapper> wrappers;
-            if (_nodeToWrappers.TryGetValue(node, out wrappers))
+            if (_elementToWrappers.TryGetValue(element, out wrappers))
             {
                 // Try to get an active instance
                 foreach (ObjectWrapper wrapper in wrappers)
@@ -129,10 +129,10 @@ namespace Nxdb.Persistence
         public void Add(ObjectWrapper wrapper)
         {
             HashSet<ObjectWrapper> wrappers;
-            if(!_nodeToWrappers.TryGetValue(wrapper.Node, out wrappers))
+            if(!_elementToWrappers.TryGetValue(wrapper.Element, out wrappers))
             {
                 wrappers = new HashSet<ObjectWrapper>();
-                _nodeToWrappers.Add(wrapper.Node, wrappers);
+                _elementToWrappers.Add(wrapper.Element, wrappers);
             }
             wrappers.Add(wrapper);
         }
@@ -140,19 +140,19 @@ namespace Nxdb.Persistence
         public void Remove(ObjectWrapper wrapper)
         {
             HashSet<ObjectWrapper> wrappers;
-            if (_nodeToWrappers.TryGetValue(wrapper.Node, out wrappers))
+            if (_elementToWrappers.TryGetValue(wrapper.Element, out wrappers))
             {
                 wrappers.Remove(wrapper);
                 if(wrappers.Count == 0)
                 {
-                    _nodeToWrappers.Remove(wrapper.Node);
+                    _elementToWrappers.Remove(wrapper.Element);
                 }
             }
         }
 
         public void Clear()
         {
-            _nodeToWrappers.Clear();
+            _elementToWrappers.Clear();
         }
     }
 }

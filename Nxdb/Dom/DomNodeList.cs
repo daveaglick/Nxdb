@@ -27,11 +27,11 @@ namespace Nxdb.Dom
 {
     public class DomNodeList : XmlNodeList
     {
-        private readonly List<Node> _nodeList;
+        private readonly List<Node.Node> _nodeList;
 
-        internal DomNodeList(IEnumerable<Node> nodes)
+        internal DomNodeList(IEnumerable<Node.Node> nodes)
         {
-            _nodeList = new List<Node>(nodes);
+            _nodeList = new List<Node.Node>(nodes);
         }
 
         public override XmlNode Item(int index)

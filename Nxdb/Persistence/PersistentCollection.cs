@@ -1,9 +1,26 @@
-﻿using System;
+﻿/*
+ * Copyright 2012 WildCard, LLC
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ */
+
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Nxdb.Persistence.Behaviors;
+using Nxdb.Node;
 
 namespace Nxdb.Persistence
 {
@@ -17,7 +34,7 @@ namespace Nxdb.Persistence
         private readonly string _expression;
         private readonly bool _searchCache;
         private readonly bool _attach;
-        private Dictionary<ContainerNode, T> _nodeCache = new Dictionary<ContainerNode, T>(); 
+        private Dictionary<Element, T> _elementCache = new Dictionary<Element, T>(); 
         private List<T> _persistentObjects = new List<T>(); 
 
         public PersistentCollection(PersistenceManager manager, string expression, bool searchCache, bool attach)
@@ -38,26 +55,26 @@ namespace Nxdb.Persistence
             return GetEnumerator();
         }
 
-        public void Fetch(ContainerNode node)
+        public void Fetch(Element element)
         {
-            Dictionary<ContainerNode, T> nodeCache = new Dictionary<ContainerNode, T>(); 
+            Dictionary<Element, T> elementCache = new Dictionary<Element, T>(); 
             List<T> persistentObjects = new List<T>(); 
 
-            foreach (ContainerNode result in node.Eval<ContainerNode>(_expression))
+            foreach (Element result in element.Eval<Element>(_expression))
             {
                 T persistentObject;
-                if (!_nodeCache.TryGetValue(result, out persistentObject))
+                if (!_elementCache.TryGetValue(result, out persistentObject))
                 {
                     persistentObject = _manager.GetObject<T>(result, _searchCache, _attach);
                 }
-                nodeCache.Add(result, persistentObject);
+                elementCache.Add(result, persistentObject);
                 persistentObjects.Add(persistentObject);
             }
 
-            _nodeCache = nodeCache;
+            _elementCache = elementCache;
             _persistentObjects = persistentObjects;
         }
 
-        public void Store(ContainerNode node) { }
+        public void Store(Element element) { }
     }
 }

@@ -17,15 +17,12 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Xml;
 using org.basex.query.item;
 using org.basex.query.iter;
 using org.basex.query.up.expr;
-using org.basex.query.up.primitives;
 
-namespace Nxdb
+namespace Nxdb.Node
 {
     /// <summary>
     /// Base class for nodes that are part of a tree (all except attributes).

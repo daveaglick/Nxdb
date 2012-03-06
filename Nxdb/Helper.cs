@@ -82,7 +82,7 @@ namespace Nxdb
             }
         }
 
-        internal static NodeCache GetNodeCache(IEnumerable<Node> nodes)
+        internal static NodeCache GetNodeCache(IEnumerable<Node.Node> nodes)
         {
             return GetNodeCache(nodes.Select(n => n.ANode).ToArray());
         }
@@ -98,7 +98,7 @@ namespace Nxdb
             return nodes != null ? new NodeCache(nodes.ToArray(), nodes.Count) : null;
         }
 
-        internal static ANode[] GetNodes(IEnumerable<Node> nodes)
+        internal static ANode[] GetNodes(IEnumerable<Node.Node> nodes)
         {
             return nodes.Select(n => n.ANode).ToArray();
         }

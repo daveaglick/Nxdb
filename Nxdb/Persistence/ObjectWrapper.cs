@@ -1,9 +1,26 @@
-﻿using System;
+﻿/*
+ * Copyright 2012 WildCard, LLC
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ */
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
-using Nxdb.Persistence.Behaviors;
+using Nxdb.Node;
 
 namespace Nxdb.Persistence
 {
@@ -13,7 +30,7 @@ namespace Nxdb.Persistence
         private readonly WeakReference _weakReference;
         private readonly int _hash;
         private readonly Cache _cache;
-        private ContainerNode _node = null;
+        private Element _element = null;
 
         // These are lazy initialized for performance
         private TypeCache _typeCache = null;
@@ -68,57 +85,57 @@ namespace Nxdb.Persistence
             return other != null && Equals(other);
         }
 
-        public ContainerNode Node
+        public Element Element
         {
-            get { return _node; } 
+            get { return _element; } 
             set
             {
-                if (_node == value) return;
+                if (_element == value) return;
 
                 // Remove the old invalidated handler
-                if(_node != null)
+                if(_element != null)
                 {
-                    _node.Invalidated -= NodeInvalidated;
+                    _element.Invalidated -= ElementInvalidated;
                 }
 
                 // Add the new invalidated handler
                 if(value != null)
                 {
-                    value.Invalidated += NodeInvalidated;
+                    value.Invalidated += ElementInvalidated;
                 }
 
-                _node = value;
+                _element = value;
             }
         }
 
-        private void NodeInvalidated(object sender, EventArgs e)
+        private void ElementInvalidated(object sender, EventArgs e)
         {
-            _node.Invalidated -= NodeInvalidated;
+            _element.Invalidated -= ElementInvalidated;
             _cache.Detach(this, false);
         }
 
         public void Fetch()
         {
-            if(Node == null) return;
+            if(Element == null) return;
             object obj = _weakReference.Target;
             if(obj == null)
             {
                 _cache.Detach(this, false);
                 return;
             }
-            Behavior.Fetch(Node, obj, TypeCache);
+            Behavior.Fetch(Element, obj, TypeCache);
         }
 
         public void Store()
         {
-            if (Node == null) return;
+            if (Element == null) return;
             object obj = _weakReference.Target;
             if (obj == null)
             {
                 _cache.Detach(this, false);
                 return;
             }
-            Behavior.Store(Node, obj, TypeCache);
+            Behavior.Store(Element, obj, TypeCache);
         }
     }
 }

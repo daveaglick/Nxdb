@@ -21,6 +21,7 @@ using System.Linq;
 using System.Text;
 using NUnit.Framework;
 using Nxdb;
+using Nxdb.Node;
 
 namespace NxdbTests
 {

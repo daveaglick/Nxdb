@@ -51,7 +51,17 @@ namespace Nxdb.Io
         // Writes an attribute
         public override void attribute(byte[] name, byte[] value)
         {
-            _xmlWriter.WriteAttributeString(name.Token(), value.Token());
+            QNm qnm = new QNm(name);
+            string localName = qnm.local().Token();
+            if(qnm.hasPrefix())
+            {
+                string prefix = qnm.prefix().Token();
+                _xmlWriter.WriteAttributeString(prefix, localName, null, value.Token());
+            }
+            else
+            {
+                _xmlWriter.WriteAttributeString(localName, value.Token());
+            }
         }
 
         // Finishes an opening element tag

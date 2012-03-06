@@ -24,13 +24,14 @@ using System.Xml.Schema;
 using System.Xml.XPath;
 using org.basex.query.item;
 using org.basex.util;
+using Attribute = Nxdb.Node.Attribute;
 
 namespace Nxdb.Dom
 {
     public class DomAttribute : XmlAttribute, IDomNode
     {
         private readonly Attribute _node;
-        public Node Node
+        public Node.Node Node
         {
             get { return _node; }
         }

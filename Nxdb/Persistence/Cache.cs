@@ -1,8 +1,26 @@
-﻿using System;
+﻿/*
+ * Copyright 2012 WildCard, LLC
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ */
+
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Nxdb.Node;
 
 namespace Nxdb.Persistence
 {
@@ -33,14 +51,14 @@ namespace Nxdb.Persistence
         }
 
         // Gets or constructs an object of the specified type
-        public object GetObject(Type type, ContainerNode node, bool searchCache)
+        public object GetObject(Type type, Element element, bool searchCache)
         {
             Clean();
             TypeCache typeCache = GetTypeCache(type);
             object obj = null;
             if(searchCache)
             {
-                obj = typeCache.FindObject(node);
+                obj = typeCache.FindObject(element);
             }
             return obj ?? typeCache.CreateInstance();
         }
@@ -62,7 +80,7 @@ namespace Nxdb.Persistence
             return GetEnumerator();
         }
 
-        public ObjectWrapper Attach(object obj, ContainerNode node)
+        public ObjectWrapper Attach(object obj, Element element)
         {
             Clean();
 
@@ -70,8 +88,8 @@ namespace Nxdb.Persistence
             ObjectWrapper wrapper = Detach(new ObjectWrapper(obj, this), true);
 
             // Add it
-            wrapper.Node = node;
-            AddDatabaseUpdatedHandler(node);
+            wrapper.Element = element;
+            AddDatabaseUpdatedHandler(element);
             _wrappers.Add(wrapper, wrapper);
             wrapper.TypeCache.Add(wrapper);
 
@@ -98,10 +116,10 @@ namespace Nxdb.Persistence
             }
 
             // Remove it
-            RemoveDatabaseUpdatedHandler(wrapper.Node);
+            RemoveDatabaseUpdatedHandler(wrapper.Element);
             _wrappers.Remove(wrapper);
             wrapper.TypeCache.Remove(wrapper);
-            wrapper.Node = null;
+            wrapper.Element = null;
             return wrapper;
         }
 
@@ -114,10 +132,10 @@ namespace Nxdb.Persistence
             }
             _databases.Clear();
 
-            // Remove all node mappings
+            // Remove all element mappings
             foreach(ObjectWrapper wrapper in _wrappers.Values)
             {
-                wrapper.Node = null;    // Removes the invalidated handler
+                wrapper.Element = null;    // Removes the invalidated handler
             }
             _wrappers.Clear();
 
@@ -153,7 +171,7 @@ namespace Nxdb.Persistence
                 {
                     foreach (ObjectWrapper wrapper in _wrappers.Values)
                     {
-                        AddDatabaseUpdatedHandler(wrapper.Node);
+                        AddDatabaseUpdatedHandler(wrapper.Element);
                     }
                 }
                 else
@@ -167,39 +185,39 @@ namespace Nxdb.Persistence
             }
         }
 
-        private void RemoveDatabaseUpdatedHandler(Node node)
+        private void RemoveDatabaseUpdatedHandler(Element element)
         {
             int count;
-            if (_databases.TryGetValue(node.Database, out count))
+            if (_databases.TryGetValue(element.Database, out count))
             {
                 count--;
                 if (count == 0)
                 {
-                    node.Database.Updated -= DatabaseUpdated;
-                    _databases.Remove(node.Database);
+                    element.Database.Updated -= DatabaseUpdated;
+                    _databases.Remove(element.Database);
                 }
                 else
                 {
-                    _databases[node.Database] = count;
+                    _databases[element.Database] = count;
                 }
             }
         }
 
-        private void AddDatabaseUpdatedHandler(Node node)
+        private void AddDatabaseUpdatedHandler(Element element)
         {
             if (AutoRefresh)
             {
                 int count;
-                if (_databases.TryGetValue(node.Database, out count))
+                if (_databases.TryGetValue(element.Database, out count))
                 {
                     count++;
                 }
                 else
                 {
                     count = 1;
-                    node.Database.Updated += DatabaseUpdated;
+                    element.Database.Updated += DatabaseUpdated;
                 }
-                _databases[node.Database] = count;
+                _databases[element.Database] = count;
             }
         }
 
@@ -208,7 +226,7 @@ namespace Nxdb.Persistence
             Clean();
 
             foreach(ObjectWrapper wrapper
-                in _wrappers.Values.Where(w => w.Node.Database == (Database)sender))
+                in _wrappers.Values.Where(w => w.Element.Database == (Database)sender))
             {
                 wrapper.Fetch();
             }

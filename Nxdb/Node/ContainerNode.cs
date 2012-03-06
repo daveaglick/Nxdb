@@ -25,9 +25,8 @@ using Nxdb.Io;
 using org.basex.query.item;
 using org.basex.query.iter;
 using org.basex.query.up.expr;
-using org.basex.query.up.primitives;
 
-namespace Nxdb
+namespace Nxdb.Node
 {
     /// <summary>
     /// Base class for nodes that can contain other nodes (document and element).

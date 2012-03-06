@@ -62,7 +62,7 @@ namespace Nxdb
             ANode node = value as ANode;
             if (node != null)
             {
-                return Node.Get(node);
+                return Node.Node.Get(node);
             }
 
             // Get the Java object
@@ -138,7 +138,7 @@ namespace Nxdb
         private static IEnumerable<Item> GetItems(object obj)
         {
             //It it a Node?
-            Node node = obj as Node;
+            Node.Node node = obj as Node.Node;
             if (node != null)
             {
                 return new[]{node.ANode};

@@ -16,17 +16,13 @@
  */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Xml;
 using Nxdb.Dom;
 using org.basex.data;
 using org.basex.query.item;
-using org.basex.query.up.expr;
 using org.basex.query.up.primitives;
 
-namespace Nxdb
+namespace Nxdb.Node
 {
     /// <summary>
     /// Representation of an XML document node.

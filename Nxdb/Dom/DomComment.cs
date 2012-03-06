@@ -22,13 +22,14 @@ using System.Text;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.XPath;
+using Nxdb.Node;
 
 namespace Nxdb.Dom
 {
     public class DomComment : XmlComment, IDomNode
     {
         private readonly Comment _node;
-        public Node Node
+        public Node.Node Node
         {
             get { return _node; }
         }

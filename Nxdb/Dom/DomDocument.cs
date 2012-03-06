@@ -23,6 +23,7 @@ using System.Text;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.XPath;
+using Nxdb.Node;
 using org.basex.data;
 using org.basex.query.item;
 using org.basex.query.iter;
@@ -33,7 +34,7 @@ namespace Nxdb.Dom
     public class DomDocument : XmlDocument, IDomNode
     {
         private readonly Document _node;
-        public Node Node
+        public Node.Node Node
         {
             get { return _node; }
         }
@@ -95,7 +96,7 @@ namespace Nxdb.Dom
 
         public override XmlNodeList ChildNodes
         {
-            get { return new DomNodeList(_node.Children.Cast<Node>()); }
+            get { return new DomNodeList(_node.Children.Cast<Node.Node>()); }
         }
 
         public override bool HasChildNodes
@@ -117,7 +118,7 @@ namespace Nxdb.Dom
         {
             get
             {
-                Node node = _node.Children.FirstOrDefault();
+                Node.Node node = _node.Children.FirstOrDefault();
                 return node != null ? node.XmlNode : null;
             }
         }
@@ -126,7 +127,7 @@ namespace Nxdb.Dom
         {
             get
             {
-                Node node = _node.Children.LastOrDefault();
+                Node.Node node = _node.Children.LastOrDefault();
                 return node != null ? node.XmlNode : null;
             }
         }

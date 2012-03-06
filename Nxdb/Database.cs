@@ -23,6 +23,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Xml;
+using Nxdb.Node;
 using org.basex.core;
 using org.basex.core.cmd;
 using org.basex.data;
@@ -250,12 +251,12 @@ namespace Nxdb
         }
 
         // Only called from the Node.Get() static methods - use those to get new nodes
-        internal Node GetNode(int pre)
+        internal Node.Node GetNode(int pre)
         {
             if (_nodes == null) throw new ObjectDisposedException("Database");
             if (_nodes[pre] != null)
             {
-                Node node = (Node) _nodes[pre].Target;
+                Node.Node node = (Node.Node) _nodes[pre].Target;
                 if (node != null)
                 {
                     return node;
@@ -264,7 +265,7 @@ namespace Nxdb
             return null;
         }
 
-        internal void SetNode(int pre, Node node)
+        internal void SetNode(int pre, Node.Node node)
         {
             if (_nodes == null) throw new ObjectDisposedException("Database");
             _nodes[pre] = new WeakReference(node);
@@ -282,12 +283,12 @@ namespace Nxdb
             }
 
             // Check validity and reposition nodes
-            LinkedList<Node> reposition = new LinkedList<Node>();
+            LinkedList<Node.Node> reposition = new LinkedList<Node.Node>();
             for (int c = 0; c < _nodes.Length; c++)
             {
                 if (_nodes[c] != null)
                 {
-                    Node node = (Node)_nodes[c].Target;
+                    Node.Node node = (Node.Node)_nodes[c].Target;
                     if (node != null)
                     {
                         if (!node.Validate())
@@ -313,7 +314,7 @@ namespace Nxdb
             }
 
             // Reposition any nodes that moved
-            foreach (Node node in reposition)
+            foreach (Node.Node node in reposition)
             {
                 _nodes[node.Index] = new WeakReference(node);
             }
@@ -492,7 +493,7 @@ namespace Nxdb
         public void Add(string path, IEnumerable<Document> nodes)
         {
             if (nodes == null) throw new ArgumentNullException("nodes");
-            Add(path, Helper.GetNodeCache(nodes.Cast<Node>()));
+            Add(path, Helper.GetNodeCache(nodes.Cast<Node.Node>()));
         }
 
         private void Add(string path, NodeCache nodeCache)
@@ -545,7 +546,7 @@ namespace Nxdb
         public void Replace(string path, IEnumerable<Document> nodes)
         {
             if (nodes == null) throw new ArgumentNullException("nodes");
-            Replace(path, Helper.GetNodeCache(nodes.Cast<Node>()));
+            Replace(path, Helper.GetNodeCache(nodes.Cast<Node.Node>()));
         }
 
         private void Replace(string path, NodeCache nodeCache)
@@ -572,7 +573,7 @@ namespace Nxdb
         {
             if (_data == null) throw new ObjectDisposedException("Database");
             int pre = Data.resources.doc(name);
-            return pre == -1 ? null : (Document)Node.Get(pre, Data);    
+            return pre == -1 ? null : (Document)Node.Node.Get(pre, Data);    
         }
 
         /// <summary>
@@ -588,7 +589,7 @@ namespace Nxdb
             for (int i = 0, s = docs.size(); i < s; i++)
             {
                 int pre = docs.get(i);
-                documents.Add((Document) Node.Get(pre, Data));
+                documents.Add((Document) Node.Node.Get(pre, Data));
             }
             return documents;
         }
@@ -606,7 +607,7 @@ namespace Nxdb
                 for (int c = 0; c < il.size(); c++)
                 {
                     int pre = il.get(c);
-                    documents.Add((Document)Node.Get(pre, Data));
+                    documents.Add((Document)Node.Node.Get(pre, Data));
                 }
                 return documents;
             }
