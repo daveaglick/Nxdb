@@ -18,6 +18,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
@@ -67,6 +68,20 @@ namespace Nxdb.Persistence
 
         internal override void Fetch(Element element, object obj, TypeCache typeCache)
         {
+            // Deserialize the object
+            XmlSerializer serializer = new XmlSerializer(typeCache.Type);
+            object deserialized;
+            using(TextReader reader = new StringReader(element.OuterXml))
+            {
+                deserialized = serializer.Deserialize(reader);
+            }
+
+            // Deep copy the deserialized object to the target object
+            foreach(FieldInfo field in typeCache.Fields)
+            {
+                object value = field.GetValue(deserialized);
+                field.SetValue(obj, value);
+            }
         }
 
         internal override void Store(Element element, object obj, TypeCache typeCache)

@@ -35,7 +35,7 @@ namespace Nxdb.Persistence
 
         // These are lazy initialized for performance
         private ConstructorInfo _constructor = null;
-        private FieldInfo[] _fields = null;
+        private List<FieldInfo> _fields = null;
         private PersistenceBehavior _behavior = null;
         private PersistenceAttribute _persistenceAttribute = null;
 
@@ -67,10 +67,23 @@ namespace Nxdb.Persistence
             return _constructor.Invoke(new object[0]);
         }
 
+        // Gets all fields up the hierarchy
         public IEnumerable<FieldInfo> Fields
         {
-            get { return _fields ?? (_fields = _type.GetFields(
-                BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)); }
+            get
+            {
+                if (_fields == null)
+                {
+                    _fields = new List<FieldInfo>();
+                    Type type = _type;
+                    while (type != null)
+                    {
+                        _fields.AddRange(type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance));
+                        type = type.BaseType;
+                    }
+                }
+                return _fields;
+            }
         }
 
         public PersistenceBehavior Behavior

@@ -70,7 +70,8 @@ namespace Nxdb
                 }
 
                 // Set the home path so the BaseX preference file will go there (rather than user path)
-                Prop.HOME = Path.Combine(path, "pref");
+                java.lang.System.setProperty("user.home", path);
+                java.lang.System.setProperty("org.basex.path", path);
 
                 // Now we can create the context since the path for preferences has been set
                 Context context = new Context();

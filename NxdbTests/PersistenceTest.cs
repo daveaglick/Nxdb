@@ -17,6 +17,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Xml.Serialization;
@@ -37,7 +39,7 @@ namespace NxdbTests
             using (Database database = Database.Get(Common.DatabaseName))
             {
                 database.Add("Doc", "<Doc/>");
-                Element elem = database.GetDocument("Doc").Child(0) as Element;
+                Element elem = (Element)database.GetDocument("Doc").Child(0);
                 Assert.IsNotNull(elem);
 
                 // Initial append two items
@@ -46,7 +48,7 @@ namespace NxdbTests
                 elem.Append(foo);
                 elem.Append(bar, "Bar");
                 string barContent = bar.ToString("Bar");
-                Assert.AreEqual(foo.ToString("XmlSerializerPersistentClass") + barContent, elem.InnerXml);
+                Assert.AreEqual(foo.ToString() + barContent, elem.InnerXml);
 
                 // Change and then store only one item
                 foo.Num = 10;
@@ -54,17 +56,45 @@ namespace NxdbTests
                 bar.Bl = false;
                 bar.Str = "qwerty";
                 foo.Store();
-                Assert.AreEqual(foo.ToString("XmlSerializerPersistentClass") + barContent, elem.InnerXml);
+                Assert.AreEqual(foo.ToString() + barContent, elem.InnerXml);
 
                 // Store all items
                 PersistenceManager.Default.StoreAll();
                 barContent = bar.ToString("Bar");
-                Assert.AreEqual(foo.ToString("XmlSerializerPersistentClass") + barContent, elem.InnerXml);
+                string fooContent = foo.ToString();
+                Assert.AreEqual(fooContent + barContent, elem.InnerXml);
 
                 // Change attached element for one item
                 bar.Num = 9876;
                 elem.Append(bar, "Baz");
-                Assert.AreEqual(foo.ToString("XmlSerializerPersistentClass") + barContent + bar.ToString("Baz"), elem.InnerXml);
+                Assert.AreEqual(fooContent + barContent + bar.ToString("Baz"), elem.InnerXml);
+
+                // Fetch the first instance into a new object
+                XmlSerializerPersistentClass copy = new XmlSerializerPersistentClass(567, "zxcvb", true);
+                Element fooElem = (Element) elem.Child(0);
+                Assert.AreNotEqual(copy.ToString(), fooElem.OuterXml);
+                copy.Fetch(fooElem);
+                Assert.AreEqual(copy.ToString(), fooContent);
+                Assert.AreEqual(copy.ToString(), fooElem.OuterXml);
+
+                // Change the old instance and attach the new one
+                foo.Str = "sprgj";
+                PersistenceManager.Default.StoreAll();
+                copy.Attach(fooElem);
+                fooContent = foo.ToString();
+                Assert.AreEqual(copy.ToString(), fooElem.OuterXml);
+                Assert.AreEqual(copy.ToString(), fooContent);
+
+                // Detach the old instance and change the new instance
+                foo.Detach();
+                copy.Str = "yuiop";
+                PersistenceManager.Default.StoreAll();
+                Assert.AreEqual(copy.ToString(), fooElem.OuterXml);
+                Assert.AreEqual(fooContent, foo.ToString());
+                Assert.AreNotEqual(foo.ToString(), fooElem.OuterXml);
+
+                // Test fetch failure
+                Assert.Throws<InvalidOperationException>(() => foo.Fetch((Element)fooElem.Child(0)));
             }
         }
     }
@@ -72,11 +102,22 @@ namespace NxdbTests
     [XmlSerializerPersistence(Indent = false)]
     public class XmlSerializerPersistentClass
     {
-        public int Num { get; set; }
+        private int _num;
+        public int Num
+        {
+            get { return _num; }
+            set
+            {
+                NumArr = new []{value+1, value+2, value+3};
+                _num = value;
+            }
+        }
         public string Str { get; set; }
 
         [XmlAttribute("bool")]
         public bool Bl { get; set; }
+
+        public int[] NumArr { get; set; }
 
         // The XmlSerializer requires a parameterless constructor
         public XmlSerializerPersistentClass()
@@ -93,8 +134,13 @@ namespace NxdbTests
         public string ToString(string elementName)
         {
             return String.Format(
-                "<{0} bool=\"{1}\"><Num>{2}</Num><Str>{3}</Str></{0}>",
-                elementName, Bl.ToString().ToLower(), Num, Str);
+                "<{0} bool=\"{1}\"><Num>{2}</Num><Str>{3}</Str><NumArr><int>{4}</int><int>{5}</int><int>{6}</int></NumArr></{0}>",
+                elementName, Bl.ToString().ToLower(), Num, Str, Num+1, Num+2, Num+3);
+        }
+
+        public override string ToString()
+        {
+            return ToString("XmlSerializerPersistentClass");
         }
     }
 }
