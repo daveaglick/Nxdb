@@ -242,6 +242,7 @@ namespace Nxdb.Persistence
 
         /// <summary>
         /// Fetches data for the specified object from the specified element.
+        /// This method does not attach the object to the specified element.
         /// </summary>
         /// <param name="obj">The object to fetch data for.</param>
         /// <param name="element">The element to fetch data from.</param>
@@ -288,6 +289,7 @@ namespace Nxdb.Persistence
 
         /// <summary>
         /// Stores data for the specified object to the specified element.
+        /// This method does not attach the object to the specified element.
         /// </summary>
         /// <param name="obj">The object to store data for.</param>
         /// <param name="element">The element to store data to.</param>
@@ -319,17 +321,6 @@ namespace Nxdb.Persistence
             }
 
             wrapper.Store();
-        }
-
-        /// <summary>
-        /// Stores data for all attached objects to their attached elements.
-        /// </summary>
-        public void StoreAll()
-        {
-            foreach (ObjectWrapper wrapper in _cache)
-            {
-                wrapper.Store();
-            }
         }
     }
 }

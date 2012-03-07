@@ -64,8 +64,9 @@ namespace NxdbTests
                 foo.Store();
                 Assert.AreEqual(foo.ToString() + barContent, elem.InnerXml);
 
-                // Store all items
-                PersistenceManager.Default.StoreAll();
+                // Store items
+                foo.Store();
+                bar.Store();
                 barContent = bar.ToString("Bar");
                 string fooContent = foo.ToString();
                 Assert.AreEqual(fooContent + barContent, elem.InnerXml);
@@ -86,7 +87,8 @@ namespace NxdbTests
 
                 // Change the old instance and attach the new one
                 foo.Str = "sprgj";
-                PersistenceManager.Default.StoreAll();
+                foo.Store();
+                bar.Store();
                 copy.Attach(fooElem);
                 fooContent = foo.ToString();
                 Assert.AreEqual(copy.NumArr.Length, 3);
@@ -96,7 +98,9 @@ namespace NxdbTests
                 // Detach the old instance and change the new instance
                 foo.Detach();
                 copy.Str = "yuiop";
-                PersistenceManager.Default.StoreAll();
+                bar.Store();
+                copy.Store();
+                Assert.Throws(Is.InstanceOf<Exception>(), () => foo.Store());
                 Assert.AreEqual(copy.ToString(), fooElem.OuterXml);
                 Assert.AreEqual(fooContent, foo.ToString());
                 Assert.AreNotEqual(foo.ToString(), fooElem.OuterXml);
