@@ -36,8 +36,10 @@ namespace Nxdb.Persistence
         // These are lazy initialized for performance
         private ConstructorInfo _constructor = null;
         private List<FieldInfo> _fields = null;
+        private List<PropertyInfo> _properties = null;
         private PersistenceBehavior _behavior = null;
-        private PersistenceAttribute _persistenceAttribute = null;
+        private PersistenceAttributeBase _persistenceAttribute = null;
+        private List<KeyValuePair<MemberInfo, PersistentAttributeBase>> _persistentMembers;
 
         public TypeCache(Type type)
         {
@@ -86,6 +88,25 @@ namespace Nxdb.Persistence
             }
         }
 
+        // Gets all properties up the hierarchy
+        public IEnumerable<PropertyInfo> Properties
+        {
+            get
+            {
+                if (_properties == null)
+                {
+                    _properties = new List<PropertyInfo>();
+                    Type type = _type;
+                    while (type != null)
+                    {
+                        _properties.AddRange(type.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance));
+                        type = type.BaseType;
+                    }
+                }
+                return _properties;
+            }
+        }
+
         public PersistenceBehavior Behavior
         {
             get
@@ -99,16 +120,16 @@ namespace Nxdb.Persistence
             }
         }
 
-        public PersistenceAttribute PersistenceAttribute
+        public PersistenceAttributeBase PersistenceAttribute
         {
             get
             {
                 if(_persistenceAttribute == null)
                 {
-                    object[] attributes = _type.GetCustomAttributes(typeof(PersistenceAttribute), false);
+                    object[] attributes = _type.GetCustomAttributes(typeof(PersistenceAttributeBase), false);
                     if(attributes.Length > 0)
                     {
-                        _persistenceAttribute = attributes[0] as PersistenceAttribute;
+                        _persistenceAttribute = attributes[0] as PersistenceAttributeBase;
                     }
                     if(_persistenceAttribute == null)
                     {
@@ -116,6 +137,52 @@ namespace Nxdb.Persistence
                     }
                 }
                 return _persistenceAttribute;
+            }
+        }
+
+        public IEnumerable<KeyValuePair<MemberInfo, PersistentAttributeBase>> PersistentMembers
+        {
+            get
+            {
+                if (_persistentMembers == null)
+                {
+                    _persistentMembers = new List<KeyValuePair<MemberInfo, PersistentAttributeBase>>();
+                    bool text = false;
+
+                    // Fields
+                    foreach (FieldInfo fieldInfo in Fields)
+                    {
+                        CheckMemberForPersistentAttribute(fieldInfo, _persistentMembers, ref text);
+                    }
+
+                    // Properties
+                    foreach (PropertyInfo propertyInfo in Properties)
+                    {
+                        CheckMemberForPersistentAttribute(propertyInfo, _persistentMembers, ref text);
+                    }
+
+                    // Sort by order
+                    _persistentMembers.Sort((a, b) => a.Value.Order.CompareTo(b.Value.Order));
+                }
+                return _persistentMembers;
+            }
+        }
+
+        private void CheckMemberForPersistentAttribute(MemberInfo memberInfo,
+            List<KeyValuePair<MemberInfo, PersistentAttributeBase>> persistentMembers, ref bool text)
+        {
+            object[] attributes = memberInfo.GetCustomAttributes(typeof (PersistentAttributeBase), true);
+            if(attributes.Length > 0)
+            {
+                if(attributes.Length != 1) throw new Exception("Only one PersistentAttribute can be used per field or property.");
+                PersistentAttributeBase persistentAttribute = (PersistentAttributeBase) attributes[0];
+                if(persistentAttribute is PersistentTextAttribute)
+                {
+                    if(text) throw new Exception("Only one PersistentTextAttribute can be used per class.");
+                    text = true;
+                }
+                persistentAttribute.Inititalize(memberInfo);
+                persistentMembers.Add(new KeyValuePair<MemberInfo, PersistentAttributeBase>(memberInfo, persistentAttribute));
             }
         }
 

@@ -161,6 +161,11 @@
     <Compile Include="Io\InnerTextReader.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Persistence\PersistentAttributeBase.cs" />
+    <Compile Include="Persistence\PersistentAttributeAttribute.cs" />
+    <Compile Include="Persistence\PersistentElementAttribute.cs" />
+    <Compile Include="Persistence\PersistentPathAttribute.cs" />
+    <Compile Include="Persistence\PersistentTextAttribute.cs" />
     <Compile Include="Persistence\XmlSerializerBehavior.cs" />
     <Compile Include="Persistence\CustomBehavior.cs" />
     <Compile Include="Persistence\DefaultBehavior.cs" />
@@ -168,7 +173,7 @@
     <Compile Include="Persistence\PersistenceExtensions.cs" />
     <Compile Include="Persistence\PersistenceManager.cs" />
     <Compile Include="Persistence\PersistentCollection.cs" />
-    <Compile Include="Persistence\PersistenceAttribute.cs" />
+    <Compile Include="Persistence\PersistenceAttributeBase.cs" />
     <Compile Include="Persistence\PersistenceBehavior.cs" />
     <Compile Include="Persistence\TypeCache.cs" />
     <Compile Include="Persistence\Cache.cs" />

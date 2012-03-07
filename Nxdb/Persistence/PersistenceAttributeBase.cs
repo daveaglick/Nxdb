@@ -24,7 +24,7 @@ namespace Nxdb.Persistence
     /// provide an attribute that derives from this one.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
-    public abstract class PersistenceAttribute : System.Attribute
+    public abstract class PersistenceAttributeBase : System.Attribute
     {
         internal abstract PersistenceBehavior Behavior { get; }
     }

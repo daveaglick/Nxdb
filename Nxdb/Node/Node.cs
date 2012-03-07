@@ -696,7 +696,7 @@ namespace Nxdb.Node
         /// <inheritdoc />
         public T EvalSingle<T>(string expression) where T : class
         {
-            return EvalSingle(expression) as T;
+            return Eval<T>(expression).FirstOrDefault();
         }
 
         #endregion

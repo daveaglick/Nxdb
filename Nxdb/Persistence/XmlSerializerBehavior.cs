@@ -26,7 +26,7 @@ using Nxdb.Node;
 
 namespace Nxdb.Persistence
 {
-    public class XmlSerializerPersistenceAttribute : PersistenceAttribute
+    public class XmlSerializerPersistenceAttribute : PersistenceAttributeBase
     {
         private XmlSerializerBehavior _behavior = null;
 

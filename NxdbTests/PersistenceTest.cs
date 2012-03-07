@@ -39,6 +39,12 @@ namespace NxdbTests
             RunTests<XmlSerializerPersistentClass>();
         }
 
+        [Test]
+        public void DefaultBehavior()
+        {
+            RunTests<DefaultPersistentClass>();
+        }
+
         private void RunTests<T>() where T : IPersistentClass, new()
         {
             Common.Reset();
@@ -150,6 +156,42 @@ namespace NxdbTests
         public override string ToString()
         {
             return ToString("XmlSerializerPersistentClass");
+        }
+    }
+
+    public class DefaultPersistentClass : IPersistentClass
+    {
+        [PersistentElement(Order = 2)]
+        private int _num;
+
+        public int Num
+        {
+            get { return _num; }
+            set
+            {
+                NumArr = new[] { value + 1, value + 2, value + 3 };
+                _num = value;
+            }
+        }
+
+        [PersistentElement(Order = 1)]
+        public string Str { get; set; }
+
+        [PersistentAttribute("bool")]
+        public bool Bl { get; set; }
+
+        public int[] NumArr { get; set; }
+
+        public string ToString(string elementName)
+        {
+            return String.Format(
+                "<{0} bool=\"{1}\"><Str>{2}</Str><_num>{3}</_num></{0}>",
+                elementName, Bl.ToString(), Str, Num);
+        }
+
+        public override string ToString()
+        {
+            return ToString("DefaultPersistentClass");
         }
     }
 }
