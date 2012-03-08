@@ -25,12 +25,8 @@ namespace Nxdb.Persistence.Attributes
     /// Base class for persistent attributes that use a name.
     /// </summary>
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
-    public abstract class NamedPersistentMemberAttribute : PersistentMemberAttribute
+    public abstract class NamedPersistentAttribute : StringBasedPersistentAttribute
     {
-        protected NamedPersistentMemberAttribute()
-        {
-        }
-
         /// <summary>
         /// Gets or sets the name to use or create. If unspecified, the name of
         /// the field or property will be used (as converted to a valid XML name).

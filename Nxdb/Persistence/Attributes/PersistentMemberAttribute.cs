@@ -40,13 +40,7 @@ namespace Nxdb.Persistence.Attributes
         /// The default order is 0.
         /// </summary>
         public int Order { get; set; }
-
-        /// <summary>
-        /// Gets or sets a default value to use if the specified node isn't found during fetch.
-        /// This value is passed to the type converter to create an instance of the target object.
-        /// </summary>
-        public string Default { get; set; }
-
+        
         /// <summary>
         /// Gets or sets a value indicating whether this field or property should be stored.
         /// </summary>
@@ -84,20 +78,17 @@ namespace Nxdb.Persistence.Attributes
         {
         }
 
-        // Returns null if the requested node does not exist, in which case the Default should be used (if available)
-        internal virtual string FetchValue(Element element)
-        {
-            Element target = !String.IsNullOrEmpty(Query)
-                ? element.EvalSingle(Query) as Element : element;
-            return target == null ? null : DoFetchValue(target);
-        }
+        internal abstract object FetchValue(Element element, object target, TypeCache typeCache);
+        internal abstract object GetValue(Element element, object source, TypeCache typeCache);
+        internal abstract void StoreValue(Element element, object value);
 
-        internal virtual void StoreValue(Element element, string value)
+        // Provide value if the create query should be run
+        protected Element GetElementFromQuery(Element element, string value)
         {
             if (!String.IsNullOrEmpty(Query))
             {
                 Element target = element.EvalSingle(Query) as Element;
-                if (target == null)
+                if (target == null && value != null)
                 {
                     if (!String.IsNullOrEmpty(CreateQuery))
                     {
@@ -105,21 +96,15 @@ namespace Nxdb.Persistence.Attributes
                         query.SetVariable("value", value);
                         query.Eval(CreateQuery);
                     }
-                    return;
                 }
-                DoStoreValue(target, value);
-                return;
+                element = target;
             }
-            DoStoreValue(element, value);
+            return element;
         }
 
-        protected virtual string DoFetchValue(Element element)
+        protected Element GetElementFromQuery(Element element)
         {
-            return null;
-        }
-
-        protected virtual void DoStoreValue(Element element, string value)
-        {
+            return GetElementFromQuery(element, null);
         }
     }
 }

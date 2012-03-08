@@ -21,8 +21,10 @@ using Nxdb.Node;
 namespace Nxdb.Persistence.Attributes
 {
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
-    public class PersistentDictionaryAttribute : NamedPersistentMemberAttribute
+    public class PersistentDictionaryAttribute : PersistentMemberAttribute
     {
+        public string Name { get; set; }
+
         public string ItemName { get; set; }
 
         public string KeyAttributeName { get; set; }
@@ -37,15 +39,21 @@ namespace Nxdb.Persistence.Attributes
         {
             base.Inititalize(memberInfo);
 
+            // TODO: Verify/convert all the names as appropriate
             // TODO: Make sure we don't have both KeyAttributeName and KeyElementName and Value...
         }
 
-        internal override string FetchValue(Element element)
+        internal override object FetchValue(Element element, object target, TypeCache typeCache)
         {
             throw new NotImplementedException();
         }
 
-        internal override void StoreValue(Element element, string value)
+        internal override object GetValue(Element element, object source, TypeCache typeCache)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal override void StoreValue(Element element, object value)
         {
             throw new NotImplementedException();
         }

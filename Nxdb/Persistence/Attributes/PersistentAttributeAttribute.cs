@@ -24,16 +24,22 @@ namespace Nxdb.Persistence.Attributes
     /// Stores and fetches the field or property to/from an attribute of the container element.
     /// </summary>
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
-    public class PersistentAttributeAttribute : NamedPersistentMemberAttribute
+    public class PersistentAttributeAttribute : NamedPersistentAttribute
     {
-        protected override string DoFetchValue(Element element)
+        protected override string FetchValue(Element element)
         {
+            element = GetElementFromQuery(element);
+            if (element == null) return null;
+
             Node.Attribute attribute = element.Attribute(Name);
             return attribute == null ? null : attribute.Value;
         }
 
-        protected override void DoStoreValue(Element element, string value)
+        protected override void StoreValue(Element element, string value)
         {
+            element = GetElementFromQuery(element, value);
+            if (element == null) return;
+
             Node.Attribute attribute = element.Attribute(Name);
             if (attribute == null)
             {

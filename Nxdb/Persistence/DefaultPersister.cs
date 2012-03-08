@@ -25,9 +25,6 @@ using Nxdb.Persistence.Attributes;
 
 namespace Nxdb.Persistence
 {
-    // This scans over all instance fields in the object and uses a TypeConverter to convert them from string
-    // Values are obtained from the element by first looking for an element and then an attribute with the given field name
-    // If any fields cannot be converted an exception is thrown because the entire state was not fetched
     // TODO: Assuming that using a TypeConverterAttribute on the field/property will allow custom TypeConverters - need to verify
     // TODO: Implement support for complex object and collection types
     public class DefaultPersister : Persister
@@ -40,17 +37,8 @@ namespace Nxdb.Persistence
             foreach (KeyValuePair<MemberInfo, PersistentMemberAttribute> kvp
                 in typeCache.PersistentMembers.Where(kvp => kvp.Value.Fetch))
             {
-                // Get the value from the database
-                string valueStr = kvp.Value.FetchValue(element) ?? kvp.Value.Default;
-                
-                // Convert the value
-                object valueObj = GetValue(kvp.Key, obj);
-                TypeConverter typeConverter = valueObj == null
-                    ? TypeDescriptor.GetConverter(typeCache.Type) : TypeDescriptor.GetConverter(valueObj);
-                if (typeConverter == null) throw new Exception("Could not get TypeConverter for member " + kvp.Key.Name);
-                if (!typeConverter.CanConvertFrom(typeof(string))) throw new Exception(
-                     "Can not convert member " + kvp.Key.Name + " from string.");
-                object value = typeConverter.ConvertFromString(valueStr);
+                object target = GetValue(kvp.Key, obj);
+                object value = kvp.Value.FetchValue(element, target, typeCache);
                 values.Add(new KeyValuePair<MemberInfo, object>(kvp.Key, value));
             }
 
@@ -66,19 +54,14 @@ namespace Nxdb.Persistence
         internal override void Store(Element element, object obj, TypeCache typeCache)
         {
             // Get all values first so if something goes wrong we haven't started modifying the database
-            List<KeyValuePair<PersistentMemberAttribute, string>> values
-                = new List<KeyValuePair<PersistentMemberAttribute, string>>();
+            List<KeyValuePair<PersistentMemberAttribute, object>> values
+                = new List<KeyValuePair<PersistentMemberAttribute, object>>();
             foreach (KeyValuePair<MemberInfo, PersistentMemberAttribute> kvp
                 in typeCache.PersistentMembers.Where(kvp => kvp.Value.Store))
             {
-                object valueObj = GetValue(kvp.Key, obj);
-                TypeConverter typeConverter = valueObj == null
-                    ? TypeDescriptor.GetConverter(typeCache.Type) : TypeDescriptor.GetConverter(valueObj);
-                if (typeConverter == null) throw new Exception("Could not get TypeConverter for member " + kvp.Key.Name);
-                if(!typeConverter.CanConvertTo(typeof(string))) throw new Exception(
-                    "Can not convert member " + kvp.Key.Name + " to string.");
-                string value = typeConverter.ConvertToString(valueObj);
-                values.Add(new KeyValuePair<PersistentMemberAttribute, string>(kvp.Value, value));
+                object source = GetValue(kvp.Key, obj);
+                object value = kvp.Value.GetValue(element, source, typeCache);
+                values.Add(new KeyValuePair<PersistentMemberAttribute, object>(kvp.Value, value));
             }
 
             // Now that everything has been converted, go ahead and modify the database
@@ -86,7 +69,7 @@ namespace Nxdb.Persistence
             {
                 try
                 {
-                    foreach(KeyValuePair<PersistentMemberAttribute, string> value in values)
+                    foreach(KeyValuePair<PersistentMemberAttribute, object> value in values)
                     {
                         value.Key.StoreValue(element, value.Value);
                     }

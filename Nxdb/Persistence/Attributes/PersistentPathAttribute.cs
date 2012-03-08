@@ -26,7 +26,7 @@ namespace Nxdb.Persistence.Attributes
     /// be stored.
     /// </summary>
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
-    public class PersistentPathAttribute : PersistentMemberAttribute
+    public class PersistentPathAttribute : StringBasedPersistentAttribute
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="PersistentPathAttribute"/> class.
@@ -46,7 +46,7 @@ namespace Nxdb.Persistence.Attributes
             CreateQuery = createQuery;
         }
 
-        internal override string FetchValue(Element element)
+        protected override string FetchValue(Element element)
         {
             object result = element.EvalSingle(Query);
             if (result == null) return null;
@@ -54,7 +54,7 @@ namespace Nxdb.Persistence.Attributes
             return node != null ? node.Value : result.ToString();
         }
 
-        internal override void StoreValue(Element element, string value)
+        protected override void StoreValue(Element element, string value)
         {
             Node.Node node = element.EvalSingle(Query) as Node.Node;
             if(node == null)

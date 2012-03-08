@@ -28,14 +28,19 @@ namespace Nxdb.Persistence.Attributes
     /// than one element with the given name exists, the first one will be used.
     /// </summary>
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
-    class PersistentObjectAttribute : NamedPersistentMemberAttribute
+    class PersistentObjectAttribute : PersistentMemberAttribute
     {
-        internal override string FetchValue(Element element)
+        internal override object FetchValue(Element element, object target, TypeCache typeCache)
         {
             throw new NotImplementedException();
         }
 
-        internal override void StoreValue(Element element, string value)
+        internal override object GetValue(Element element, object source, TypeCache typeCache)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal override void StoreValue(Element element, object value)
         {
             throw new NotImplementedException();
         }

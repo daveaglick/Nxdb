@@ -166,10 +166,11 @@
     <Compile Include="Persistence\Attributes\PersistentAttributeAttribute.cs" />
     <Compile Include="Persistence\Attributes\PersistentDictionaryAttribute.cs" />
     <Compile Include="Persistence\Attributes\PersistentElementAttribute.cs" />
-    <Compile Include="Persistence\Attributes\NamedPersistentMemberAttribute.cs" />
+    <Compile Include="Persistence\Attributes\NamedPersistentAttribute.cs" />
     <Compile Include="Persistence\Attributes\PersistentObjectAttribute.cs" />
     <Compile Include="Persistence\Attributes\PersistentPathAttribute.cs" />
     <Compile Include="Persistence\Attributes\PersistentTextAttribute.cs" />
+    <Compile Include="Persistence\Attributes\StringBasedPersistentAttribute.cs" />
     <Compile Include="Persistence\Attributes\XmlSerializerPersisterAttribute.cs" />
     <Compile Include="Persistence\XmlSerializerPersister.cs" />
     <Compile Include="Persistence\CustomPersister.cs" />

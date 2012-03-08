@@ -26,16 +26,22 @@ namespace Nxdb.Persistence.Attributes
     /// than one element with the given name exists, the first one will be used.
     /// </summary>
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
-    public class PersistentElementAttribute : NamedPersistentMemberAttribute
+    public class PersistentElementAttribute : NamedPersistentAttribute
     {
-        protected override string DoFetchValue(Element element)
+        protected override string FetchValue(Element element)
         {
+            element = GetElementFromQuery(element);
+            if (element == null) return null;
+
             Element child = element.Children.OfType<Element>().Where(e => e.Name.Equals(Name)).FirstOrDefault();
             return child == null ? null : child.Value;
         }
 
-        protected override void DoStoreValue(Element element, string value)
+        protected override void StoreValue(Element element, string value)
         {
+            element = GetElementFromQuery(element, value);
+            if (element == null) return;
+
             Element child = element.Children.OfType<Element>().Where(e => e.Name.Equals(Name)).FirstOrDefault();
             if (child == null)
             {

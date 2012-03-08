@@ -28,16 +28,22 @@ namespace Nxdb.Persistence.Attributes
     /// first text node will be used.
     /// </summary>
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
-    public class PersistentTextAttribute : PersistentMemberAttribute
+    public class PersistentTextAttribute : StringBasedPersistentAttribute
     {
-        protected override string DoFetchValue(Element element)
+        protected override string FetchValue(Element element)
         {
+            element = GetElementFromQuery(element);
+            if (element == null) return null;
+
             Text child = element.Children.OfType<Text>().FirstOrDefault();
             return child == null ? null : child.Value;
         }
 
-        protected override void DoStoreValue(Element element, string value)
+        protected override void StoreValue(Element element, string value)
         {
+            element = GetElementFromQuery(element, value);
+            if (element == null) return;
+
             Text child = element.Children.OfType<Text>().FirstOrDefault();
             if(child == null)
             {
