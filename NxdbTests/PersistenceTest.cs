@@ -178,7 +178,7 @@ namespace NxdbTests
         [PersistentElement(Order = 1)]
         public string Str { get; set; }
 
-        [PersistentAttribute("bool")]
+        [PersistentAttribute(Name = "bool")]
         public bool Bl { get; set; }
 
         public int[] NumArr { get; set; }

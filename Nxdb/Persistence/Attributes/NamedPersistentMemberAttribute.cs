@@ -31,11 +31,6 @@ namespace Nxdb.Persistence.Attributes
         {
         }
 
-        protected NamedPersistentMemberAttribute(string name)
-        {
-            Name = name;
-        }
-
         /// <summary>
         /// Gets or sets the name to use or create. If unspecified, the name of
         /// the field or property will be used (as converted to a valid XML name).

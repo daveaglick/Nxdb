@@ -27,6 +27,9 @@ namespace Nxdb.Persistence.Attributes
     {
         private XmlSerializerPersister _persister = null;
 
+        /// <summary>
+        /// Gets or sets a value indicating whether the generated XML should be indented.
+        /// </summary>
         public bool Indent { get; set; }
 
         internal override Persister Persister

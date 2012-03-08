@@ -28,21 +28,13 @@ namespace Nxdb.Persistence.Attributes
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
     public class PersistentElementAttribute : NamedPersistentMemberAttribute
     {
-        public PersistentElementAttribute() : base()
-        {
-        }
-
-        public PersistentElementAttribute(string name) : base()
-        {
-        }
-
-        internal override string FetchValue(Element element)
+        protected override string DoFetchValue(Element element)
         {
             Element child = element.Children.OfType<Element>().Where(e => e.Name.Equals(Name)).FirstOrDefault();
             return child == null ? null : child.Value;
         }
 
-        internal override void StoreValue(Element element, string value)
+        protected override void DoStoreValue(Element element, string value)
         {
             Element child = element.Children.OfType<Element>().Where(e => e.Name.Equals(Name)).FirstOrDefault();
             if (child == null)

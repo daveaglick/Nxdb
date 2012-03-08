@@ -28,32 +28,27 @@ namespace Nxdb.Persistence.Attributes
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
     public class PersistentPathAttribute : PersistentMemberAttribute
     {
-        private readonly string _valueQuery = null;
-
-        /// <summary>
-        /// Gets or sets the query to use when the field or property is being stored and
-        /// the value query does not result in a node. If the value query does not result
-        /// in a node and this is not specified, a value will not be stored for the
-        /// field or property.
-        /// </summary>
-        public string CreateQuery { get; set; }
-
         /// <summary>
         /// Initializes a new instance of the <see cref="PersistentPathAttribute"/> class.
         /// </summary>
-        /// <param name="valueQuery">The query to use for fetching the value. If the specified
+        /// <param name="query">The query to use for fetching the value. If the specified
         /// query returns a sequence, only the first item is used. If the specified query returns
         /// a node, it's value is used. If the specified query returns an atomic value, it's
         /// ToString() result is used as the value.</param>
-        public PersistentPathAttribute(string valueQuery)
+        /// <param name="createQuery">The query to use when the field or property is being
+        /// stored and the value query does not result in a node. If the value query does not result
+        /// in a node and this is not specified, a value will not be stored for the
+        /// field or property.</param>
+        public PersistentPathAttribute(string query, string createQuery)
         {
-            if (String.IsNullOrEmpty(valueQuery)) throw new ArgumentNullException("valueQuery");
-            _valueQuery = valueQuery;
+            if (String.IsNullOrEmpty(query)) throw new ArgumentNullException("query");
+            Query = query;
+            CreateQuery = createQuery;
         }
 
         internal override string FetchValue(Element element)
         {
-            object result = element.EvalSingle(_valueQuery);
+            object result = element.EvalSingle(Query);
             if (result == null) return null;
             Node.Node node = result as Node.Node;
             return node != null ? node.Value : result.ToString();
@@ -61,12 +56,14 @@ namespace Nxdb.Persistence.Attributes
 
         internal override void StoreValue(Element element, string value)
         {
-            Node.Node node = element.EvalSingle(_valueQuery) as Node.Node;
+            Node.Node node = element.EvalSingle(Query) as Node.Node;
             if(node == null)
             {
                 if(!String.IsNullOrEmpty(CreateQuery))
                 {
-                    element.Eval(CreateQuery);
+                    Query query = new Query(element);
+                    query.SetVariable("value", value);
+                    query.Eval(CreateQuery);
                 }
             }
             else

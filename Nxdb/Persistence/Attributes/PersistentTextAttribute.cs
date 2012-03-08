@@ -30,13 +30,13 @@ namespace Nxdb.Persistence.Attributes
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
     public class PersistentTextAttribute : PersistentMemberAttribute
     {
-        internal override string FetchValue(Element element)
+        protected override string DoFetchValue(Element element)
         {
             Text child = element.Children.OfType<Text>().FirstOrDefault();
             return child == null ? null : child.Value;
         }
 
-        internal override void StoreValue(Element element, string value)
+        protected override void DoStoreValue(Element element, string value)
         {
             Text child = element.Children.OfType<Text>().FirstOrDefault();
             if(child == null)

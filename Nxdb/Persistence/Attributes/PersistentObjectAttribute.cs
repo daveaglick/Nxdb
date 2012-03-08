@@ -16,30 +16,20 @@
  */
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using Nxdb.Node;
 
 namespace Nxdb.Persistence.Attributes
 {
+    /// <summary>
+    /// Stores or fetches a nested persistent object to/from a child element of the container element. If more
+    /// than one element with the given name exists, the first one will be used.
+    /// </summary>
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
-    public class PersistentDictionaryAttribute : NamedPersistentMemberAttribute
+    class PersistentObjectAttribute : NamedPersistentMemberAttribute
     {
-        public string ItemName { get; set; }
-
-        public string KeyAttributeName { get; set; }
-
-        public string KeyElementName { get; set; }
-
-        public string ValueAttributeName { get; set; }
-
-        public string ValueElementName { get; set; }
-
-        internal override void Inititalize(System.Reflection.MemberInfo memberInfo)
-        {
-            base.Inititalize(memberInfo);
-
-            // TODO: Make sure we don't have both KeyAttributeName and KeyElementName and Value...
-        }
-
         internal override string FetchValue(Element element)
         {
             throw new NotImplementedException();

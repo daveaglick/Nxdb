@@ -33,7 +33,7 @@ namespace Nxdb.Persistence.Attributes
             Store = true;
             Fetch = true;
         }
-        
+
         /// <summary>
         /// Gets or sets the order in which fields and properties are processed (lower values
         /// are processed first). Ordering is unspecified in the case of duplicate values.
@@ -58,6 +58,26 @@ namespace Nxdb.Persistence.Attributes
         public bool Fetch { get; set; }
 
         /// <summary>
+        /// Gets or sets a query to use for getting the node to use for a value or the
+        /// value itself. Different persistent attributes use this value differently.
+        /// Some (such as PersistentnElementAttribute and PersistentAttributeAttribute)
+        /// use the query to get an alternate parent node, others (such as
+        /// PersistentPathAttribute) use it to get the actual node or value.
+        /// </summary>
+        public string Query { get; set; }
+
+        /// <summary>
+        /// Gets or sets a query to use when the field or property is being
+        /// stored and the value query does not result in a usable node. If the value
+        /// query does not result in a node and this is not specified, a value will
+        /// not be stored for the field or property. Keep in mind that in cases where
+        /// the query is intended to refer to a parent node (such as
+        /// PersistentnElementAttribute and PersistentAttributeAttribute), the
+        /// create query must create both the parent element and the required child.
+        /// </summary>
+        public string CreateQuery { get; set; }
+
+        /// <summary>
         /// Allows derived classes to initialze state based on attached member.
         /// </summary>
         internal virtual void Inititalize(MemberInfo memberInfo)
@@ -65,8 +85,41 @@ namespace Nxdb.Persistence.Attributes
         }
 
         // Returns null if the requested node does not exist, in which case the Default should be used (if available)
-        internal abstract string FetchValue(Element element);
+        internal virtual string FetchValue(Element element)
+        {
+            Element target = !String.IsNullOrEmpty(Query)
+                ? element.EvalSingle(Query) as Element : element;
+            return target == null ? null : DoFetchValue(target);
+        }
 
-        internal abstract void StoreValue(Element element, string value);
+        internal virtual void StoreValue(Element element, string value)
+        {
+            if (!String.IsNullOrEmpty(Query))
+            {
+                Element target = element.EvalSingle(Query) as Element;
+                if (target == null)
+                {
+                    if (!String.IsNullOrEmpty(CreateQuery))
+                    {
+                        Query query = new Query(element);
+                        query.SetVariable("value", value);
+                        query.Eval(CreateQuery);
+                    }
+                    return;
+                }
+                DoStoreValue(target, value);
+                return;
+            }
+            DoStoreValue(element, value);
+        }
+
+        protected virtual string DoFetchValue(Element element)
+        {
+            return null;
+        }
+
+        protected virtual void DoStoreValue(Element element, string value)
+        {
+        }
     }
 }
