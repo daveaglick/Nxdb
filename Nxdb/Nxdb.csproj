@@ -161,20 +161,24 @@
     <Compile Include="Io\InnerTextReader.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Persistence\PersistentAttributeBase.cs" />
-    <Compile Include="Persistence\PersistentAttributeAttribute.cs" />
-    <Compile Include="Persistence\PersistentElementAttribute.cs" />
-    <Compile Include="Persistence\PersistentPathAttribute.cs" />
-    <Compile Include="Persistence\PersistentTextAttribute.cs" />
-    <Compile Include="Persistence\XmlSerializerBehavior.cs" />
-    <Compile Include="Persistence\CustomBehavior.cs" />
-    <Compile Include="Persistence\DefaultBehavior.cs" />
+    <Compile Include="Persistence\Attributes\DefaultPersisterAttribute.cs" />
+    <Compile Include="Persistence\Attributes\PersistentMemberAttribute.cs" />
+    <Compile Include="Persistence\Attributes\PersistentAttributeAttribute.cs" />
+    <Compile Include="Persistence\Attributes\PersistentDictionaryAttribute.cs" />
+    <Compile Include="Persistence\Attributes\PersistentElementAttribute.cs" />
+    <Compile Include="Persistence\Attributes\NamedPersistentMemberAttribute.cs" />
+    <Compile Include="Persistence\Attributes\PersistentPathAttribute.cs" />
+    <Compile Include="Persistence\Attributes\PersistentTextAttribute.cs" />
+    <Compile Include="Persistence\Attributes\XmlSerializerPersisterAttribute.cs" />
+    <Compile Include="Persistence\XmlSerializerPersister.cs" />
+    <Compile Include="Persistence\CustomPersister.cs" />
+    <Compile Include="Persistence\DefaultPersister.cs" />
     <Compile Include="Persistence\ObjectWrapper.cs" />
-    <Compile Include="Persistence\PersistenceExtensions.cs" />
-    <Compile Include="Persistence\PersistenceManager.cs" />
+    <Compile Include="Persistence\Extensions.cs" />
+    <Compile Include="Persistence\Manager.cs" />
     <Compile Include="Persistence\PersistentCollection.cs" />
-    <Compile Include="Persistence\PersistenceAttributeBase.cs" />
-    <Compile Include="Persistence\PersistenceBehavior.cs" />
+    <Compile Include="Persistence\Attributes\PersisterAttribute.cs" />
+    <Compile Include="Persistence\Persister.cs" />
     <Compile Include="Persistence\TypeCache.cs" />
     <Compile Include="Persistence\Cache.cs" />
     <Compile Include="Node\ProcessingInstruction.cs" />

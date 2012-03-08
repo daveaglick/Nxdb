@@ -16,24 +16,19 @@
  */
 
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Xml;
 using Nxdb.Node;
 using Attribute = System.Attribute;
 
-namespace Nxdb.Persistence
+namespace Nxdb.Persistence.Attributes
 {
     /// <summary>
     /// The base class for all persistent attributes.
     /// </summary>
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
-    public abstract class PersistentAttributeBase : Attribute
+    public abstract class PersistentMemberAttribute : Attribute
     {
-        protected PersistentAttributeBase()
+        protected PersistentMemberAttribute()
         {
             Store = true;
             Fetch = true;

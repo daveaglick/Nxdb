@@ -27,6 +27,7 @@ using NUnit.Framework;
 using Nxdb;
 using Nxdb.Node;
 using Nxdb.Persistence;
+using Nxdb.Persistence.Attributes;
 
 namespace NxdbTests
 {
@@ -126,7 +127,7 @@ namespace NxdbTests
         string ToString(string elementName);
     }
 
-    [XmlSerializerPersistence(Indent = false)]
+    [XmlSerializerPersister(Indent = false)]
     public class XmlSerializerPersistentClass : IPersistentClass
     {
         private int _num;

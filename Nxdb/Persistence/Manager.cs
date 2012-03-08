@@ -26,26 +26,26 @@ using Nxdb.Node;
 
 namespace Nxdb.Persistence
 {
-    public class PersistenceManager
+    public class Manager
     {
-        private static PersistenceManager _default = null;
+        private static Manager _default = null;
 
         /// <summary>
         /// Gets the default PersistenceManager. This is the
         /// instance that is used for the extension methods.
         /// </summary>
-        public static PersistenceManager Default
+        public static Manager Default
         {
-            get { return _default ?? (_default = new PersistenceManager()); }
+            get { return _default ?? (_default = new Manager()); }
         }
 
         private readonly Cache _cache;
 
-        public PersistenceManager() : this(false)
+        public Manager() : this(false)
         {
         }
 
-        public PersistenceManager(bool autoRefresh)
+        public Manager(bool autoRefresh)
         {
             _cache = new Cache(autoRefresh);
         }
@@ -255,7 +255,7 @@ namespace Nxdb.Persistence
             if (!element.Valid) throw new ArgumentException("The specified element is invalid.");
 
             TypeCache typeCache = _cache.GetTypeCache(type);
-            typeCache.Behavior.Fetch(element, obj, typeCache);
+            typeCache.Persister.Fetch(element, obj, typeCache);
         }
 
         /// <summary>
@@ -302,7 +302,7 @@ namespace Nxdb.Persistence
             if (!element.Valid) throw new ArgumentException("The specified element is invalid.");
 
             TypeCache typeCache = _cache.GetTypeCache(type);
-            typeCache.Behavior.Store(element, obj, typeCache);
+            typeCache.Persister.Store(element, obj, typeCache);
         }
 
         /// <summary>

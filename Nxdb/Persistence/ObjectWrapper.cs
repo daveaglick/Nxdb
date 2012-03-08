@@ -34,7 +34,7 @@ namespace Nxdb.Persistence
 
         // These are lazy initialized for performance
         private TypeCache _typeCache = null;
-        private PersistenceBehavior _behavior = null;   
+        private Persister _persister = null;   
         
         public ObjectWrapper(object obj, Cache cache)
         {
@@ -44,17 +44,17 @@ namespace Nxdb.Persistence
             _cache = cache;
         }
 
-        // Directly specifies a behavior to use
-        // TODO: Implement overloads in the PersistenceManager that allows passing an override behavior in
-        public ObjectWrapper(object obj, Cache cache, PersistenceBehavior behavior)
+        // Directly specifies a persister to use
+        // TODO: Implement overloads in the PersistenceManager that allows passing an override persister
+        public ObjectWrapper(object obj, Cache cache, Persister persister)
             : this(obj, cache)
         {
-            _behavior = behavior;
+            _persister = persister;
         }
 
-        private PersistenceBehavior Behavior
+        private Persister Persister
         {
-            get { return _behavior ?? (_behavior = TypeCache.Behavior); }
+            get { return _persister ?? (_persister = TypeCache.Persister); }
         }
 
         public object Object
@@ -123,7 +123,7 @@ namespace Nxdb.Persistence
                 _cache.Detach(this, false);
                 return;
             }
-            Behavior.Fetch(Element, obj, TypeCache);
+            Persister.Fetch(Element, obj, TypeCache);
         }
 
         public void Store()
@@ -135,7 +135,7 @@ namespace Nxdb.Persistence
                 _cache.Detach(this, false);
                 return;
             }
-            Behavior.Store(Element, obj, TypeCache);
+            Persister.Store(Element, obj, TypeCache);
         }
     }
 }

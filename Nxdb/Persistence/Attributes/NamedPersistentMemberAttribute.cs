@@ -16,33 +16,28 @@
  */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Xml;
-using Nxdb.Node;
 
-namespace Nxdb.Persistence
+namespace Nxdb.Persistence.Attributes
 {
     /// <summary>
-    /// Stores and fetches the field or property to/from a child element of the container element. If more
-    /// than one element with the given name exists, the first one will be used.
+    /// Base class for persistent attributes that use a name.
     /// </summary>
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
-    public class PersistentElementAttribute : PersistentAttributeBase
+    public abstract class NamedPersistentMemberAttribute : PersistentMemberAttribute
     {
-        public PersistentElementAttribute()
+        protected NamedPersistentMemberAttribute()
         {
         }
 
-        public PersistentElementAttribute(string name)
+        protected NamedPersistentMemberAttribute(string name)
         {
             Name = name;
         }
 
         /// <summary>
-        /// Gets or sets the name of the element to use or create. If unspecified, the name of
+        /// Gets or sets the name to use or create. If unspecified, the name of
         /// the field or property will be used (as converted to a valid XML name).
         /// </summary>
         public string Name { get; set; }
@@ -58,25 +53,6 @@ namespace Nxdb.Persistence
             else
             {
                 XmlConvert.VerifyName(Name);
-            }
-        }
-
-        internal override string FetchValue(Element element)
-        {
-            Element child = element.Children.OfType<Element>().Where(e => e.Name.Equals(Name)).FirstOrDefault();
-            return child == null ? null : child.Value;
-        }
-
-        internal override void StoreValue(Element element, string value)
-        {
-            Element child = element.Children.OfType<Element>().Where(e => e.Name.Equals(Name)).FirstOrDefault();
-            if (child == null)
-            {
-                element.Append(String.Format("<{0}>{1}</{0}>", Name, value));
-            }
-            else
-            {
-                child.Value = value;
             }
         }
     }

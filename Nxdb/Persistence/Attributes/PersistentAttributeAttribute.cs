@@ -16,48 +16,22 @@
  */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Xml;
 using Nxdb.Node;
 
-namespace Nxdb.Persistence
+namespace Nxdb.Persistence.Attributes
 {
     /// <summary>
     /// Stores and fetches the field or property to/from an attribute of the container element.
     /// </summary>
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
-    public class PersistentAttributeAttribute : PersistentAttributeBase
+    public class PersistentAttributeAttribute : NamedPersistentMemberAttribute
     {
-        public PersistentAttributeAttribute()
+        public PersistentAttributeAttribute() : base()
         {
         }
 
-        public PersistentAttributeAttribute(string name)
+        public PersistentAttributeAttribute(string name) : base(name)
         {
-            Name = name;
-        }
-
-        /// <summary>
-        /// Gets or sets the name of the attribute to use or create. If unspecified, the name of
-        /// the field or property will be used (as converted to a valid XML name).
-        /// </summary>
-        public string Name { get; set; }
-
-        internal override void Inititalize(MemberInfo memberInfo)
-        {
-            base.Inititalize(memberInfo);
-
-            if (String.IsNullOrEmpty(Name))
-            {
-                Name = XmlConvert.EncodeName(memberInfo.Name);
-            }
-            else
-            {
-                XmlConvert.VerifyName(Name);
-            }
         }
 
         internal override string FetchValue(Element element)

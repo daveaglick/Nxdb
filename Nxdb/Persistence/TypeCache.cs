@@ -21,6 +21,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using Nxdb.Node;
+using Nxdb.Persistence.Attributes;
 
 namespace Nxdb.Persistence
 {
@@ -37,9 +38,9 @@ namespace Nxdb.Persistence
         private ConstructorInfo _constructor = null;
         private List<FieldInfo> _fields = null;
         private List<PropertyInfo> _properties = null;
-        private PersistenceBehavior _behavior = null;
-        private PersistenceAttributeBase _persistenceAttribute = null;
-        private List<KeyValuePair<MemberInfo, PersistentAttributeBase>> _persistentMembers;
+        private Persister _persister = null;
+        private PersisterAttribute _persisterAttribute = null;
+        private List<KeyValuePair<MemberInfo, PersistentMemberAttribute>> _persistentMembers;
 
         public TypeCache(Type type)
         {
@@ -107,46 +108,46 @@ namespace Nxdb.Persistence
             }
         }
 
-        public PersistenceBehavior Behavior
+        public Persister Persister
         {
             get
             {
-                if(_behavior == null)
+                if(_persister == null)
                 {
-                    _behavior = typeof(ICustomPersistence).IsAssignableFrom(_type)
-                        ? new CustomBehavior() : PersistenceAttribute.Behavior;
+                    _persister = typeof(ICustomPersister).IsAssignableFrom(_type)
+                        ? new CustomPersister() : PersisterAttribute.Persister;
                 }
-                return _behavior;
+                return _persister;
             }
         }
 
-        public PersistenceAttributeBase PersistenceAttribute
+        public PersisterAttribute PersisterAttribute
         {
             get
             {
-                if(_persistenceAttribute == null)
+                if(_persisterAttribute == null)
                 {
-                    object[] attributes = _type.GetCustomAttributes(typeof(PersistenceAttributeBase), false);
+                    object[] attributes = _type.GetCustomAttributes(typeof(PersisterAttribute), false);
                     if(attributes.Length > 0)
                     {
-                        _persistenceAttribute = attributes[0] as PersistenceAttributeBase;
+                        _persisterAttribute = attributes[0] as PersisterAttribute;
                     }
-                    if(_persistenceAttribute == null)
+                    if(_persisterAttribute == null)
                     {
-                        _persistenceAttribute = new DefaultPersistenceAttribute();
+                        _persisterAttribute = new DefaultPersisterAttribute();
                     }
                 }
-                return _persistenceAttribute;
+                return _persisterAttribute;
             }
         }
 
-        public IEnumerable<KeyValuePair<MemberInfo, PersistentAttributeBase>> PersistentMembers
+        public IEnumerable<KeyValuePair<MemberInfo, PersistentMemberAttribute>> PersistentMembers
         {
             get
             {
                 if (_persistentMembers == null)
                 {
-                    _persistentMembers = new List<KeyValuePair<MemberInfo, PersistentAttributeBase>>();
+                    _persistentMembers = new List<KeyValuePair<MemberInfo, PersistentMemberAttribute>>();
                     bool text = false;
 
                     // Fields
@@ -169,20 +170,20 @@ namespace Nxdb.Persistence
         }
 
         private void CheckMemberForPersistentAttribute(MemberInfo memberInfo,
-            List<KeyValuePair<MemberInfo, PersistentAttributeBase>> persistentMembers, ref bool text)
+            List<KeyValuePair<MemberInfo, PersistentMemberAttribute>> persistentMembers, ref bool text)
         {
-            object[] attributes = memberInfo.GetCustomAttributes(typeof (PersistentAttributeBase), true);
+            object[] attributes = memberInfo.GetCustomAttributes(typeof (PersistentMemberAttribute), true);
             if(attributes.Length > 0)
             {
                 if(attributes.Length != 1) throw new Exception("Only one PersistentAttribute can be used per field or property.");
-                PersistentAttributeBase persistentAttribute = (PersistentAttributeBase) attributes[0];
+                PersistentMemberAttribute persistentAttribute = (PersistentMemberAttribute) attributes[0];
                 if(persistentAttribute is PersistentTextAttribute)
                 {
                     if(text) throw new Exception("Only one PersistentTextAttribute can be used per class.");
                     text = true;
                 }
                 persistentAttribute.Inititalize(memberInfo);
-                persistentMembers.Add(new KeyValuePair<MemberInfo, PersistentAttributeBase>(memberInfo, persistentAttribute));
+                persistentMembers.Add(new KeyValuePair<MemberInfo, PersistentMemberAttribute>(memberInfo, persistentAttribute));
             }
         }
 

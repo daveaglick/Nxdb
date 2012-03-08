@@ -16,34 +16,38 @@
  */
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Nxdb.Node;
 
-namespace Nxdb.Persistence
+namespace Nxdb.Persistence.Attributes
 {
     /// <summary>
-    /// Stores and fetches the field or property to/from a text node of the container element. This attribute
-    /// can only be applied to one field or property (if it is applied more than once and exception will be thrown).
-    /// If the container element contains more than one text node (such as with mixed content elements), only the
-    /// first text node will be used.
+    /// Stores and fetches the field or property to/from a child element of the container element. If more
+    /// than one element with the given name exists, the first one will be used.
     /// </summary>
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
-    public class PersistentTextAttribute : PersistentAttributeBase
+    public class PersistentElementAttribute : NamedPersistentMemberAttribute
     {
+        public PersistentElementAttribute() : base()
+        {
+        }
+
+        public PersistentElementAttribute(string name) : base()
+        {
+        }
+
         internal override string FetchValue(Element element)
         {
-            Text child = element.Children.OfType<Text>().FirstOrDefault();
+            Element child = element.Children.OfType<Element>().Where(e => e.Name.Equals(Name)).FirstOrDefault();
             return child == null ? null : child.Value;
         }
 
         internal override void StoreValue(Element element, string value)
         {
-            Text child = element.Children.OfType<Text>().FirstOrDefault();
-            if(child == null)
+            Element child = element.Children.OfType<Element>().Where(e => e.Name.Equals(Name)).FirstOrDefault();
+            if (child == null)
             {
-                element.Append(new Text(value));
+                element.Append(String.Format("<{0}>{1}</{0}>", Name, value));
             }
             else
             {

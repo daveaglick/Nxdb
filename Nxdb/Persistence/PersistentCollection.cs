@@ -28,16 +28,16 @@ namespace Nxdb.Persistence
     /// Implements an enumerable type for top-level persistent collections.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    internal class PersistentCollection<T> : ICustomPersistence, IEnumerable<T> where T : class
+    internal class PersistentCollection<T> : ICustomPersister, IEnumerable<T> where T : class
     {
-        private readonly PersistenceManager _manager;
+        private readonly Manager _manager;
         private readonly string _expression;
         private readonly bool _searchCache;
         private readonly bool _attach;
         private Dictionary<Element, T> _elementCache = new Dictionary<Element, T>(); 
         private List<T> _persistentObjects = new List<T>(); 
 
-        public PersistentCollection(PersistenceManager manager, string expression, bool searchCache, bool attach)
+        public PersistentCollection(Manager manager, string expression, bool searchCache, bool attach)
         {
             _manager = manager;
             _expression = expression;

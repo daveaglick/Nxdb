@@ -26,42 +26,21 @@ using Nxdb.Node;
 
 namespace Nxdb.Persistence
 {
-    public class XmlSerializerPersistenceAttribute : PersistenceAttributeBase
-    {
-        private XmlSerializerBehavior _behavior = null;
-
-        public bool Indent { get; set; }
-
-        internal override PersistenceBehavior Behavior
-        {
-            get 
-            {
-                if(_behavior == null)
-                {
-                    XmlWriterSettings writerSettings = Helper.WriterSettings.Clone();
-                    writerSettings.Indent = Indent;
-                    _behavior = new XmlSerializerBehavior(writerSettings);
-                }
-                return _behavior;
-            }
-        }
-    }
-
-    // Storing with this behavior is destructive. That is, a store operation will delete all the current
+    // Storing with this persister is destructive. That is, a store operation will delete all the current
     // content of the node and replace it with new content. This is invalidate all child nodes on store.
     // If any other objects are attached to child nodes, they will be automatically detached when this
     // object is stored due to the child node invalidation.
     // TODO: Once the matching algorithm has been reimplemented, use that for store operations instead of total replacement
-    public class XmlSerializerBehavior : PersistenceBehavior
+    public class XmlSerializerPersister : Persister
     {
         private readonly XmlWriterSettings _writerSettings;
 
-        public XmlSerializerBehavior(XmlWriterSettings writerSettings)
+        public XmlSerializerPersister(XmlWriterSettings writerSettings)
         {
             _writerSettings = writerSettings;
         }
 
-        public XmlSerializerBehavior()
+        public XmlSerializerPersister()
         {
             _writerSettings = Helper.WriterSettings.Clone();
         }

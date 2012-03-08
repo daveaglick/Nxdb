@@ -20,9 +20,9 @@ using Nxdb.Node;
 namespace Nxdb.Persistence
 {
     /// <summary>
-    /// Implement this interface to provide custom behavior on a per-object basis.
+    /// Implement this interface to provide custom persistence logic on a per-object basis.
     /// </summary>
-    public interface ICustomPersistence
+    public interface ICustomPersister
     {
         /// <summary>
         /// Refreshes the persistent object's state from the specified database element.
@@ -37,16 +37,16 @@ namespace Nxdb.Persistence
         void Store(Element element);
     }
 
-    internal class CustomBehavior : PersistenceBehavior
+    internal class CustomPersister : Persister
     {
         internal override void Fetch(Element element, object obj, TypeCache typeCache)
         {
-            ((ICustomPersistence)obj).Fetch(element);
+            ((ICustomPersister)obj).Fetch(element);
         }
 
         internal override void Store(Element element, object obj, TypeCache typeCache)
         {
-            ((ICustomPersistence)obj).Store(element);
+            ((ICustomPersister)obj).Store(element);
         }
     }
 }

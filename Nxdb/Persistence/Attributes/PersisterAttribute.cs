@@ -17,15 +17,15 @@
 
 using System;
 
-namespace Nxdb.Persistence
+namespace Nxdb.Persistence.Attributes
 {
     /// <summary>
-    /// Base attribute for persistence behavior attributes. Persistent behaviors should
+    /// Base attribute for persister attributes. Persisters should
     /// provide an attribute that derives from this one.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
-    public abstract class PersistenceAttributeBase : System.Attribute
+    public abstract class PersisterAttribute : System.Attribute
     {
-        internal abstract PersistenceBehavior Behavior { get; }
+        internal abstract Persister Persister { get; }
     }
 }

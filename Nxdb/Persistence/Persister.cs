@@ -20,10 +20,10 @@ using Nxdb.Node;
 namespace Nxdb.Persistence
 {
     /// <summary>
-    /// This is the base class for reusable persistence behaviors. To add new persistence
-    /// behaviors, create a derived class and override Fetch, Store, or both.
+    /// This is the base class for reusable persisters. To add new persisters,
+    /// create a derived class and override Fetch, Store, or both.
     /// </summary>
-    public abstract class PersistenceBehavior
+    public abstract class Persister
     {
         internal virtual void Fetch(Element element, object obj, TypeCache typeCache)
         {

@@ -21,32 +21,23 @@ using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using Nxdb.Node;
+using Nxdb.Persistence.Attributes;
 
 namespace Nxdb.Persistence
 {
-    public class DefaultPersistenceAttribute : PersistenceAttributeBase
-    {
-        private readonly DefaultBehavior _behavior = new DefaultBehavior();
-
-        internal override PersistenceBehavior Behavior
-        {
-            get { return _behavior; }
-        }
-    }
-
     // This scans over all instance fields in the object and uses a TypeConverter to convert them from string
     // Values are obtained from the element by first looking for an element and then an attribute with the given field name
     // If any fields cannot be converted an exception is thrown because the entire state was not fetched
     // TODO: Assuming that using a TypeConverterAttribute on the field/property will allow custom TypeConverters - need to verify
     // TODO: Implement support for complex object and collection types
-    public class DefaultBehavior : PersistenceBehavior
+    public class DefaultPersister : Persister
     {
         internal override void Fetch(Element element, object obj, TypeCache typeCache)
         {
             // Get all values first so if something goes wrong we haven't started modifying the object
             List<KeyValuePair<MemberInfo, object>> values
                 = new List<KeyValuePair<MemberInfo, object>>();
-            foreach (KeyValuePair<MemberInfo, PersistentAttributeBase> kvp
+            foreach (KeyValuePair<MemberInfo, PersistentMemberAttribute> kvp
                 in typeCache.PersistentMembers.Where(kvp => kvp.Value.Fetch))
             {
                 // Get the value from the database
@@ -75,9 +66,9 @@ namespace Nxdb.Persistence
         internal override void Store(Element element, object obj, TypeCache typeCache)
         {
             // Get all values first so if something goes wrong we haven't started modifying the database
-            List<KeyValuePair<PersistentAttributeBase, string>> values
-                = new List<KeyValuePair<PersistentAttributeBase, string>>();
-            foreach (KeyValuePair<MemberInfo, PersistentAttributeBase> kvp
+            List<KeyValuePair<PersistentMemberAttribute, string>> values
+                = new List<KeyValuePair<PersistentMemberAttribute, string>>();
+            foreach (KeyValuePair<MemberInfo, PersistentMemberAttribute> kvp
                 in typeCache.PersistentMembers.Where(kvp => kvp.Value.Store))
             {
                 object valueObj = GetValue(kvp.Key, obj);
@@ -87,7 +78,7 @@ namespace Nxdb.Persistence
                 if(!typeConverter.CanConvertTo(typeof(string))) throw new Exception(
                     "Can not convert member " + kvp.Key.Name + " to string.");
                 string value = typeConverter.ConvertToString(valueObj);
-                values.Add(new KeyValuePair<PersistentAttributeBase, string>(kvp.Value, value));
+                values.Add(new KeyValuePair<PersistentMemberAttribute, string>(kvp.Value, value));
             }
 
             // Now that everything has been converted, go ahead and modify the database
@@ -95,7 +86,7 @@ namespace Nxdb.Persistence
             {
                 try
                 {
-                    foreach(KeyValuePair<PersistentAttributeBase, string> value in values)
+                    foreach(KeyValuePair<PersistentMemberAttribute, string> value in values)
                     {
                         value.Key.StoreValue(element, value.Value);
                     }

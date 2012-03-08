@@ -16,12 +16,9 @@
  */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Nxdb.Node;
 
-namespace Nxdb.Persistence
+namespace Nxdb.Persistence.Attributes
 {
     /// <summary>
     /// Stores and fetches the field or property to/from a specified path expression. If no node is found at the
@@ -29,7 +26,7 @@ namespace Nxdb.Persistence
     /// be stored.
     /// </summary>
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
-    public class PersistentPathAttribute : PersistentAttributeBase
+    public class PersistentPathAttribute : PersistentMemberAttribute
     {
         private readonly string _valueQuery = null;
 
