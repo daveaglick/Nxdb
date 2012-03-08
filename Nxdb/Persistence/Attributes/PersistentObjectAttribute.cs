@@ -18,7 +18,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
+using System.Xml;
 using Nxdb.Node;
 
 namespace Nxdb.Persistence.Attributes
@@ -30,19 +32,70 @@ namespace Nxdb.Persistence.Attributes
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
     class PersistentObjectAttribute : PersistentMemberAttribute
     {
-        internal override object FetchValue(Element element, object target, TypeCache typeCache)
+        /// <summary>
+        /// Gets or sets the name to use or create. If unspecified, the name of
+        /// the field or property will be used (as converted to a valid XML name).
+        /// </summary>
+        public string Name { get; set; }
+        
+        /// <summary>
+        /// Gets or sets a value indicating whether this field or property should be attached
+        /// to the manager. If true (default), the manager cache will be searched and an
+        /// existing instance used or a new instance created and attached. If false, a new
+        /// detached instance will be created on every fetch.
+        /// </summary>
+        public bool Attach { get; set; }
+
+        public PersistentObjectAttribute()
         {
-            throw new NotImplementedException();
+            Attach = true;
         }
 
-        internal override object GetValue(Element element, object source, TypeCache typeCache)
+        internal override void Inititalize(MemberInfo memberInfo)
         {
-            throw new NotImplementedException();
+            base.Inititalize(memberInfo);
+            Name = GetName(Name, memberInfo.Name);
         }
 
-        internal override void StoreValue(Element element, object value)
+        internal override object FetchValue(Element element, object target, TypeCache typeCache, Cache cache)
         {
-            throw new NotImplementedException();
+            element = GetElementFromQuery(element);
+            if (element == null) return null;
+
+            element = element.Children.OfType<Element>().Where(e => e.Name.Equals(Name)).FirstOrDefault();
+            if (element == null) return null;
+
+            // Get, attach, and fetch the persistent object instance
+            object value = cache.GetObject(typeCache, element, Attach);
+            if(Attach)
+            {
+                ObjectWrapper wrapper = cache.Attach(value, element);
+                wrapper.Fetch();    // Use the ObjectWrapper.Fetch() to take advantage of last update time caching
+            }
+            else
+            {   
+                typeCache.Persister.Fetch(element, value, typeCache, cache);
+            }
+            return value;
+        }
+
+        internal override void StoreValue(Element element, object source, TypeCache typeCache, Cache cache)
+        {
+            //element = GetElementFromQuery(element);
+            //if (element == null) return;
+
+            //Element child = element.Children.OfType<Element>().Where(e => e.Name.Equals(Name)).FirstOrDefault();
+            //if (child == null)
+            //{
+            //    element.Append(String.Format("<{0}>{1}</{0}>", Name, value));
+            //}
+            //else
+            //{
+            //    child.InnerXml = ((Element) value).InnerXml;
+            //}
+
+            // TODO: Do I need to deal with attributes on the value element?
+
         }
     }
 }

@@ -31,6 +31,7 @@ namespace Nxdb.Persistence
         private readonly int _hash;
         private readonly Cache _cache;
         private Element _element = null;
+        private long _databaseTime = 0;
 
         // These are lazy initialized for performance
         private TypeCache _typeCache = null;
@@ -111,7 +112,7 @@ namespace Nxdb.Persistence
         private void ElementInvalidated(object sender, EventArgs e)
         {
             _element.Invalidated -= ElementInvalidated;
-            _cache.Detach(this, false);
+            _cache.Detach(this);
         }
 
         public void Fetch()
@@ -120,10 +121,12 @@ namespace Nxdb.Persistence
             object obj = _weakReference.Target;
             if(obj == null)
             {
-                _cache.Detach(this, false);
+                _cache.Detach(this);
                 return;
             }
-            Persister.Fetch(Element, obj, TypeCache);
+            if (Element.Database.Time == _databaseTime) return;
+            Persister.Fetch(Element, obj, TypeCache, _cache);
+            _databaseTime = Element.Database.Time;
         }
 
         public void Store()
@@ -132,10 +135,10 @@ namespace Nxdb.Persistence
             object obj = _weakReference.Target;
             if (obj == null)
             {
-                _cache.Detach(this, false);
+                _cache.Detach(this);
                 return;
             }
-            Persister.Store(Element, obj, TypeCache);
+            Persister.Store(Element, obj, TypeCache, _cache);
         }
     }
 }

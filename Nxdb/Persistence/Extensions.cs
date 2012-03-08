@@ -33,9 +33,9 @@ namespace Nxdb.Persistence
             return Manager.Default.GetObject<T>(element);
         }
 
-        public static T GetObject<T>(this Element element, bool attach, bool searchCache) where T : class
+        public static T GetObject<T>(this Element element, bool attach) where T : class
         {
-            return Manager.Default.GetObject<T>(element, attach, searchCache);
+            return Manager.Default.GetObject<T>(element, attach);
         }
 
         public static IEnumerable<T> GetObjects<T>(this Element element, string expression) where T : class
@@ -44,9 +44,9 @@ namespace Nxdb.Persistence
         }
 
         public static IEnumerable<T> GetObjects<T>(this Element element, string expression,
-            bool attach, bool searchCache, bool attachResults) where T : class
+            bool attach, bool attachItems) where T : class
         {
-            return Manager.Default.GetObjects<T>(element, expression, attach, searchCache, attachResults);
+            return Manager.Default.GetObjects<T>(element, expression, attach, attachItems);
         }
 
         public static void Attach(this object obj, Element element)

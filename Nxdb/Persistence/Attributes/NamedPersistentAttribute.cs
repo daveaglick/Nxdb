@@ -36,15 +36,7 @@ namespace Nxdb.Persistence.Attributes
         internal override void Inititalize(MemberInfo memberInfo)
         {
             base.Inititalize(memberInfo);
-
-            if (String.IsNullOrEmpty(Name))
-            {
-                Name = XmlConvert.EncodeName(memberInfo.Name);
-            }
-            else
-            {
-                XmlConvert.VerifyName(Name);
-            }
+            Name = GetName(Name, memberInfo.Name);
         }
     }
 }

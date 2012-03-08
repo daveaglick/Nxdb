@@ -38,8 +38,12 @@ namespace Nxdb
     /// </summary>
     public class Updates : IDisposable
     {
-        private static int _counter = 0;
-        private static QueryContext QueryContext = GetQueryContext();
+        private static readonly Stack<Updates> UpdateStack = new Stack<Updates>();
+        private static readonly Queue<org.basex.query.up.Updates> PendingQueue
+            = new Queue<org.basex.query.up.Updates>();
+
+        private QueryContext _queryContext = GetQueryContext();
+        private readonly bool _applyOnDispose = false;
 
         private static QueryContext GetQueryContext()
         {
@@ -50,130 +54,203 @@ namespace Nxdb
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Updates"/> class. Make sure to dispose the
-        /// instance when the encapsulated update operations are complete.
+        /// instance when finished.
         /// </summary>
         public Updates()
         {
-            Begin();
+            UpdateStack.Push(this);
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Updates"/> class. Make sure to dispose the
+        /// instance when finished.
+        /// </summary>
+        /// <param name="applyOnDispose">If set to <c>true</c>, updates for this instance are
+        /// immediately applied when the instance is disposed.</param>
+        public Updates(bool applyOnDispose) : this()
+        {
+            _applyOnDispose = applyOnDispose;
+        }
+
+        internal QueryContext QueryContext
+        {
+            get
+            {
+                return _queryContext;
+            }
         }
 
         // Used by Query when evaluating a query which updates the query context
-        internal static org.basex.query.up.Updates QueryUpdates
+        internal org.basex.query.up.Updates QueryUpdates
         {
-            get { return QueryContext.updates; }
+            get
+            {
+                if(_queryContext == null) throw new ObjectDisposedException("Updates");
+                return _queryContext.updates;
+            }
         }
 
         /// <summary>
-        /// Gets a value indicating whether there are open Updates instances (in which
-        /// case new update operations will not get applied until the outer-most Updates
-        /// instance is disposed or the update operations are explicitly applied.
-        /// </summary>
-        /// <value>
-        ///   <c>true</c> if there are open updates; otherwise, <c>false</c>.
-        /// </value>
-        public static bool Open
-        {
-            get { return _counter > 0; }
-        }
-
-        /// <summary>
-        /// Begins a set of update operations.
-        /// </summary>
-        public static void Begin()
-        {
-            _counter++;
-        }
-
-        /// <summary>
-        /// Ends a set of update operations.
-        /// </summary>
-        public static void End()
-        {
-            _counter--;
-            Apply(false);
-        }
-
-        /// <summary>
-        /// Disposes this Updates instance. If this is the outer-most Updates instance, all pending
-        /// updates will be applied.
+        /// Disposes this Updates instance. If this is the outer-most Updates instance,
+        /// all pending updates will be applied.
         /// </summary>
         public void Dispose()
         {
-            End();
+            if (_queryContext == null) return;
+            if(_applyOnDispose) Apply();
+            while(UpdateStack.Count > 0)
+            {
+                Updates updates = UpdateStack.Peek();
+                if (updates == this)
+                {
+                    UpdateStack.Pop();
+                    break;
+                }
+                updates.Dispose();
+            }
+            PendingQueue.Enqueue(QueryUpdates);
+            _queryContext = null;
+            ApplyPendingUpdates();
         }
-        
+
+        private void ResetQueryContext()
+        {
+            _queryContext = GetQueryContext();
+        }
+
+        // Either gets the outer Updates instance or null
+        internal static Updates GetOuterUpdates()
+        {
+            return UpdateStack.Count > 0 ? UpdateStack.Peek() : null;
+        }
+
         //Adds an update primitive to the sequence of operations
         internal static void Add(UpdatePrimitive update)
         {
-            //Add the update to the query context
-            QueryContext.updates.add(update, QueryContext);
-
-            //If a context isn't open, apply the update immediatly
-            Apply(false);
+            if(UpdateStack.Count > 0)
+            {
+                // Add to the open operation if there is one
+                Updates updates = UpdateStack.Peek();
+                updates.QueryUpdates.add(update, updates.QueryContext);
+            }
+            else
+            {
+                // Otherwise, just push the new update
+                QueryContext queryContext = GetQueryContext();
+                queryContext.updates.add(update, queryContext);
+                PendingQueue.Enqueue(queryContext.updates);
+            }
+            ApplyPendingUpdates();
         }
 
         internal static void Add(Expr expr)
         {
-            //Execute the function (which may implicity add to the query context)
-            expr.item(QueryContext, null);
-
-            // If a context isn't open, apply the update immediatly
-            Apply(false);
+            if (UpdateStack.Count > 0)
+            {
+                // Add to the open operation if there is one
+                Updates updates = UpdateStack.Peek();
+                expr.item(updates.QueryContext, null);
+            }
+            else
+            {
+                // Otherwise, just push the new update
+                QueryContext queryContext = GetQueryContext();
+                expr.item(queryContext, null);
+                PendingQueue.Enqueue(queryContext.updates);
+            }
+            ApplyPendingUpdates();
         }
 
         /// <summary>
         /// Forces all pending updates to be applied, regardless of Updates nesting level.
         /// </summary>
-        public static void Apply()
+        public static void ApplyAll()
         {
-            Apply(true);
+            foreach(Updates updates in UpdateStack.Where(u => u.QueryContext != null))
+            {
+                PendingQueue.Enqueue(updates.QueryUpdates);
+                updates.ResetQueryContext();
+            }
+            ApplyPendingUpdates();
         }
 
-        private static void Apply(bool force)
+        /// <summary>
+        /// Immediately applies updates for this (and only this) Updates instance.
+        /// </summary>
+        public void Apply()
         {
-            if (force || _counter <= 0)
+            if (_queryContext == null) throw new ObjectDisposedException("Updates");
+            HashSet<Database> databases = new HashSet<Database>();
+            ApplyUpdates(QueryUpdates, databases);
+            ResetQueryContext();
+            NotifyDatabases(databases);
+        }
+
+        // Applies pending updates, but only if there are no more Updates on the stack
+        private static void ApplyPendingUpdates()
+        {
+            if (UpdateStack.Count != 0) return;
+            HashSet<Database> databases = new HashSet<Database>();
+            while (PendingQueue.Count > 0)
             {
-                // Check if there are any updates to perform (if not, updates.mod will be null)
-                if (QueryContext.updates != null && QueryContext.updates.mod != null)
+                ApplyUpdates(PendingQueue.Dequeue(), databases);
+            }
+            NotifyDatabases(databases);
+        }
+
+        private static void ApplyUpdates(org.basex.query.up.Updates updates, HashSet<Database> databases)
+        {                    
+            // Check if there are any updates to perform (if not, updates.mod will be null)
+            if (updates != null && updates.mod != null)
+            {
+                // Store all updating databases
+                foreach (Database database in updates.mod.datas().Select(Database.Get))
                 {
-                    // Get all updating databases
-                    List<Database> databases
-                        = QueryContext.updates.mod.datas().Select(Database.Get).ToList();
-
-                    // Apply the updates
-                    QueryContext.updates.applyUpdates();
-
-                    // Update databases
-                    foreach (Database database in databases)
-                    {
-                        // Update database node cache
-                        database.Update();
-
-                        // Optimize database(s)
-                        if (Properties.OptimizeAfterUpdates)
-                        {
-                            Optimize.optimize(database.Data);
-                        }
-                    }
+                    databases.Add(database);
                 }
 
-                // Reset
-                UnsyncReset();
+                // Apply the updates
+                updates.applyUpdates();
+            }
+        }
+
+        private static void NotifyDatabases(IEnumerable<Database> databases)
+        {
+            foreach (Database database in databases)
+            {
+                // Update database node cache
+                database.Update();
+
+                // Optimize database(s)
+                if (Properties.OptimizeAfterUpdates)
+                {
+                    Optimize.optimize(database.Data);
+                }
             }
         }
 
         /// <summary>
         /// Resets the update stack and forgets all uncommitted updates.
         /// </summary>
-        public static void Reset()
+        public static void ForgetAll()
         {
-            UnsyncReset();
+            // Forget updates in each update on the stack
+            foreach (Updates updates in UpdateStack.Where(u => u.QueryContext != null))
+            {
+                updates.Forget();
+            }
+
+            // ...and any pending updates in the queue
+            PendingQueue.Clear();
         }
 
-        private static void UnsyncReset()
+        /// <summary>
+        /// Forgets all pending updates for this Updates instance.
+        /// </summary>
+        public void Forget()
         {
-            QueryContext = GetQueryContext();
-            _counter = 0;
+            if (_queryContext == null) throw new ObjectDisposedException("Updates");
+            ResetQueryContext();
         }
     }
 }

@@ -37,7 +37,7 @@ namespace Nxdb.Persistence.Attributes
 
         protected override void StoreValue(Element element, string value)
         {
-            element = GetElementFromQuery(element, value);
+            element = GetElementFromQuery(element);
             if (element == null) return;
 
             Node.Attribute attribute = element.Attribute(Name);

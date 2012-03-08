@@ -43,17 +43,12 @@ namespace Nxdb.Persistence.Attributes
             // TODO: Make sure we don't have both KeyAttributeName and KeyElementName and Value...
         }
 
-        internal override object FetchValue(Element element, object target, TypeCache typeCache)
+        internal override object FetchValue(Element element, object target, TypeCache typeCache, Cache cache)
         {
             throw new NotImplementedException();
         }
 
-        internal override object GetValue(Element element, object source, TypeCache typeCache)
-        {
-            throw new NotImplementedException();
-        }
-
-        internal override void StoreValue(Element element, object value)
+        internal override void StoreValue(Element element, object source, TypeCache typeCache, Cache cache)
         {
             throw new NotImplementedException();
         }

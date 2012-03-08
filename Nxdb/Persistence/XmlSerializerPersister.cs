@@ -45,7 +45,7 @@ namespace Nxdb.Persistence
             _writerSettings = Helper.WriterSettings.Clone();
         }
 
-        internal override void Fetch(Element element, object obj, TypeCache typeCache)
+        internal override void Fetch(Element element, object obj, TypeCache typeCache, Cache cache)
         {
             // Deserialize the object
             XmlSerializer serializer = new XmlSerializer(typeCache.Type);
@@ -63,7 +63,7 @@ namespace Nxdb.Persistence
             }
         }
 
-        internal override void Store(Element element, object obj, TypeCache typeCache)
+        internal override void Store(Element element, object obj, TypeCache typeCache, Cache cache)
         {
             // Serialize the object
             // Use an empty namespace object to prevent default namespace declarations

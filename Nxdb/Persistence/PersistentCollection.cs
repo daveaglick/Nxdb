@@ -32,17 +32,15 @@ namespace Nxdb.Persistence
     {
         private readonly Manager _manager;
         private readonly string _expression;
-        private readonly bool _searchCache;
-        private readonly bool _attach;
+        private readonly bool _attachItems;
         private Dictionary<Element, T> _elementCache = new Dictionary<Element, T>(); 
         private List<T> _persistentObjects = new List<T>(); 
 
-        public PersistentCollection(Manager manager, string expression, bool searchCache, bool attach)
+        public PersistentCollection(Manager manager, string expression, bool attachItems)
         {
             _manager = manager;
             _expression = expression;
-            _searchCache = searchCache;
-            _attach = attach;
+            _attachItems = attachItems;
         }
 
         public IEnumerator<T> GetEnumerator()
@@ -65,7 +63,7 @@ namespace Nxdb.Persistence
                 T persistentObject;
                 if (!_elementCache.TryGetValue(result, out persistentObject))
                 {
-                    persistentObject = _manager.GetObject<T>(result, _searchCache, _attach);
+                    persistentObject = _manager.GetObject<T>(result, _attachItems);
                 }
                 elementCache.Add(result, persistentObject);
                 persistentObjects.Add(persistentObject);

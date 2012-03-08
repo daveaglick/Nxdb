@@ -29,7 +29,7 @@ namespace Nxdb.Persistence
     // TODO: Implement support for complex object and collection types
     public class DefaultPersister : Persister
     {
-        internal override void Fetch(Element element, object obj, TypeCache typeCache)
+        internal override void Fetch(Element element, object obj, TypeCache typeCache, Cache cache)
         {
             // Get all values first so if something goes wrong we haven't started modifying the object
             List<KeyValuePair<MemberInfo, object>> values
@@ -37,8 +37,10 @@ namespace Nxdb.Persistence
             foreach (KeyValuePair<MemberInfo, PersistentMemberAttribute> kvp
                 in typeCache.PersistentMembers.Where(kvp => kvp.Value.Fetch))
             {
-                object target = GetValue(kvp.Key, obj);
-                object value = kvp.Value.FetchValue(element, target, typeCache);
+                Type targetType;
+                object target = GetValue(kvp.Key, obj, out targetType);
+                TypeCache targetTypeCache = targetType != null ? cache.GetTypeCache(targetType) : null;
+                object value = kvp.Value.FetchValue(element, target, targetTypeCache, cache);
                 values.Add(new KeyValuePair<MemberInfo, object>(kvp.Key, value));
             }
 
@@ -51,43 +53,46 @@ namespace Nxdb.Persistence
 
         // This scans over all instance fields in the object and uses a TypeConverter to convert them to string
         // If any fields cannot be converted an exception is thrown because the entire state was not stored
-        internal override void Store(Element element, object obj, TypeCache typeCache)
+        internal override void Store(Element element, object obj, TypeCache typeCache, Cache cache)
         {
-            // Get all values first so if something goes wrong we haven't started modifying the database
-            List<KeyValuePair<PersistentMemberAttribute, object>> values
-                = new List<KeyValuePair<PersistentMemberAttribute, object>>();
-            foreach (KeyValuePair<MemberInfo, PersistentMemberAttribute> kvp
-                in typeCache.PersistentMembers.Where(kvp => kvp.Value.Store))
-            {
-                object source = GetValue(kvp.Key, obj);
-                object value = kvp.Value.GetValue(element, source, typeCache);
-                values.Add(new KeyValuePair<PersistentMemberAttribute, object>(kvp.Value, value));
-            }
-
-            // Now that everything has been converted, go ahead and modify the database
-            using(new Updates())
+            using (Updates updates = new Updates())
             {
                 try
                 {
-                    foreach(KeyValuePair<PersistentMemberAttribute, object> value in values)
+                    foreach (KeyValuePair<MemberInfo, PersistentMemberAttribute> kvp
+                        in typeCache.PersistentMembers.Where(kvp => kvp.Value.Store))
                     {
-                        value.Key.StoreValue(element, value.Value);
+                        Type sourceType;
+                        object source = GetValue(kvp.Key, obj, out sourceType);
+                        TypeCache sourceTypeCache = sourceType != null ? cache.GetTypeCache(sourceType) : null;
+                        kvp.Value.StoreValue(element, source, sourceTypeCache, cache);
                     }
                 }
                 catch (Exception)
                 {
-                    Updates.Reset();
+                    updates.Forget();
                     throw;
                 }
             }
         }
 
-        private object GetValue(MemberInfo memberInfo, object obj)
+        private object GetValue(MemberInfo memberInfo, object obj, out Type type)
         {
             FieldInfo fieldInfo = memberInfo as FieldInfo;
-            if (fieldInfo != null) return fieldInfo.GetValue(obj);
+            if (fieldInfo != null)
+            {
+                type = fieldInfo.FieldType;
+                return fieldInfo.GetValue(obj);
+            }
+            
             PropertyInfo propertyInfo = memberInfo as PropertyInfo;
-            return propertyInfo != null ? propertyInfo.GetValue(obj, null) : null;
+            if(propertyInfo != null)
+            {
+                type = propertyInfo.PropertyType;
+                return propertyInfo.GetValue(obj, null);
+            }
+
+            throw new Exception("Unexpected MemberInfo type.");
         }
 
         private void SetValue(MemberInfo memberInfo, object obj, object value)

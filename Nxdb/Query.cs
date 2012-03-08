@@ -190,24 +190,38 @@ namespace Nxdb
                 queryContext.sc.@namespace(kvp.Key, "java:" + kvp.Value);
             }
 
-            using (new Updates())
+            // Get the outer updates instance
+            bool dispose = false;
+            Updates updates = Updates.GetOuterUpdates();
+            if(updates == null)
             {
-                // Reset the update collection to the common one in our update operation
-                queryContext.updates = Updates.QueryUpdates;
-
-                // Parse the expression
-                queryContext.parse(expression);
-
-                // Compile the query
-                queryContext.compile();
-
-                // Reset the updating flag (so they aren't applied here)
-                queryContext.updating(false);
-
-                // Get the iterator and return the results
-                Iter iter = queryContext.iter();
-                return new IterEnum(iter);
+                updates = new Updates();
+                dispose = true;
             }
+
+            // Reset the update collection to the common one in our update operation
+            queryContext.updates = updates.QueryUpdates;
+
+            // Parse the expression
+            queryContext.parse(expression);
+
+            // Compile the query
+            queryContext.compile();
+
+            // Reset the updating flag (so they aren't applied here)
+            queryContext.updating(false);
+
+            // Get the iterator and return the results
+            Iter iter = queryContext.iter();
+            IterEnum iterEnum = new IterEnum(iter);
+
+            // Dispose the Updates if it was instantiated by us
+            if(dispose)
+            {
+                updates.Dispose();
+            }
+
+            return iterEnum;
         }
 
         /// <inheritdoc />

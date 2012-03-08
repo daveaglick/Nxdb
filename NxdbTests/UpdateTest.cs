@@ -94,14 +94,14 @@ namespace NxdbTests
                 query.Eval("insert node 'test' into .");
 
                 //Aborted update
-                using (new Updates())
+                using (Updates updates = new Updates())
                 {
                     query.Eval("insert node 'test4' into .");
                     Assert.AreEqual(2, doc.Children.Count());
                     query.Eval("insert node 'test5' into .");
                     Assert.AreEqual(2, doc.Children.Count());
                     Assert.AreEqual("test", query.EvalSingle("string(./text()[1])"));
-                    Updates.Reset();
+                    updates.Forget();
                 }
                 Assert.AreEqual(2, doc.Children.Count());
                 Assert.AreEqual("test", query.EvalSingle("string(./text()[1])"));

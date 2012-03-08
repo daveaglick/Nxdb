@@ -25,12 +25,12 @@ namespace Nxdb.Persistence
     /// </summary>
     public abstract class Persister
     {
-        internal virtual void Fetch(Element element, object obj, TypeCache typeCache)
+        internal virtual void Fetch(Element element, object obj, TypeCache typeCache, Cache cache)
         {
             Fetch(element, obj);
         }
 
-        internal virtual void Store(Element element, object obj, TypeCache typeCache)
+        internal virtual void Store(Element element, object obj, TypeCache typeCache, Cache cache)
         {
             Store(element, obj);
         }
@@ -40,7 +40,7 @@ namespace Nxdb.Persistence
         /// </summary>
         /// <param name="element">The element to fetch data from.</param>
         /// <param name="obj">The object to fetch data for.</param>
-        public virtual void Fetch(Element element, object obj)
+        protected virtual void Fetch(Element element, object obj)
         {
         }
 
@@ -49,7 +49,7 @@ namespace Nxdb.Persistence
         /// </summary>
         /// <param name="element">The element to store data to.</param>
         /// <param name="obj">The object to store data for.</param>
-        public virtual void Store(Element element, object obj)
+        protected virtual void Store(Element element, object obj)
         {
         }
     }

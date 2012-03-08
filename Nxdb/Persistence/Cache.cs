@@ -51,12 +51,16 @@ namespace Nxdb.Persistence
         }
 
         // Gets or constructs an object of the specified type
-        public object GetObject(Type type, Element element, bool searchCache)
+        public object GetObject(Type type, Element element, bool search)
+        {
+            return GetObject(GetTypeCache(type), element, search);
+        }
+
+        public object GetObject(TypeCache typeCache, Element element, bool search)
         {
             Clean();
-            TypeCache typeCache = GetTypeCache(type);
             object obj = null;
-            if(searchCache)
+            if(search)
             {
                 obj = typeCache.FindObject(element);
             }
@@ -84,8 +88,19 @@ namespace Nxdb.Persistence
         {
             Clean();
 
-            // Remove it first (no effect if not present)
-            ObjectWrapper wrapper = Detach(new ObjectWrapper(obj, this), true);
+            // Check if it's already attached to the requested element
+            // and detach it if it's in the cache but attached to a different element
+            ObjectWrapper wrapper = new ObjectWrapper(obj, this);
+            ObjectWrapper existing;
+            if(_wrappers.TryGetValue(wrapper, out existing))
+            {
+                if(existing.Element.Equals(element))
+                {
+                    return existing;
+                }
+                wrapper = existing;
+                Detach(wrapper);
+            }
 
             // Add it
             wrapper.Element = element;
@@ -99,28 +114,21 @@ namespace Nxdb.Persistence
         public void Detach(object obj)
         {
             Clean();
-
-            Detach(new ObjectWrapper(obj, this), true);
+            ObjectWrapper wrapper = new ObjectWrapper(obj, this);
+            ObjectWrapper existing;
+            if (_wrappers.TryGetValue(wrapper, out existing))
+            {
+                Detach(existing);
+            }
         }
 
-        // Returns the detached wrapper or the one that was passed in if none was found
-        // Set search == false only if the passed-in wrapper is from the cache already
-        public ObjectWrapper Detach(ObjectWrapper wrapper, bool search)
+        // Detaches a wrapper (must already be in the cache)
+        public void Detach(ObjectWrapper wrapper)
         {
-            // Get the existing wrapper
-            if (search)
-            {
-                ObjectWrapper found;
-                if (!_wrappers.TryGetValue(wrapper, out found)) return wrapper;
-                wrapper = found;
-            }
-
-            // Remove it
             RemoveDatabaseUpdatedHandler(wrapper.Element);
             _wrappers.Remove(wrapper);
             wrapper.TypeCache.Remove(wrapper);
             wrapper.Element = null;
-            return wrapper;
         }
 
         public void DetachAll()
@@ -155,7 +163,7 @@ namespace Nxdb.Persistence
                 object obj = wrapper.Object;
                 if(obj == null)
                 {
-                    Detach(wrapper, false);
+                    Detach(wrapper);
                 }
             }
         }

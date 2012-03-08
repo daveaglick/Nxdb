@@ -17,6 +17,7 @@
 
 using System;
 using System.Reflection;
+using System.Xml;
 using Nxdb.Node;
 using Attribute = System.Attribute;
 
@@ -78,23 +79,27 @@ namespace Nxdb.Persistence.Attributes
         {
         }
 
-        internal abstract object FetchValue(Element element, object target, TypeCache typeCache);
-        internal abstract object GetValue(Element element, object source, TypeCache typeCache);
-        internal abstract void StoreValue(Element element, object value);
+        internal abstract object FetchValue(Element element, object target, TypeCache typeCache, Cache cache);
+        internal abstract void StoreValue(Element element, object source, TypeCache typeCache, Cache cache);
 
         // Provide value if the create query should be run
-        protected Element GetElementFromQuery(Element element, string value)
+        protected Element GetElementFromQuery(Element element)
         {
             if (!String.IsNullOrEmpty(Query))
             {
                 Element target = element.EvalSingle(Query) as Element;
-                if (target == null && value != null)
+                if (target == null)
                 {
+                    // We didn't get the target, see if we have a query that can create it
                     if (!String.IsNullOrEmpty(CreateQuery))
                     {
-                        Query query = new Query(element);
-                        query.SetVariable("value", value);
-                        query.Eval(CreateQuery);
+                        using (new Updates(true))
+                        {
+                            element.Eval(CreateQuery);
+                        }
+
+                        //Try to get the target again
+                        target = element.EvalSingle(Query) as Element;
                     }
                 }
                 element = target;
@@ -102,9 +107,14 @@ namespace Nxdb.Persistence.Attributes
             return element;
         }
 
-        protected Element GetElementFromQuery(Element element)
+        protected string GetName(string name, string defaultName)
         {
-            return GetElementFromQuery(element, null);
+            if (String.IsNullOrEmpty(name))
+            {
+                return XmlConvert.EncodeName(defaultName);
+            }
+            XmlConvert.VerifyName(name);
+            return name;
         }
     }
 }

@@ -39,12 +39,12 @@ namespace Nxdb.Persistence
 
     internal class CustomPersister : Persister
     {
-        internal override void Fetch(Element element, object obj, TypeCache typeCache)
+        internal override void Fetch(Element element, object obj, TypeCache typeCache, Cache cache)
         {
             ((ICustomPersister)obj).Fetch(element);
         }
 
-        internal override void Store(Element element, object obj, TypeCache typeCache)
+        internal override void Store(Element element, object obj, TypeCache typeCache, Cache cache)
         {
             ((ICustomPersister)obj).Store(element);
         }

@@ -71,21 +71,19 @@ namespace Nxdb.Persistence
         /// This requires the specified persistent object type to provide an accessible
         /// empty constructor. If one is not available, an exception will be thrown.
         /// </summary>
-        /// <typeparam name="T">The type of persistent object to construct.</typeparam>
+        /// <param name="type">The type of object to get.</param>
         /// <param name="element">The element from which to construct the persistent object.</param>
         /// <param name="attach">If set to <c>true</c> attaches the object if newly created,
         /// otherwise just fetches it.</param>
-        /// <param name="searchCache">If set to <c>true</c> returns an existing instance if one
-        /// is already attached to the same element, otherwise will always create a new instance
-        /// and attach it regardless of if one is already attached.</param>
         /// <returns>
         /// The newly constructed persistent object.
         /// </returns>
-        public T GetObject<T>(Element element, bool attach, bool searchCache) where T : class
+        public object GetObject(Type type, Element element, bool attach)
         {
+            if (type.IsValueType) throw new ArgumentException("obj must not be a value type.");
             if (element == null) throw new ArgumentNullException("element");
-            object obj = _cache.GetObject(typeof(T), element, searchCache);
-            if(attach)
+            object obj = _cache.GetObject(type, element, attach);
+            if (attach)
             {
                 Attach(obj, element);
             }
@@ -93,12 +91,22 @@ namespace Nxdb.Persistence
             {
                 Fetch(obj, element);
             }
-            return (T)obj;
+            return obj;
+        }
+
+        public object GetObject(Type type, Element element)
+        {
+            return GetObject(type, element, true);
+        }
+
+        public T GetObject<T>(Element element, bool attach) where T : class
+        {
+            return (T)GetObject(typeof(T), element, attach);
         }
 
         public T GetObject<T>(Element element) where T : class
         {
-            return GetObject<T>(element, true, true);
+            return GetObject<T>(element, true);
         }
 
         /// <summary>
@@ -114,27 +122,23 @@ namespace Nxdb.Persistence
         /// will be used (I.e., no text elements, attributes elements, etc. will be used).</param>
         /// <param name="attach">If set to <c>true</c> attaches the newly created
         /// collection, otherwise just populates it.</param>
-        /// <param name="searchCache">If set to <c>true</c> returns an existing instance for
-        /// each result element if one is already attached to the same element, otherwise will always
-        /// create a new instance and attach it regardless of if one is already attached (a new
-        /// collection is returned every time).</param>
-        /// <param name="attachResults">If set to <c>true</c> attaches result objects, otherwise does
+        /// <param name="attachItems">If set to <c>true</c> attaches result objects, otherwise does
         /// not attach result objects.</param>
         /// <returns>
         /// A collection of persistent objects of the specified type. Though the return
         /// object can be explicitly refreshed and is also automatically refreshed (if enabled
         /// for this manager), explicitly saving or deleting it has no effect.
         /// </returns>
-        public IEnumerable<T> GetObjects<T>(Element parent, string expression, bool attach, bool searchCache, bool attachResults) where T : class
+        public IEnumerable<T> GetObjects<T>(Element parent, string expression, bool attach, bool attachItems) where T : class
         {
-            PersistentCollection<T> collection = new PersistentCollection<T>(this, expression, searchCache, attachResults);
+            PersistentCollection<T> collection = new PersistentCollection<T>(this, expression, attachItems);
             Attach(collection, parent);
             return collection;
         }
 
         public IEnumerable<T> GetObjects<T>(Element parent, string expression) where T : class
         {
-            return GetObjects<T>(parent, expression, true, true, true);
+            return GetObjects<T>(parent, expression, true, true);
         }
 
         /// <summary>
@@ -169,16 +173,6 @@ namespace Nxdb.Persistence
             }
         }
 
-        public void Append(object obj, Element parent)
-        {
-            Append(obj, parent, null, true);
-        }
-
-        public void Append(object obj, Element parent, string elementName)
-        {
-            Append(obj, parent, elementName, true);
-        }
-
         /// <summary>
         /// Appends the specified persistent object to the specified parent element by
         /// creating a new element with specified element name and
@@ -197,7 +191,6 @@ namespace Nxdb.Persistence
             if (type.IsValueType) throw new ArgumentException("obj must not be a value type.");
             if (parent == null) throw new ArgumentNullException("parent");
             if (!parent.Valid) throw new ArgumentException("The specified parent is invalid.");
-            if (Updates.Open) throw new Exception("Can not append a new object with open updates.");
 
             // Get the new element name
             if(String.IsNullOrEmpty(elementName))
@@ -210,8 +203,11 @@ namespace Nxdb.Persistence
             // attached and automatic refreshing is enabled
             Detach(obj);
 
-            // Create the new element (this is why updates can't be open)
-            parent.Append(new Element(elementName));
+            // Create the new element
+            using (new Updates(true))
+            {
+                parent.Append(new Element(elementName));
+            }
             Element element = (Element) parent.Children.Last();
 
             // Attach the persistent object to the new element
@@ -219,6 +215,16 @@ namespace Nxdb.Persistence
             {
                 Attach(obj, element, false);
             }
+        }
+
+        public void Append(object obj, Element parent)
+        {
+            Append(obj, parent, null, true);
+        }
+
+        public void Append(object obj, Element parent, string elementName)
+        {
+            Append(obj, parent, elementName, true);
         }
 
         /// <summary>
@@ -255,7 +261,7 @@ namespace Nxdb.Persistence
             if (!element.Valid) throw new ArgumentException("The specified element is invalid.");
 
             TypeCache typeCache = _cache.GetTypeCache(type);
-            typeCache.Persister.Fetch(element, obj, typeCache);
+            typeCache.Persister.Fetch(element, obj, typeCache, _cache);
         }
 
         /// <summary>
@@ -302,7 +308,7 @@ namespace Nxdb.Persistence
             if (!element.Valid) throw new ArgumentException("The specified element is invalid.");
 
             TypeCache typeCache = _cache.GetTypeCache(type);
-            typeCache.Persister.Store(element, obj, typeCache);
+            typeCache.Persister.Store(element, obj, typeCache, _cache);
         }
 
         /// <summary>

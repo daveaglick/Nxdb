@@ -20,7 +20,7 @@ namespace Nxdb.Persistence.Attributes
         /// </summary>
         public string Default { get; set; }
 
-        internal override object FetchValue(Element element, object target, TypeCache typeCache)
+        internal override object FetchValue(Element element, object target, TypeCache typeCache, Cache cache)
         {
             string value = FetchValue(element) ?? Default;
             TypeConverter typeConverter = target == null
@@ -30,18 +30,14 @@ namespace Nxdb.Persistence.Attributes
             return typeConverter.ConvertFromString(value);
         }
 
-        internal override object GetValue(Element element, object source, TypeCache typeCache)
+        internal override void StoreValue(Element element, object source, TypeCache typeCache, Cache cache)
         {
             TypeConverter typeConverter = source == null
                 ? TypeDescriptor.GetConverter(typeCache.Type) : TypeDescriptor.GetConverter(source);
             if (typeConverter == null) throw new Exception("Could not get TypeConverter for member.");
             if (!typeConverter.CanConvertTo(typeof(string))) throw new Exception("Can not convert member to string.");
-            return typeConverter.ConvertToString(source);
-        }
-
-        internal override void StoreValue(Element element, object value)
-        {
-            StoreValue(element, (string)value);
+            string value = typeConverter.ConvertToString(source);
+            StoreValue(element, value);
         }
 
         protected virtual string FetchValue(Element element)
