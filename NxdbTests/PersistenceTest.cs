@@ -183,11 +183,15 @@ namespace NxdbTests
 
         public int[] NumArr { get; set; }
 
+        [PersistentObject(Order = 3)]
+        public DefaultPersistentClass Inner { get; set; }
+
         public string ToString(string elementName)
         {
             return String.Format(
-                "<{0} bool=\"{1}\"><Str>{2}</Str><_num>{3}</_num></{0}>",
-                elementName, Bl.ToString(), Str, Num);
+                "<{0} bool=\"{1}\"><Str>{2}</Str><_num>{3}</_num>{4}</{0}>",
+                elementName, Bl.ToString(), Str, Num,
+                Inner == null ? String.Empty : Inner.ToString("Inner"));
         }
 
         public override string ToString()

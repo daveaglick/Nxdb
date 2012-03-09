@@ -80,7 +80,8 @@ namespace Nxdb.Persistence.Attributes
         }
 
         internal abstract object FetchValue(Element element, object target, TypeCache typeCache, Cache cache);
-        internal abstract void StoreValue(Element element, object source, TypeCache typeCache, Cache cache);
+        internal abstract object SerializeValue(object source, TypeCache typeCache, Cache cache);
+        internal abstract void StoreValue(Element element, object serialized, object source, TypeCache typeCache, Cache cache);
 
         // Provide value if the create query should be run
         protected Element GetElementFromQuery(Element element)
@@ -93,13 +94,8 @@ namespace Nxdb.Persistence.Attributes
                     // We didn't get the target, see if we have a query that can create it
                     if (!String.IsNullOrEmpty(CreateQuery))
                     {
-                        using (new Updates(true))
-                        {
-                            element.Eval(CreateQuery);
-                        }
-
-                        //Try to get the target again
-                        target = element.EvalSingle(Query) as Element;
+                        element.Eval(CreateQuery);
+                        target = element.EvalSingle(Query) as Element;  //Try to get the target again
                     }
                 }
                 element = target;

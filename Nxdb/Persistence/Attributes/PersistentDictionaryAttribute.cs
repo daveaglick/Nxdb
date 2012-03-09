@@ -48,7 +48,12 @@ namespace Nxdb.Persistence.Attributes
             throw new NotImplementedException();
         }
 
-        internal override void StoreValue(Element element, object source, TypeCache typeCache, Cache cache)
+        internal override object SerializeValue(object source, TypeCache typeCache, Cache cache)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal override void StoreValue(Element element, object serialized, object source, TypeCache typeCache, Cache cache)
         {
             throw new NotImplementedException();
         }

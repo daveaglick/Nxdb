@@ -146,11 +146,11 @@ namespace Nxdb.Persistence
         /// attached to a different element, it will be detached from that element and reattached to the
         /// specified element. Also fetches data for the specified object from the specified element.
         /// </summary>
-        /// <param name="obj">The persistent object.</param>
+        /// <param name="target">The persistent object.</param>
         /// <param name="element">The element to attach the existing object to.</param>
-        public void Attach(object obj, Element element)
+        public void Attach(object target, Element element)
         {
-            Attach(obj, element, true);
+            Attach(target, element, true);
         }
 
         // Attaches the specific object and optionally fetches it (or stores it)
@@ -180,14 +180,14 @@ namespace Nxdb.Persistence
         /// attached to a different element, it will be detached from that element
         /// and reattached to the newly created element.
         /// </summary>
-        /// <param name="obj">The persistent object.</param>
+        /// <param name="source">The persistent object.</param>
         /// <param name="parent">The element to append the object to.</param>
         /// <param name="elementName">The name of the new element.</param>
         /// <param name="attach">Indicates whether the object should be attached.</param>
-        public void Append(object obj, Element parent, string elementName, bool attach)
+        public void Append(object source, Element parent, string elementName, bool attach)
         {
-            if (obj == null) throw new ArgumentNullException("obj");
-            Type type = obj.GetType();
+            if (source == null) throw new ArgumentNullException("source");
+            Type type = source.GetType();
             if (type.IsValueType) throw new ArgumentException("obj must not be a value type.");
             if (parent == null) throw new ArgumentNullException("parent");
             if (!parent.Valid) throw new ArgumentException("The specified parent is invalid.");
@@ -201,30 +201,34 @@ namespace Nxdb.Persistence
             // Detach the persistent object first because the act of adding the new element will update
             // the database, thus causing the automatic refresh to change the object if it's already
             // attached and automatic refreshing is enabled
-            Detach(obj);
+            if (attach)
+            {
+                Detach(source);
+            }
 
             // Create the new element
-            using (new Updates(true))
-            {
-                parent.Append(new Element(elementName));
-            }
+            parent.Append(new Element(elementName));
             Element element = (Element) parent.Children.Last();
 
             // Attach the persistent object to the new element
             if (attach)
             {
-                Attach(obj, element, false);
+                Attach(source, element, false);
+            }
+            else
+            {
+                Store(source, element);
             }
         }
 
-        public void Append(object obj, Element parent)
+        public void Append(object source, Element parent)
         {
-            Append(obj, parent, null, true);
+            Append(source, parent, null, true);
         }
 
-        public void Append(object obj, Element parent, string elementName)
+        public void Append(object source, Element parent, string elementName)
         {
-            Append(obj, parent, elementName, true);
+            Append(source, parent, elementName, true);
         }
 
         /// <summary>
@@ -250,31 +254,31 @@ namespace Nxdb.Persistence
         /// Fetches data for the specified object from the specified element.
         /// This method does not attach the object to the specified element.
         /// </summary>
-        /// <param name="obj">The object to fetch data for.</param>
+        /// <param name="target">The object to fetch data for.</param>
         /// <param name="element">The element to fetch data from.</param>
-        public void Fetch(object obj, Element element)
+        public void Fetch(object target, Element element)
         {
-            if (obj == null) throw new ArgumentNullException("obj");
-            Type type = obj.GetType();
+            if (target == null) throw new ArgumentNullException("target");
+            Type type = target.GetType();
             if (type.IsValueType) throw new ArgumentException("obj must not be a value type.");
             if (element == null) throw new ArgumentNullException("element");
             if (!element.Valid) throw new ArgumentException("The specified element is invalid.");
 
             TypeCache typeCache = _cache.GetTypeCache(type);
-            typeCache.Persister.Fetch(element, obj, typeCache, _cache);
+            typeCache.Persister.Fetch(element, target, typeCache, _cache);
         }
 
         /// <summary>
         /// Fetches data for the specified object from the attached element.
         /// </summary>
-        /// <param name="obj">The object to fetch data for.</param>
-        public void Fetch(object obj)
+        /// <param name="target">The object to fetch data for.</param>
+        public void Fetch(object target)
         {
-            if (obj == null) throw new ArgumentNullException("obj");
-            if (obj.GetType().IsValueType) throw new ArgumentException("obj must not be a value type.");
+            if (target == null) throw new ArgumentNullException("target");
+            if (target.GetType().IsValueType) throw new ArgumentException("obj must not be a value type.");
 
             ObjectWrapper wrapper;
-            if(!_cache.TryGetWrapper(obj, out wrapper))
+            if(!_cache.TryGetWrapper(target, out wrapper))
             {
                 throw new ArgumentException("obj is not currently attached.");
             }
@@ -297,31 +301,31 @@ namespace Nxdb.Persistence
         /// Stores data for the specified object to the specified element.
         /// This method does not attach the object to the specified element.
         /// </summary>
-        /// <param name="obj">The object to store data for.</param>
+        /// <param name="source">The object to store data for.</param>
         /// <param name="element">The element to store data to.</param>
-        public void Store(object obj, Element element)
+        public void Store(object source, Element element)
         {
-            if (obj == null) throw new ArgumentNullException("obj");
-            Type type = obj.GetType();
+            if (source == null) throw new ArgumentNullException("source");
+            Type type = source.GetType();
             if (type.IsValueType) throw new ArgumentException("obj must not be a value type.");
             if (element == null) throw new ArgumentNullException("element");
             if (!element.Valid) throw new ArgumentException("The specified element is invalid.");
 
             TypeCache typeCache = _cache.GetTypeCache(type);
-            typeCache.Persister.Store(element, obj, typeCache, _cache);
+            typeCache.Persister.Store(element, source, typeCache, _cache);
         }
 
         /// <summary>
         /// Stores data for the specified object to the attached element.
         /// </summary>
-        /// <param name="obj">The object to store data for.</param>
-        public void Store(object obj)
+        /// <param name="source">The object to store data for.</param>
+        public void Store(object source)
         {
-            if (obj == null) throw new ArgumentNullException("obj");
-            if (obj.GetType().IsValueType) throw new ArgumentException("obj must not be a value type.");
+            if (source == null) throw new ArgumentNullException("source");
+            if (source.GetType().IsValueType) throw new ArgumentException("obj must not be a value type.");
 
             ObjectWrapper wrapper;
-            if (!_cache.TryGetWrapper(obj, out wrapper))
+            if (!_cache.TryGetWrapper(source, out wrapper))
             {
                 throw new ArgumentException("obj is not currently attached.");
             }

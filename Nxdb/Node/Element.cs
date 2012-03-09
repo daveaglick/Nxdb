@@ -94,7 +94,7 @@ namespace Nxdb.Node
         {
             Check(true);
             ANode[] nodes = EnumerateANodes(ANode.attributes()).ToArray();
-            Updates.Add(new Delete(null, Seq.get(nodes, nodes.Length)));
+            Updates.Do(new Delete(null, Seq.get(nodes, nodes.Length)));
         }
 
         /// <summary>
@@ -111,7 +111,7 @@ namespace Nxdb.Node
             DBNode node = AttributeANode(name) as DBNode;
             if (node != null)
             {
-                Updates.Add(new Delete(null, node));
+                Updates.Do(new Delete(null, node));
             }
         }
 
@@ -129,7 +129,7 @@ namespace Nxdb.Node
             FAttr attr = new FAttr(new QNm(name.Token()), value.Token());
             if (DbNode != null)
             {
-                Updates.Add(new Insert(null, attr, false, false, false, false, DbNode));
+                Updates.Do(new Insert(null, attr, false, false, false, false, DbNode));
             }
             else if (FNode != null)
             {
@@ -140,11 +140,8 @@ namespace Nxdb.Node
         /// <inheritdoc />
         public override void RemoveAll()
         {
-            using(new Updates())
-            {
-                RemoveAllAttributes();
-                base.RemoveAll();
-            }
+            RemoveAllAttributes();
+            base.RemoveAll();
         }
 
         /// <inheritdoc />

@@ -65,7 +65,7 @@ namespace Nxdb.Node
             Check(true);
             if (nodeCache != null)
             {
-                Updates.Add(new Insert(null, nodeCache.value(), false, false, true, false, DbNode));
+                Updates.Do(new Insert(null, nodeCache.value(), false, false, true, false, DbNode));
             }
         }
 
@@ -101,7 +101,7 @@ namespace Nxdb.Node
             Check(true);
             if (nodeCache != null)
             {
-                Updates.Add(new Insert(null, nodeCache.value(), false, false, false, true, DbNode));
+                Updates.Do(new Insert(null, nodeCache.value(), false, false, false, true, DbNode));
             }
         }
 

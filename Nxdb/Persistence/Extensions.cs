@@ -49,44 +49,44 @@ namespace Nxdb.Persistence
             return Manager.Default.GetObjects<T>(element, expression, attach, attachItems);
         }
 
-        public static void Attach(this object obj, Element element)
+        public static void Attach(this object target, Element element)
         {
-            Manager.Default.Attach(obj, element);
+            Manager.Default.Attach(target, element);
         }
 
-        public static void Attach(this Element element, object obj)
+        public static void Attach(this Element element, object target)
         {
-            Manager.Default.Attach(obj, element);
+            Manager.Default.Attach(target, element);
         }
 
-        public static void Append(this object obj, Element parent)
+        public static void Append(this object source, Element parent)
         {
-            Manager.Default.Append(obj, parent);
+            Manager.Default.Append(source, parent);
         }
 
-        public static void Append(this object obj, Element parent, string elementName)
+        public static void Append(this object source, Element parent, string elementName)
         {
-            Manager.Default.Append(obj, parent, elementName);
+            Manager.Default.Append(source, parent, elementName);
         }
 
-        public static void Append(this object obj, Element parent, string elementName, bool attach)
+        public static void Append(this object source, Element parent, string elementName, bool attach)
         {
-            Manager.Default.Append(obj, parent, elementName, attach);
+            Manager.Default.Append(source, parent, elementName, attach);
         }
 
-        public static void Append(this Element parent, object obj)
+        public static void Append(this Element parent, object source)
         {
-            Manager.Default.Append(obj, parent);
+            Manager.Default.Append(source, parent);
         }
 
-        public static void Append(this Element parent, object obj, string elementName)
+        public static void Append(this Element parent, object source, string elementName)
         {
-            Manager.Default.Append(obj, parent, elementName);
+            Manager.Default.Append(source, parent, elementName);
         }
 
-        public static void Append(this Element parent, object obj, string elementName, bool attach)
+        public static void Append(this Element parent, object source, string elementName, bool attach)
         {
-            Manager.Default.Append(obj, parent, elementName, attach);
+            Manager.Default.Append(source, parent, elementName, attach);
         }
 
         public static void Detach(this object obj)
@@ -94,34 +94,34 @@ namespace Nxdb.Persistence
             Manager.Default.Detach(obj);
         }
 
-        public static void Fetch(this object obj, Element element)
+        public static void Fetch(this object target, Element element)
         {
-            Manager.Default.Fetch(obj, element);
+            Manager.Default.Fetch(target, element);
         }
 
-        public static void Fetch(this Element element, object obj)
+        public static void Fetch(this Element element, object target)
         {
-            Manager.Default.Fetch(obj, element);
+            Manager.Default.Fetch(target, element);
         }
 
-        public static void Fetch(this object obj)
+        public static void Fetch(this object target)
         {
-            Manager.Default.Fetch(obj);
+            Manager.Default.Fetch(target);
         }
 
-        public static void Store(this object obj, Element element)
+        public static void Store(this object source, Element element)
         {
-            Manager.Default.Store(obj, element);
+            Manager.Default.Store(source, element);
         }
 
-        public static void Store(this Element element, object obj)
+        public static void Store(this Element element, object source)
         {
-            Manager.Default.Store(obj, element);
+            Manager.Default.Store(source, element);
         }
 
-        public static void Store(this object obj)
+        public static void Store(this object source)
         {
-            Manager.Default.Store(obj);
+            Manager.Default.Store(source);
         }
     }
 }

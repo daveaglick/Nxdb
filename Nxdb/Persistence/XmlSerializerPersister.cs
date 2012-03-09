@@ -45,8 +45,10 @@ namespace Nxdb.Persistence
             _writerSettings = Helper.WriterSettings.Clone();
         }
 
-        internal override void Fetch(Element element, object obj, TypeCache typeCache, Cache cache)
+        internal override void Fetch(Element element, object target, TypeCache typeCache, Cache cache)
         {
+            if (target == null) return;
+
             // Deserialize the object
             XmlSerializer serializer = new XmlSerializer(typeCache.Type);
             object deserialized;
@@ -59,12 +61,14 @@ namespace Nxdb.Persistence
             foreach(FieldInfo field in typeCache.Fields)
             {
                 object value = field.GetValue(deserialized);
-                field.SetValue(obj, value);
+                field.SetValue(target, value);
             }
         }
 
-        internal override void Store(Element element, object obj, TypeCache typeCache, Cache cache)
+        internal override object Serialize(object source, TypeCache typeCache, Cache cache)
         {
+            if (source == null) return null;
+
             // Serialize the object
             // Use an empty namespace object to prevent default namespace declarations
             XmlSerializer serializer = new XmlSerializer(typeCache.Type);
@@ -72,37 +76,40 @@ namespace Nxdb.Persistence
             namespaces.Add(String.Empty, String.Empty);
             StringBuilder content = new StringBuilder();
             using (XmlWriter writer = XmlWriter.Create(content, _writerSettings))
-            {   
-                serializer.Serialize(writer, obj, namespaces);
+            {
+                serializer.Serialize(writer, source, namespaces);
             }
+            return content.ToString();
+        }
+
+        internal override void Store(Element element, object serialized, object source, TypeCache typeCache, Cache cache)
+        {
+            if (source == null || serialized == null) return;
 
             // Replace the element content in the database with the new content
-            using(new Updates())
+            using (TextReader textReader = new StringReader((string)serialized))
             {
-                using(TextReader textReader = new StringReader(content.ToString()))
+                using(XmlReader reader = XmlReader.Create(textReader))
                 {
-                    using(XmlReader reader = XmlReader.Create(textReader))
-                    {
-                        // Move to the root element
-                        reader.MoveToContent();
+                    // Move to the root element
+                    reader.MoveToContent();
 
-                        // Replace all attributes
-                        element.RemoveAllAttributes();
-                        if(reader.HasAttributes)
+                    // Replace all attributes
+                    element.RemoveAllAttributes();
+                    if(reader.HasAttributes)
+                    {
+                        while(reader.MoveToNextAttribute())
                         {
-                            while(reader.MoveToNextAttribute())
-                            {
-                                element.InsertAttribute(reader.Name, reader.Value);
-                            }
-                            reader.MoveToElement();
+                            element.InsertAttribute(reader.Name, reader.Value);
                         }
-                        
-                        // Replace the child content
-                        // Need to use an intermediate string since there is no way to
-                        // get the "inner XML" of an XmlReader without getting the
-                        // parent element too
-                        element.InnerXml = reader.ReadInnerXml();
+                        reader.MoveToElement();
                     }
+                        
+                    // Replace the child content
+                    // Need to use an intermediate string since there is no way to
+                    // get the "inner XML" of an XmlReader without getting the
+                    // parent element too
+                    element.InnerXml = reader.ReadInnerXml();
                 }
             }
         }

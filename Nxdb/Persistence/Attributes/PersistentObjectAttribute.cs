@@ -30,7 +30,7 @@ namespace Nxdb.Persistence.Attributes
     /// than one element with the given name exists, the first one will be used.
     /// </summary>
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
-    class PersistentObjectAttribute : PersistentMemberAttribute
+    public class PersistentObjectAttribute : PersistentMemberAttribute
     {
         /// <summary>
         /// Gets or sets the name to use or create. If unspecified, the name of
@@ -79,23 +79,33 @@ namespace Nxdb.Persistence.Attributes
             return value;
         }
 
-        internal override void StoreValue(Element element, object source, TypeCache typeCache, Cache cache)
+        internal override object SerializeValue(object source, TypeCache typeCache, Cache cache)
         {
-            //element = GetElementFromQuery(element);
-            //if (element == null) return;
+            return typeCache.Persister.Serialize(source, typeCache, cache);
+        }
 
-            //Element child = element.Children.OfType<Element>().Where(e => e.Name.Equals(Name)).FirstOrDefault();
-            //if (child == null)
-            //{
-            //    element.Append(String.Format("<{0}>{1}</{0}>", Name, value));
-            //}
-            //else
-            //{
-            //    child.InnerXml = ((Element) value).InnerXml;
-            //}
+        internal override void StoreValue(Element element, object serialized, object source, TypeCache typeCache, Cache cache)
+        {
+            element = GetElementFromQuery(element);
+            if (element == null) return;
 
-            // TODO: Do I need to deal with attributes on the value element?
+            Element child = element.Children.OfType<Element>().Where(e => e.Name.Equals(Name)).FirstOrDefault();
+            if (child == null && source != null)
+            {
+                element.Append(new Element(Name));
+                child = (Element)element.Children.Last();
+            }
+            else if(child != null && source == null)
+            {
+                child.Remove();
+                return;
+            }
+            else if (child == null)
+            {
+                return;
+            }
 
+            typeCache.Persister.Store(child, serialized, source, typeCache, cache);
         }
     }
 }

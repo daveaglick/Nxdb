@@ -121,6 +121,9 @@ namespace Nxdb
             }
         }
 
+        // A cache of all databases - the same instance should be returned for the same Data
+        private static readonly Dictionary<Data, Database> DatabasesCache = new Dictionary<Data, Database>();
+
         /// <summary>
         /// Drops the specified database.
         /// </summary>
@@ -197,8 +200,16 @@ namespace Nxdb
             return database;
         }
 
-        // A cache of all databases - the same instance should be returned for the same Data
-        private static readonly Dictionary<Data, Database> DatabasesCache = new Dictionary<Data, Database>();
+        /// <summary>
+        /// Gets a new memory database. This database has no name and is not added to
+        /// the database cache. It does not need to be dropped.
+        /// </summary>
+        /// <returns>A new in-memory database.</returns>
+        public static Database Get()
+        {
+            MemData data = CreateDB.mainMem(Parser.emptyParser(), Context);
+            return new Database(data);
+        }
 
         /// <summary>
         /// Gets all open databases.
@@ -404,12 +415,9 @@ namespace Nxdb
         {   
             if (_data == null) throw new ObjectDisposedException("Database");
             IntList docs = Data.resources.docs(path);
-            using(new Updates())
+            for (int i = docs.size() - 1; i >= 0; i--)
             {
-                for (int i = 0, s = docs.size(); i < s; i++)
-                {
-                    Updates.Add(new DeleteNode(docs.get(i), Data, null));
-                }
+                Updates.Do(new DeleteNode(docs.get(i), Data, null));
             }
         }
 
@@ -422,16 +430,13 @@ namespace Nxdb
         {
             if (_data == null) throw new ObjectDisposedException("Database");
             IntList docs = Data.resources.docs(path);
-            using (new Updates())
+            for (int i = 0, s = docs.size(); i < s; i++)
             {
-                for (int i = 0, s = docs.size(); i < s; i++)
+                int pre = docs.get(i);
+                string target = org.basex.core.cmd.Rename.target(Data, pre, path, newName);
+                if (!String.IsNullOrEmpty(target))
                 {
-                    int pre = docs.get(i);
-                    string target = org.basex.core.cmd.Rename.target(Data, pre, path, newName);
-                    if (!String.IsNullOrEmpty(target))
-                    {
-                        Updates.Add(new ReplaceValue(pre, Data, null, target.Token()));
-                    }
+                    Updates.Do(new ReplaceValue(pre, Data, null, target.Token()));
                 }
             }
         }
@@ -442,7 +447,7 @@ namespace Nxdb
         public void Optimize()
         {
             if (_data == null) throw new ObjectDisposedException("Database");
-            Updates.Add(new DBOptimize(Data, Context, false, null));
+            Updates.Do(new DBOptimize(Data, Context, false, null));
         }
 
         /// <summary>
@@ -451,7 +456,7 @@ namespace Nxdb
         public void OptimizeAll()
         {
             if (_data == null) throw new ObjectDisposedException("Database");
-            Updates.Add(new DBOptimize(Data, Context, true, null));
+            Updates.Do(new DBOptimize(Data, Context, true, null));
         }
 
         /// <summary>
@@ -503,7 +508,7 @@ namespace Nxdb
             if (nodeCache != null)
             {
                 FDoc doc = new FDoc(nodeCache, path.Token());
-                Updates.Add(new DBAdd(Data, null, doc, path, Context));
+                Updates.Do(new DBAdd(Data, null, doc, path, Context));
             }
         }
 
@@ -553,15 +558,12 @@ namespace Nxdb
         private void Replace(string path, NodeCache nodeCache)
         {
             if (_data == null) throw new ObjectDisposedException("Database");
-            using (new Updates())
+            int pre = Data.resources.doc(path);
+            if (pre != -1)
             {
-                int pre = Data.resources.doc(path);
-                if (pre != -1)
-                {
-                    if (Data.resources.docs(path).size() != 1) throw new ArgumentException("Simple document expected as replacement target");
-                    Updates.Add(new DeleteNode(pre, Data, null));
-                    Add(path, nodeCache);
-                }
+                if (Data.resources.docs(path).size() != 1) throw new ArgumentException("Simple document expected as replacement target");
+                Updates.Do(new DeleteNode(pre, Data, null));
+                Add(path, nodeCache);
             }
         }
 

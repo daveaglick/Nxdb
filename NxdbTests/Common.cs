@@ -84,14 +84,11 @@ namespace NxdbTests
         public static Documents Populate(Database database, params string[] names)
         {
             Documents documents = new Documents(new List<string>(names), new List<string>());
-            using (new Updates())
+            foreach (string name in names)
             {
-                foreach (string name in names)
-                {
-                    string content = GenerateXmlContent(name);
-                    documents.Content.Add(content);
-                    database.Add(name, content);
-                }
+                string content = GenerateXmlContent(name);
+                documents.Content.Add(content);
+                database.Add(name, content);
             }
             return documents;
         }

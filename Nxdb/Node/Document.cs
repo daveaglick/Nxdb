@@ -77,7 +77,7 @@ namespace Nxdb.Node
                 //Need to use the update primitive (as opposed to the expression) because documents can't be renamed through the expression
                 if (value == null) throw new ArgumentNullException("value");
                 Check(true);
-                Updates.Add(new ReplaceValue(DbNode.pre, DbNode.data(), null, value.Token()));
+                Updates.Do(new ReplaceValue(DbNode.pre, DbNode.data(), null, value.Token()));
             }
         }
 

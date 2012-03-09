@@ -31,22 +31,37 @@ namespace Nxdb.Persistence
         void Fetch(Element element);
 
         /// <summary>
-        /// Saves the persistent object's state to the specified database element.
+        /// Serializes this to an arbitrary object that contains the content to store.
+        /// The return value will be passed to Store.
         /// </summary>
+        object Serialize();
+
+        /// <summary>
+        /// Saves the serialized content to the specified database element.
+        /// </summary>
+        /// <param name="serialized">The arbitrary serialized content returned by Serialize.</param>
         /// <param name="element">The element the object is currently attached to.</param>
-        void Store(Element element);
+        void Store(Element element, object serialized);
     }
 
     internal class CustomPersister : Persister
     {
-        internal override void Fetch(Element element, object obj, TypeCache typeCache, Cache cache)
+        internal override void Fetch(Element element, object target, TypeCache typeCache, Cache cache)
         {
-            ((ICustomPersister)obj).Fetch(element);
+            if (target == null) return;
+            ((ICustomPersister)target).Fetch(element);
         }
 
-        internal override void Store(Element element, object obj, TypeCache typeCache, Cache cache)
+        internal override object Serialize(object source, TypeCache typeCache, Cache cache)
         {
-            ((ICustomPersister)obj).Store(element);
+            if (source == null) return null;
+            return ((ICustomPersister)source).Serialize();
+        }
+
+        internal override void Store(Element element, object serialized, object target, TypeCache typeCache, Cache cache)
+        {
+            if (target == null || serialized == null) return;
+            ((ICustomPersister)target).Store(element, serialized);
         }
     }
 }

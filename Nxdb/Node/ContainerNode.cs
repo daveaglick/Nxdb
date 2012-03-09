@@ -44,7 +44,7 @@ namespace Nxdb.Node
         {
             Check(true);
             ANode[] nodes = EnumerateANodes(ANode.children()).ToArray();
-            Updates.Add(new Delete(null, Seq.get(nodes, nodes.Length)));
+            Updates.Do(new Delete(null, Seq.get(nodes, nodes.Length)));
         }
 
         /// <summary>
@@ -91,7 +91,7 @@ namespace Nxdb.Node
             Check(true);
             if (nodeCache != null)
             {
-                Updates.Add(new Insert(null, nodeCache.value(), false, true, false, false, DbNode));
+                Updates.Do(new Insert(null, nodeCache.value(), false, true, false, false, DbNode));
             }
         }
 
@@ -139,7 +139,7 @@ namespace Nxdb.Node
             Check(true);
             if (nodeCache != null)
             {
-                Updates.Add(new Insert(null, nodeCache.value(), true, false, false, false, DbNode));
+                Updates.Do(new Insert(null, nodeCache.value(), true, false, false, false, DbNode));
             }
         }
 
@@ -294,12 +294,9 @@ namespace Nxdb.Node
         {
             if (nodeCache != null)
             {
-                using (new Updates())
-                {
-                    ANode[] nodes = EnumerateANodes(ANode.children()).ToArray();
-                    Updates.Add(new Delete(null, Seq.get(nodes, nodes.Length)));
-                    Updates.Add(new Insert(null, nodeCache.value(), false, true, false, false, DbNode));
-                }
+                ANode[] nodes = EnumerateANodes(ANode.children()).ToArray();
+                Updates.Do(new Delete(null, Seq.get(nodes, nodes.Length)));
+                Updates.Do(new Insert(null, nodeCache.value(), false, true, false, false, DbNode));
                 
             }
                     

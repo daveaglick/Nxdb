@@ -37,6 +37,7 @@ namespace Nxdb
             = new Dictionary<string, Value>();
         private Value _defaultCollection = null;
         private Value _context = null;
+        private bool _allowUpdates = true;
         private readonly Dictionary<string, Value> _variables
             = new Dictionary<string, Value>();
         private readonly Dictionary<string, string> _externals
@@ -56,6 +57,16 @@ namespace Nxdb
         public Query(object context)
         {
             SetContext(context);
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether this query is allowed to perform updates. If false, all XQuery Update
+        /// operations will not be evaluated (though the rest of the query will still be evaluated).
+        /// </summary>
+        public bool AllowUpdates
+        {
+            get { return _allowUpdates; }
+            set { _allowUpdates = value; }
         }
 
         /// <summary>
@@ -190,17 +201,8 @@ namespace Nxdb
                 queryContext.sc.@namespace(kvp.Key, "java:" + kvp.Value);
             }
 
-            // Get the outer updates instance
-            bool dispose = false;
-            Updates updates = Updates.GetOuterUpdates();
-            if(updates == null)
-            {
-                updates = new Updates();
-                dispose = true;
-            }
-
             // Reset the update collection to the common one in our update operation
-            queryContext.updates = updates.QueryUpdates;
+            queryContext.updates = Updates.QueryUpdates;
 
             // Parse the expression
             queryContext.parse(expression);
@@ -215,10 +217,14 @@ namespace Nxdb
             Iter iter = queryContext.iter();
             IterEnum iterEnum = new IterEnum(iter);
 
-            // Dispose the Updates if it was instantiated by us
-            if(dispose)
+            // Apply updates if allowed
+            if(AllowUpdates)
             {
-                updates.Dispose();
+                Updates.Apply();
+            }
+            else
+            {
+                Updates.Forget();
             }
 
             return iterEnum;

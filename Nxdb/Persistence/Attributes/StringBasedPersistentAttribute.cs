@@ -30,14 +30,18 @@ namespace Nxdb.Persistence.Attributes
             return typeConverter.ConvertFromString(value);
         }
 
-        internal override void StoreValue(Element element, object source, TypeCache typeCache, Cache cache)
+        internal override object SerializeValue(object source, TypeCache typeCache, Cache cache)
         {
             TypeConverter typeConverter = source == null
                 ? TypeDescriptor.GetConverter(typeCache.Type) : TypeDescriptor.GetConverter(source);
             if (typeConverter == null) throw new Exception("Could not get TypeConverter for member.");
             if (!typeConverter.CanConvertTo(typeof(string))) throw new Exception("Can not convert member to string.");
-            string value = typeConverter.ConvertToString(source);
-            StoreValue(element, value);
+            return typeConverter.ConvertToString(source);
+        }
+
+        internal override void StoreValue(Element element, object serialized, object source, TypeCache typeCache, Cache cache)
+        {
+            StoreValue(element, (string)serialized);
         }
 
         protected virtual string FetchValue(Element element)

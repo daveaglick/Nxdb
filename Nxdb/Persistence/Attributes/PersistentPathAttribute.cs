@@ -57,14 +57,18 @@ namespace Nxdb.Persistence.Attributes
         protected override void StoreValue(Element element, string value)
         {
             Node.Node node = element.EvalSingle(Query) as Node.Node;
-            if (node == null && !String.IsNullOrEmpty(CreateQuery))
+
+            if (node == null && value != null && !String.IsNullOrEmpty(CreateQuery))
             {
-                using (new Updates(true))
-                {
-                    element.Eval(CreateQuery);
-                }
+                element.Eval(CreateQuery);
                 node = element.EvalSingle(Query) as Node.Node;
             }
+            else if(node != null && value == null)
+            {
+                node.Remove();
+                return;
+            }
+
             if(node != null)
             {
                 node.Value = value;

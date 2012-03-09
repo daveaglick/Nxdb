@@ -43,14 +43,22 @@ namespace Nxdb.Persistence.Attributes
             if (element == null) return;
 
             Element child = element.Children.OfType<Element>().Where(e => e.Name.Equals(Name)).FirstOrDefault();
-            if (child == null)
+            if (child == null && value != null)
             {
-                element.Append(String.Format("<{0}>{1}</{0}>", Name, value));
+                element.Append(new Element(Name));
+                child = (Element)element.Children.Last();
             }
-            else
+            else if (child != null && value == null)
             {
-                child.Value = value;
+                child.Remove();
+                return;
             }
+            else if (child == null)
+            {
+                return;
+            }
+
+            child.Value = value;
         }
     }
 }

@@ -21,35 +21,59 @@ namespace Nxdb.Persistence
 {
     /// <summary>
     /// This is the base class for reusable persisters. To add new persisters,
-    /// create a derived class and override Fetch, Store, or both.
+    /// create a derived class and override Fetch, Serialize, and/or Store.
     /// </summary>
     public abstract class Persister
     {
-        internal virtual void Fetch(Element element, object obj, TypeCache typeCache, Cache cache)
+        internal virtual void Fetch(Element element, object target, TypeCache typeCache, Cache cache)
         {
-            Fetch(element, obj);
+            Fetch(element, target);
         }
 
-        internal virtual void Store(Element element, object obj, TypeCache typeCache, Cache cache)
+        internal virtual object Serialize(object source, TypeCache typeCache, Cache cache)
         {
-            Store(element, obj);
+            return Serialize(source);
+        }
+
+        internal virtual void Store(Element element, object serialized, object source, TypeCache typeCache, Cache cache)
+        {
+            Store(element, serialized, source);
+        }
+
+        // This just does both steps in one operation
+        internal void Store(Element element, object source, TypeCache typeCache, Cache cache)
+        {
+            Store(element, Serialize(source, typeCache, cache), source, typeCache, cache);
         }
 
         /// <summary>
         /// Fetches data for the specified object from the specified element.
         /// </summary>
         /// <param name="element">The element to fetch data from.</param>
-        /// <param name="obj">The object to fetch data for.</param>
-        protected virtual void Fetch(Element element, object obj)
+        /// <param name="target">The object to fetch data for.</param>
+        protected virtual void Fetch(Element element, object target)
         {
+        }
+
+        /// <summary>
+        /// Serializes the instance to an arbitrary object that will be passed
+        /// to Store.Doing storage in two phases allows failure without
+        /// manipulating the database.
+        /// </summary>
+        /// <param name="source">The object to store data for.</param>
+        /// <returns>An arbitrary object that will be passed to Store.</returns>
+        protected virtual object Serialize(object source)
+        {
+            return null;
         }
 
         /// <summary>
         /// Stores data for the specified object to the specified element.
         /// </summary>
         /// <param name="element">The element to store data to.</param>
-        /// <param name="obj">The object to store data for.</param>
-        protected virtual void Store(Element element, object obj)
+        /// <param name="serialized">The serialized object returned by Serialize.</param>
+        /// <param name="source">The object to store data for.</param>
+        protected virtual void Store(Element element, object serialized, object source)
         {
         }
     }

@@ -41,11 +41,15 @@ namespace Nxdb.Persistence.Attributes
             if (element == null) return;
 
             Node.Attribute attribute = element.Attribute(Name);
-            if (attribute == null)
+            if (attribute == null && value != null)
             {
                 element.InsertAttribute(Name, value);
             }
-            else
+            else if(attribute != null && value == null)
+            {
+                attribute.Remove();
+            }
+            else if(attribute != null)
             {
                 attribute.Value = value;
             }

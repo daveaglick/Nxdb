@@ -73,6 +73,7 @@ namespace Nxdb.Persistence
             _persistentObjects = persistentObjects;
         }
 
-        public void Store(Element element) { }
+        public object Serialize() { return null; }
+        public void Store(Element element, object serialized) { }
     }
 }

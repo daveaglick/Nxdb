@@ -518,7 +518,7 @@ namespace Nxdb.Node
         public void Remove()
         {
             Check(true);
-            Updates.Add(new Delete(null, DbNode));
+            Updates.Do(new Delete(null, DbNode));
         }
 
         /// <summary>
@@ -539,7 +539,7 @@ namespace Nxdb.Node
             {
                 if (value == null) throw new ArgumentNullException("value");
                 Check(true);
-                Updates.Add(new Replace(null, DbNode, new Atm(value.Token()), true));
+                Updates.Do(new Replace(null, DbNode, new Atm(value.Token()), true));
             }
         }
 
@@ -574,7 +574,7 @@ namespace Nxdb.Node
             {
                 if (value == null) throw new ArgumentNullException("value");
                 Check(true);
-                Updates.Add(new Rename(null, DbNode, new QNm(value.Token())));
+                Updates.Do(new Rename(null, DbNode, new QNm(value.Token())));
             }
         }
 

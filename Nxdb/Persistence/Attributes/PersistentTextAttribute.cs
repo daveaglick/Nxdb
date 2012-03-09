@@ -45,11 +45,15 @@ namespace Nxdb.Persistence.Attributes
             if (element == null) return;
 
             Text child = element.Children.OfType<Text>().FirstOrDefault();
-            if(child == null)
+            if(child == null && value != null)
             {
                 element.Append(new Text(value));
             }
-            else
+            else if(child != null && value == null)
+            {
+                child.Remove();
+            }
+            else if(child != null)
             {
                 child.Value = value;
             }

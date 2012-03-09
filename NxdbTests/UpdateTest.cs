@@ -60,51 +60,17 @@ namespace NxdbTests
                 query.Eval("insert node 'test' into .");
                 Assert.AreEqual(2, doc.Children.Count());
 
-                //Multiple updates - make sure none are updated until Updates is closed
-                using (new Updates())
-                {
-                    query.Eval("insert node 'test2' into .");
-                    query.Eval("insert node 'test3' into .");
-                    Assert.AreEqual("test", query.EvalSingle("string(./text()[1])"));
-                }
+                //Multiple updates
+                query.Eval("insert node 'test2' into .");
+                query.Eval("insert node 'test3' into .");
                 Assert.AreEqual(2, doc.Children.Count());   //The two insert texts should have been merged into the existing
                 Assert.AreEqual("testtest2test3", query.EvalSingle("string(./text()[1])"));
 
                 //Multiple updates with non-query updates
-                using (new Updates())
-                {
-                    query.Eval("insert node 'test6' into .");
-                    doc.Append("test7");
-                    Assert.AreEqual("testtest2test3", query.EvalSingle("string(./text()[1])"));
-                }
+                query.Eval("insert node 'test6' into .");
+                doc.Append("test7");
                 Assert.AreEqual(2, doc.Children.Count());
                 Assert.AreEqual("testtest2test3test6test7", query.EvalSingle("string(./text()[1])"));
-            }
-        }
-
-        [Test]
-        public void Aborted()
-        {
-            Common.Reset();
-            using (Database database = Database.Get(Common.DatabaseName))
-            {
-                Documents docs = Common.Populate(database, "A", "B", "C", "D");
-                Document doc = database.GetDocument("B");
-                Query query = new Query(doc);
-                query.Eval("insert node 'test' into .");
-
-                //Aborted update
-                using (Updates updates = new Updates())
-                {
-                    query.Eval("insert node 'test4' into .");
-                    Assert.AreEqual(2, doc.Children.Count());
-                    query.Eval("insert node 'test5' into .");
-                    Assert.AreEqual(2, doc.Children.Count());
-                    Assert.AreEqual("test", query.EvalSingle("string(./text()[1])"));
-                    updates.Forget();
-                }
-                Assert.AreEqual(2, doc.Children.Count());
-                Assert.AreEqual("test", query.EvalSingle("string(./text()[1])"));
             }
         }
 
@@ -127,13 +93,11 @@ namespace NxdbTests
                 keepElem.Invalidated += (o, e) => keepInvalid = true;
                 database.Updated += (o, e) => dbUpdate = true;
 
-                using (new Updates())
-                {
-                    delElem.Remove();
-                    Assert.IsFalse(delInvalid);
-                    Assert.IsFalse(keepInvalid);
-                    Assert.IsFalse(dbUpdate);
-                }
+                // Test events
+                Assert.IsFalse(delInvalid);
+                Assert.IsFalse(keepInvalid);
+                Assert.IsFalse(dbUpdate);
+                delElem.Remove();
                 Assert.IsTrue(delInvalid);
                 Assert.IsFalse(keepInvalid);
                 Assert.IsTrue(dbUpdate);
