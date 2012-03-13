@@ -162,10 +162,10 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Persistence\Attributes\DefaultPersisterAttribute.cs" />
-    <Compile Include="Persistence\Attributes\PersistentArrayAttribute.cs" />
+    <Compile Include="Persistence\Attributes\PersistentCollectionAttribute.cs" />
     <Compile Include="Persistence\Attributes\PersistentMemberAttribute.cs" />
     <Compile Include="Persistence\Attributes\PersistentAttributeAttribute.cs" />
-    <Compile Include="Persistence\Attributes\PersistentDictionaryAttribute.cs" />
+    <Compile Include="Persistence\Attributes\PersistentKvpCollectionAttribute.cs" />
     <Compile Include="Persistence\Attributes\PersistentElementAttribute.cs" />
     <Compile Include="Persistence\Attributes\PersistentPathAttribute.cs" />
     <Compile Include="Persistence\Attributes\PersistentTextAttribute.cs" />

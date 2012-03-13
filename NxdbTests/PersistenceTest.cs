@@ -182,13 +182,13 @@ namespace NxdbTests
         [PersistentAttribute(Name = "bool")]
         public bool Bl { get; set; }
 
-        [PersistentArray(Order = 4)]
+        [PersistentCollection(Order = 4)]
         public int[] NumArr { get; set; }
 
         [PersistentElement(IsPersistentObject = true, Order = 3)]
         public DefaultPersistentClass Inner { get; set; }
 
-        [PersistentArray(Order = 5, ItemsArePersistentObjects = true, ItemName = "PersistentItem")]
+        [PersistentCollection(Order = 5, ItemsArePersistentObjects = true, ItemName = "PersistentItem")]
         private readonly List<DefaultPersistentClass> _classes
             = new List<DefaultPersistentClass>();
 

@@ -18,6 +18,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -26,14 +27,23 @@ using Nxdb.Node;
 namespace Nxdb.Persistence.Attributes
 {
     /// <summary>
-    /// Stores or fetches a nested persistent array (or list) to/from a child element of the container element.
-    /// If more than one element with the given name exists, the first one will be used. This attribute can be applied
-    /// to arrays and objects assignable by List&lt;ItemType&gt;. If the object is not an array and ItemType is not
-    /// specified, all implemented IEnumerable&lt;T&gt; interfaces will be searched for the first that provides a
-    /// type that results in an assignable List&lt;T&gt;.
+    /// Stores or fetches a collection to/from a child element of the container element.
+    /// If more than one element with the given name exists, the first one will be used.
+    /// This supports arrays, lists, etc. The persistent object must either be an array,
+    /// implement ICollection&lt;T&gt;, or implement IList and provide an ItemType.
+    /// By default this stores and fetches data in the following format:
+    /// <code>
+    /// <Container>
+    ///   <Name>
+    ///     <Item>...</Item>
+    ///     <Item>...</Item>
+    ///     <Item>...</Item>
+    ///   </Name>
+    /// </Container>
+    /// </code> 
     /// </summary>
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
-    public class PersistentArrayAttribute : PersistentMemberAttribute
+    public class PersistentCollectionAttribute : PersistentMemberAttribute
     {
         /// <summary>
         /// Gets or sets the element name to use or create. If unspecified, the name of
@@ -74,11 +84,14 @@ namespace Nxdb.Persistence.Attributes
         /// detached instance will be created on every fetch for each item.
         /// </summary>
         public bool AttachItems { get; set; }
+        
+        private Func<int, object> _getCollection = null;
+        private Action<object, int, object> _setCollectionItem = null; // (collection, index, value)
 
-        private bool _array = false;
-        private ConstructorInfo _listConstructor = null;
-
-        public PersistentArrayAttribute()
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PersistentCollectionAttribute"/> class.
+        /// </summary>
+        public PersistentCollectionAttribute()
         {
             AttachItems = true;
         }
@@ -92,12 +105,11 @@ namespace Nxdb.Persistence.Attributes
 
             // Resolve the type of collection and the item type
             Type memberType = DefaultPersister.GetMemberType(memberInfo);
-            if(memberType.IsArray)
+            if (memberType.IsArray)
             {
-                // Get the array item type
-                _array = true;
+                // It's an array, get the array item type
                 Type itemType = memberType.GetElementType();
-                if(itemType == null)
+                if (itemType == null)
                 {
                     throw new Exception("Could not determine array item type.");
                 }
@@ -109,35 +121,64 @@ namespace Nxdb.Persistence.Attributes
                 {
                     throw new Exception("The specified ItemType must be assignable to the array type.");
                 }
-                _listConstructor = typeof(List<>).MakeGenericType(ItemType).GetConstructor(Type.EmptyTypes);
-            }
-            else if(ItemType != null)
-            {
-                // See if a List<ItemType> can be assigned to the member
-                Type listType = typeof(List<>).MakeGenericType(ItemType);
-                if(!memberType.IsAssignableFrom(listType))
-                    throw new Exception("The target object must be assignable from a List<ItemType>.");
-                _listConstructor = listType.GetConstructor(Type.EmptyTypes);
+                _getCollection = s => Array.CreateInstance(ItemType, s);
+                _setCollectionItem = (c, i, v) => ((Array)c).SetValue(v, (Int64)i);
             }
             else
             {
-                // Get an appropriate item type
-                Type listType = typeof(List<>);
-                foreach(Type itemType in memberType.GetInterfaces()
-                    .Where(t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(IEnumerable<>))
-                    .Select(t => t.GetGenericArguments()[0]))
-                {
-                    Type genericType = listType.MakeGenericType(itemType);
-                    if(memberType.IsAssignableFrom(genericType))
-                    {
-                        ItemType = itemType;
-                        _listConstructor = genericType.GetConstructor(Type.EmptyTypes);
-                        break;
-                    }
-                }
+                // Not an array, check interfaces   
+                Type collectionType = typeof (ICollection<>);
+                List<Type> collectionInterfaces = new List<Type>(memberType.GetInterfaces()
+                    .Where(t => t.IsGenericType && t.GetGenericTypeDefinition() == collectionType));
 
-                // Did we find one?
-                if(ItemType == null) throw new Exception("No appropriate item type could be found.");
+                if (collectionInterfaces.Count > 0)
+                {
+                    // The member implements ICollection<T>, resolve the ItemType
+                    Type genericType = null;
+                    if (ItemType != null)
+                    {
+                        genericType = collectionType.MakeGenericType(ItemType);
+                        if (!genericType.IsAssignableFrom(memberType))
+                            throw new Exception("The target object must be assignable to a ICollection<ItemType>.");
+                    }
+                    else
+                    {
+                        // Get the first compatible item type
+                        foreach (Type itemType in collectionInterfaces.Select(t => t.GetGenericArguments()[0]))
+                        {
+                            genericType = collectionType.MakeGenericType(itemType);
+                            if (genericType.IsAssignableFrom(memberType))
+                            {
+                                ItemType = itemType;
+                                break;
+                            }
+
+                        }
+                    }
+
+                    // Make sure we got an item type
+                    if (ItemType == null) throw new Exception("No appropriate item type could be found.");
+
+                    // Get the constructor and add functions
+                    ConstructorInfo constructor = memberType.GetConstructor(Type.EmptyTypes);
+                    if (constructor == null) throw new Exception("Persistent collection member must implement an empty constructor.");
+                    _getCollection = s => constructor.Invoke(null);
+                    MethodInfo addMethod = genericType.GetMethod("Add");
+                    _setCollectionItem = (c, i, v) => addMethod.Invoke(c, new[] {v});
+                }
+                else if (typeof(IList).IsAssignableFrom(memberType))
+                {
+                    // The member implements IList
+                    if (ItemType == null) throw new Exception("A persistent collection that implements IList must provide an ItemType.");
+                    ConstructorInfo constructor = memberType.GetConstructor(Type.EmptyTypes);
+                    if (constructor == null) throw new Exception("Persistent collection member must implement an empty constructor.");
+                    _getCollection = s => constructor.Invoke(null);
+                    _setCollectionItem = (c, i, v) => ((IList) c).Add(v);
+                }
+                else
+                {
+                    throw new Exception("Persistent collection member must be an array, implement ICollection<T>, or implement IList.");
+                }
             }
         }
 
@@ -156,14 +197,15 @@ namespace Nxdb.Persistence.Attributes
             }
 
             // Get all the item nodes
-            IEnumerable<object> items = !String.IsNullOrEmpty(ItemQuery) ? child.Eval(ItemQuery)
-                : child.Children.OfType<Element>().Where(e => e.Name.Equals(ItemName)).Cast<object>();
+            IList<object> items = new List<object>(!String.IsNullOrEmpty(ItemQuery) ? child.Eval(ItemQuery)
+                : child.Children.OfType<Element>().Where(e => e.Name.Equals(ItemName)).Cast<object>());
 
-            // Create the list
-            IList list = (IList)_listConstructor.Invoke(null);
+            // Create the collection
+            object collection = _getCollection(items.Count);
 
             // Populate with values
             TypeCache itemTypeCache = cache.GetTypeCache(ItemType);
+            int c = 0;
             foreach(object item in items)
             {
                 if(ItemsArePersistentObjects)
@@ -181,25 +223,18 @@ namespace Nxdb.Persistence.Attributes
                     {
                         typeCache.Persister.Fetch(itemElement, itemObject, itemTypeCache, cache);
                     }
-                    list.Add(itemObject);
+                    _setCollectionItem(collection, c++, itemObject);
                 }
                 else
                 {
                     Node.Node itemNode = item as Node.Node;
                     object itemObject = GetObjectFromString(
                         itemNode != null ? itemNode.Value : item.ToString(), null, null, itemTypeCache);
-                    list.Add(itemObject);
+                    _setCollectionItem(collection, c++, itemObject);
                 }
             }
 
-            // Return either an array or list
-            if(_array)
-            {
-                Array array = Array.CreateInstance(ItemType, list.Count);
-                list.CopyTo(array, 0);
-                return array;
-            }
-            return list;
+            return collection;
         }
 
         internal override object SerializeValue(object source, TypeCache typeCache, Cache cache)

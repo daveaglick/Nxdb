@@ -21,16 +21,17 @@ using Nxdb.Node;
 namespace Nxdb.Persistence.Attributes
 {
     /// <summary>
-    /// Stores or fetches a generic Dictionary to/from a child element of the container element.
-    /// If more than one element with the given name exists, the first one will be used. By default
-    /// this stores and fetches data in the following format:
+    /// Stores or fetches a collection of KeyValuePair objects to/from a child element of the
+    /// container element. This supports dictionaries, sorted lists, etc.
+    /// If more than one element with the given name exists, the first one will be used.
+    /// By default this stores and fetches data in the following format:
     /// <code>
     /// <Container>
-    ///   <Dictionary>
+    ///   <Name>
     ///     <Pair><Key>...</Key><Value>...</Value></Pair>
     ///     <Pair><Key>...</Key><Value>...</Value></Pair>
     ///     <Pair><Key>...</Key><Value>...</Value></Pair>
-    ///   </Dictionary>
+    ///   </Name>
     /// </Container>
     /// </code> 
     /// There are many parameters that can be used to control the formatting such as changing the
@@ -38,7 +39,7 @@ namespace Nxdb.Persistence.Attributes
     /// queries to fetch keys or values.
     /// </summary>
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
-    public class PersistentDictionaryAttribute : PersistentMemberAttribute
+    public class PersistentKvpCollectionAttribute : PersistentMemberAttribute
     {
         /// <summary>
         /// Gets or sets the element name to use or create. If unspecified, the name of
@@ -61,19 +62,20 @@ namespace Nxdb.Persistence.Attributes
 
         /// <summary>
         /// Gets or sets the element name to use or create for key items. If unspecified, "Key" will be used. This is exclusive
-        /// with KeyAttributeName and both may not be specified.
+        /// with KeyAttributeName and KeyQuery and only one may be specified.
         /// </summary>
         public string KeyElementName { get; set; }
 
         /// <summary>
-        /// Gets or sets the attribute name to use or create for key items. If unspecified, "key" will be used. This is exclusive
-        /// with KeyElementName and both may not be specified.
+        /// Gets or sets the attribute name to use or create for key items. This is exclusive
+        /// with KeyElementName and KeyQuery and only one may be specified.
         /// </summary>
         public string KeyAttributeName { get; set; }
 
         /// <summary>
         /// Gets or sets the query to use for getting a key. This is evaluated from the context of the parent
         /// pair element. If a key query is used, the dictionary is read only and will not be persisted to the database.
+        /// This is exclusive with KeyAttributeName and KeyElementName and only one may be specified.
         /// </summary>
         public string KeyQuery { get; set; }
 
@@ -85,6 +87,8 @@ namespace Nxdb.Persistence.Attributes
 
         /// <summary>
         /// Gets or sets a value indicating whether the keys are persistent object types.
+        /// If this is true, KeyAttributeName must not be specified and KeyQuery if
+        /// specified should return an element node.
         /// </summary>
         public bool KeysArePersistentObjects { get; set; }
 
@@ -99,19 +103,20 @@ namespace Nxdb.Persistence.Attributes
         
         /// <summary>
         /// Gets or sets the element name to use or create for value items. If unspecified, "Value" will be used. This is exclusive
-        /// with ValueAttributeName and both may not be specified.
+        /// with ValueAttributeName and ValueQuery and only one may be specified.
         /// </summary>
         public string ValueElementName { get; set; }
 
         /// <summary>
-        /// Gets or sets the attribute name to use or create for value items. If unspecified, "value" will be used. This is exclusive
-        /// with ValueElementName and both may not be specified.
+        /// Gets or sets the attribute name to use or create for value items. This is exclusive
+        /// with ValueElementName and ValueQuery and only one may be specified.
         /// </summary>
         public string ValueAttributeName { get; set; }
 
         /// <summary>
         /// Gets or sets the query to use for getting a value. This is evaluated from the context of the parent
         /// pair element. If a value query is used, the dictionary is read only and will not be persisted to the database.
+        /// This is exclusive with ValueAttributeName and ValueElementName and only one may be specified.
         /// </summary>
         public string ValueQuery { get; set; }
 
@@ -123,6 +128,8 @@ namespace Nxdb.Persistence.Attributes
 
         /// <summary>
         /// Gets or sets a value indicating whether the values are persistent object types.
+        /// If this is true, ValueAttributeName must not be specified and ValueQuery if
+        /// specified should return an element node.
         /// </summary>
         public bool ValuesArePersistentObjects { get; set; }
 
@@ -135,16 +142,30 @@ namespace Nxdb.Persistence.Attributes
         /// </summary>
         public bool AttachValues { get; set; }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PersistentKvpCollectionAttribute"/> class.
+        /// </summary>
+        public PersistentKvpCollectionAttribute()
+        {
+            AttachKeys = true;
+            AttachValues = true;
+        }
+
         internal override void Inititalize(System.Reflection.MemberInfo memberInfo)
         {
             base.Inititalize(memberInfo);
 
             Name = GetName(Name, memberInfo.Name, Query, CreateQuery);
             PairName = GetName(PairName, "Pair", PairQuery);
-            KeyAttributeName = GetName(KeyAttributeName, "key", KeyElementName, KeyQuery);
+            KeyAttributeName = GetName(KeyAttributeName, null, KeyElementName, KeyQuery);
             KeyElementName = GetName(KeyElementName, "Key", KeyAttributeName, KeyQuery);
-            ValueAttributeName = GetName(ValueAttributeName, "value", ValueElementName, ValueQuery);
+            ValueAttributeName = GetName(ValueAttributeName, null, ValueElementName, ValueQuery);
             ValueElementName = GetName(ValueElementName, "Value", ValueAttributeName, ValueQuery);
+
+            if(KeysArePersistentObjects && !String.IsNullOrEmpty(KeyAttributeName))
+                throw new Exception("KeyAttributeName must not be specified if KeysArePersistentObjects is true.");
+            if (ValuesArePersistentObjects && !String.IsNullOrEmpty(ValueAttributeName))
+                throw new Exception("ValueAttributeName must not be specified if ValuesArePersistentObjects is true.");
         }
 
         internal override object FetchValue(Element element, object target, TypeCache typeCache, Cache cache)
@@ -154,6 +175,14 @@ namespace Nxdb.Persistence.Attributes
 
         internal override object SerializeValue(object source, TypeCache typeCache, Cache cache)
         {
+            if (!String.IsNullOrEmpty(PairQuery)
+                || !String.IsNullOrEmpty(KeyQuery)
+                || !String.IsNullOrEmpty(ValueQuery))
+                return null;
+
+            // Key/key = key source object, key/value = serialized key data
+            // Value/key = value source object, value/value = serialized value data
+
             throw new NotImplementedException();
         }
 
