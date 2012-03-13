@@ -18,6 +18,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Reflection;
 using System.Xml;
 using Nxdb.Node;
@@ -60,16 +61,18 @@ namespace Nxdb.Persistence.Attributes
         public bool Required { get; set; }
 
         /// <summary>
-        /// Gets or sets a query to use for getting the node to use for a value or the
-        /// value itself. Different persistent attributes use this value differently.
+        /// Gets or sets a query to use for getting the node to use for a value.
+        /// This is exclusive with Name (if an available property) and both may
+        /// not be used.
         /// </summary>
         public string Query { get; set; }
 
         /// <summary>
         /// Gets or sets a query to use when the field or property is being
-        /// stored and the value query does not result in a usable node. If the value
+        /// stored and the query does not result in a usable node. If the
         /// query does not result in a node and this is not specified, a value will
-        /// not be stored for the field or property.
+        /// not be stored for the field or property. This is exclusive with Name
+        /// (if an available property) and both may not be used.
         /// </summary>
         public string CreateQuery { get; set; }
 
@@ -103,6 +106,7 @@ namespace Nxdb.Persistence.Attributes
             return typeConverter.ConvertToString(source);
         }
 
+        // Returns true if a query was specified (even if it didn't return a node)
         protected static bool GetNodeFromQuery<T>(string query, string createQuery,
             Element element, out T node) where T : Node.Node
         {
@@ -124,13 +128,16 @@ namespace Nxdb.Persistence.Attributes
             return false;
         }
 
-        protected string GetName(string name, string defaultName, string query)
+        protected string GetName(string name, string defaultName, params string[] exclusive)
         {
-            if (!String.IsNullOrEmpty(query) && !String.IsNullOrEmpty(name))
-                throw new Exception("Cannot specify both a name and a query.");
+            if (exclusive.Any(e => !String.IsNullOrEmpty(e) && !String.IsNullOrEmpty(name)))
+            {
+                throw new Exception("Multiple exclusive properties specified.");
+            }
             if (String.IsNullOrEmpty(name))
             {
-                return XmlConvert.EncodeName(defaultName);
+                return String.IsNullOrEmpty(defaultName)
+                    ? null : XmlConvert.EncodeName(defaultName);
             }
             XmlConvert.VerifyName(name);
             return name;

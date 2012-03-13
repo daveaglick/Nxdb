@@ -31,7 +31,7 @@ namespace Nxdb.Persistence.Attributes
         /// <summary>
         /// Gets or sets the name of the element to use or create. If unspecified,
         /// the name of the field or property will be used (as converted to a valid
-        /// XML name).
+        /// XML name). This is exclusive with Query and both may not be specified.
         /// </summary>
         public string Name { get; set; }
 
@@ -63,7 +63,7 @@ namespace Nxdb.Persistence.Attributes
         internal override void Inititalize(System.Reflection.MemberInfo memberInfo)
         {
             base.Inititalize(memberInfo);
-            Name = GetName(Name, memberInfo.Name, Query);
+            Name = GetName(Name, memberInfo.Name, Query, CreateQuery);
             if(IsPersistentObject && !String.IsNullOrEmpty(Default))
                 throw new Exception("Persistent object based members cannot specify a default value.");
         }
@@ -71,7 +71,7 @@ namespace Nxdb.Persistence.Attributes
         internal override object FetchValue(Element element, object target, TypeCache typeCache, Cache cache)
         {
             Element child;
-            if (!GetNodeFromQuery(Query, CreateQuery, element, out child))
+            if (!GetNodeFromQuery(Query, null, element, out child))
             {
                 child = element.Children.OfType<Element>().Where(e => e.Name.Equals(Name)).FirstOrDefault();
             }

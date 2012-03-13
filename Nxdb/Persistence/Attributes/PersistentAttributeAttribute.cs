@@ -30,7 +30,7 @@ namespace Nxdb.Persistence.Attributes
         /// <summary>
         /// Gets or sets the name of the attribute to use or create. If unspecified,
         /// the name of the field or property will be used (as converted to a valid
-        /// XML name).
+        /// XML name). This is exclusive with Query and both may not be specified.
         /// </summary>
         public string Name { get; set; }
 
@@ -43,13 +43,13 @@ namespace Nxdb.Persistence.Attributes
         internal override void Inititalize(MemberInfo memberInfo)
         {
             base.Inititalize(memberInfo);
-            Name = GetName(Name, memberInfo.Name, Query);
+            Name = GetName(Name, memberInfo.Name, Query, CreateQuery);
         }
 
         internal override object FetchValue(Element element, object target, TypeCache typeCache, Cache cache)
         {
             Node.Attribute attribute;
-            if (!GetNodeFromQuery(Query, CreateQuery, element, out attribute))
+            if (!GetNodeFromQuery(Query, null, element, out attribute))
             {
                 attribute = element.Attribute(Name);
             }

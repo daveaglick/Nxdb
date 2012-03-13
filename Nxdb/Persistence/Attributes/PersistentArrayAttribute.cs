@@ -38,33 +38,37 @@ namespace Nxdb.Persistence.Attributes
         /// <summary>
         /// Gets or sets the element name to use or create. If unspecified, the name of
         /// the field or property will be used (as converted to a valid XML name).
+        /// This is exclusive with Query and both may not be specified.
         /// </summary>
         public string Name { get; set; }
 
         /// <summary>
         /// Gets or sets the element name to use or create for array items. If unspecified, "Item" will be used.
+        /// This is exclusive with ItemQuery and both may not be specified.
         /// </summary>
         public string ItemName { get; set; }
 
         /// <summary>
         /// Gets or sets the query to use for getting an item. This is evaluated from the context of the parent
         /// element. If an item query is used, the array is read only and will not be persisted to the database.
+        /// This is exclusive with ItemName and both may not be specified.
         /// </summary>
         public string ItemQuery { get; set; }
 
         /// <summary>
-        /// Gets or sets the type of items. If used, this must be assignable to the type of the array.
+        /// Gets or sets the type of items. If unspecified, the actual type of the items will be used. If specified,
+        /// this must be assignable to the type of the array.
         /// </summary>
         public Type ItemType { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether the items are persistent
-        /// object types.
+        /// Gets or sets a value indicating whether the items are persistent object types.
         /// </summary>
         public bool ItemsArePersistentObjects { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether items should be attached.
+        /// Only meaningful if ItemsArePersistentObjects is true.
         /// If true (default), the manager cache will be searched and an
         /// existing instance used or a new instance created and attached for each item. If false, a new
         /// detached instance will be created on every fetch for each item.
@@ -83,7 +87,7 @@ namespace Nxdb.Persistence.Attributes
         {
             base.Inititalize(memberInfo);
 
-            Name = GetName(Name, memberInfo.Name, Query);
+            Name = GetName(Name, memberInfo.Name, Query, CreateQuery);
             ItemName = GetName(ItemName, "Item", ItemQuery);
 
             // Resolve the type of collection and the item type
@@ -141,7 +145,7 @@ namespace Nxdb.Persistence.Attributes
         {
             // Get the primary element
             Element child;
-            if (!GetNodeFromQuery(Query, CreateQuery, element, out child))
+            if (!GetNodeFromQuery(Query, null, element, out child))
             {
                 child = element.Children.OfType<Element>().Where(e => e.Name.Equals(Name)).FirstOrDefault();
             }

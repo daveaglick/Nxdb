@@ -38,7 +38,7 @@ namespace Nxdb.Persistence.Attributes
         internal override object FetchValue(Element element, object target, TypeCache typeCache, Cache cache)
         {
             Text child;
-            if (!GetNodeFromQuery(Query, CreateQuery, element, out child))
+            if (!GetNodeFromQuery(Query, null, element, out child))
             {
                 child = element.Children.OfType<Text>().FirstOrDefault();
             }
