@@ -16,6 +16,8 @@
  */
 
 using System;
+using System.Collections.Generic;
+using System.ComponentModel;
 using System.Reflection;
 using System.Xml;
 using Nxdb.Node;
@@ -34,13 +36,6 @@ namespace Nxdb.Persistence.Attributes
             Store = true;
             Fetch = true;
         }
-
-        /// <summary>
-        /// Gets or sets the order in which fields and properties are processed (lower values
-        /// are processed first). Ordering is unspecified in the case of duplicate values.
-        /// The default order is 0.
-        /// </summary>
-        public int Order { get; set; }
         
         /// <summary>
         /// Gets or sets a value indicating whether this field or property should be stored.
@@ -53,11 +48,20 @@ namespace Nxdb.Persistence.Attributes
         public bool Fetch { get; set; }
 
         /// <summary>
+        /// Gets or sets the order in which fields and properties are processed (lower values
+        /// are processed first). Ordering is unspecified in the case of duplicate values.
+        /// The default order is 0.
+        /// </summary>
+        public int Order { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether this member is required.
+        /// </summary>
+        public bool Required { get; set; }
+
+        /// <summary>
         /// Gets or sets a query to use for getting the node to use for a value or the
         /// value itself. Different persistent attributes use this value differently.
-        /// Some (such as PersistentnElementAttribute and PersistentAttributeAttribute)
-        /// use the query to get an alternate parent node, others (such as
-        /// PersistentPathAttribute) use it to get the actual node or value.
         /// </summary>
         public string Query { get; set; }
 
@@ -65,10 +69,7 @@ namespace Nxdb.Persistence.Attributes
         /// Gets or sets a query to use when the field or property is being
         /// stored and the value query does not result in a usable node. If the value
         /// query does not result in a node and this is not specified, a value will
-        /// not be stored for the field or property. Keep in mind that in cases where
-        /// the query is intended to refer to a parent node (such as
-        /// PersistentnElementAttribute and PersistentAttributeAttribute), the
-        /// create query must create both the parent element and the required child.
+        /// not be stored for the field or property.
         /// </summary>
         public string CreateQuery { get; set; }
 
@@ -83,28 +84,50 @@ namespace Nxdb.Persistence.Attributes
         internal abstract object SerializeValue(object source, TypeCache typeCache, Cache cache);
         internal abstract void StoreValue(Element element, object serialized, object source, TypeCache typeCache, Cache cache);
 
-        // Provide value if the create query should be run
-        protected Element GetElementFromQuery(Element element)
+        internal static object GetObjectFromString(string value, string defaultValue, object target, TypeCache typeCache)
         {
-            if (!String.IsNullOrEmpty(Query))
-            {
-                Element target = element.EvalSingle(Query) as Element;
-                if (target == null)
-                {
-                    // We didn't get the target, see if we have a query that can create it
-                    if (!String.IsNullOrEmpty(CreateQuery))
-                    {
-                        element.Eval(CreateQuery);
-                        target = element.EvalSingle(Query) as Element;  //Try to get the target again
-                    }
-                }
-                element = target;
-            }
-            return element;
+            value = value ?? defaultValue;
+            TypeConverter typeConverter = target == null
+                ? TypeDescriptor.GetConverter(typeCache.Type) : TypeDescriptor.GetConverter(target);
+            if (typeConverter == null) throw new Exception("Could not get TypeConverter for member.");
+            if (!typeConverter.CanConvertFrom(typeof(string))) throw new Exception("Can not convert member from string.");
+            return typeConverter.ConvertFromString(value);
         }
 
-        protected string GetName(string name, string defaultName)
+        internal static string GetStringFromObject(object source, TypeCache typeCache)
         {
+            TypeConverter typeConverter = source == null
+                ? TypeDescriptor.GetConverter(typeCache.Type) : TypeDescriptor.GetConverter(source);
+            if (typeConverter == null) throw new Exception("Could not get TypeConverter for member.");
+            if (!typeConverter.CanConvertTo(typeof(string))) throw new Exception("Can not convert member to string.");
+            return typeConverter.ConvertToString(source);
+        }
+
+        protected static bool GetNodeFromQuery<T>(string query, string createQuery,
+            Element element, out T node) where T : Node.Node
+        {
+            node = null;
+            if (!String.IsNullOrEmpty(query))
+            {
+                node = element.EvalSingle(query) as T;
+                if (node == null)
+                {
+                    // We didn't get the target, see if we have a query that can create it
+                    if (!String.IsNullOrEmpty(createQuery))
+                    {
+                        element.Eval(createQuery);
+                        node = element.EvalSingle(query) as T;  //Try to get the target again
+                    }
+                }
+                return true;
+            }
+            return false;
+        }
+
+        protected string GetName(string name, string defaultName, string query)
+        {
+            if (!String.IsNullOrEmpty(query) && !String.IsNullOrEmpty(name))
+                throw new Exception("Cannot specify both a name and a query.");
             if (String.IsNullOrEmpty(name))
             {
                 return XmlConvert.EncodeName(defaultName);

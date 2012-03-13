@@ -16,6 +16,7 @@
  */
 
 using System;
+using System.Reflection;
 using Nxdb.Node;
 
 namespace Nxdb.Persistence.Attributes
@@ -26,8 +27,14 @@ namespace Nxdb.Persistence.Attributes
     /// be stored.
     /// </summary>
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
-    public class PersistentPathAttribute : StringBasedPersistentAttribute
+    public class PersistentPathAttribute : PersistentMemberAttribute
     {
+        /// <summary>
+        /// Gets or sets a default value to use if the specified node isn't found during fetch.
+        /// This value is passed to the type converter to create an instance of the target object.
+        /// </summary>
+        public string Default { get; set; }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="PersistentPathAttribute"/> class.
         /// </summary>
@@ -46,30 +53,37 @@ namespace Nxdb.Persistence.Attributes
             CreateQuery = createQuery;
         }
 
-        protected override string FetchValue(Element element)
+        internal override object FetchValue(Element element, object target, TypeCache typeCache, Cache cache)
         {
             object result = element.EvalSingle(Query);
             if (result == null) return null;
             Node.Node node = result as Node.Node;
-            return node != null ? node.Value : result.ToString();
+            return GetObjectFromString(
+                node != null ? node.Value : result.ToString(), Default, target, typeCache);
         }
 
-        protected override void StoreValue(Element element, string value)
+        internal override object SerializeValue(object source, TypeCache typeCache, Cache cache)
+        {
+            return GetStringFromObject(source, typeCache);
+        }
+
+        internal override void StoreValue(Element element, object serialized, object source, TypeCache typeCache, Cache cache)
         {
             Node.Node node = element.EvalSingle(Query) as Node.Node;
+            string value = (string) serialized;
 
             if (node == null && value != null && !String.IsNullOrEmpty(CreateQuery))
             {
                 element.Eval(CreateQuery);
                 node = element.EvalSingle(Query) as Node.Node;
             }
-            else if(node != null && value == null)
+            else if (node != null && value == null)
             {
                 node.Remove();
                 return;
             }
 
-            if(node != null)
+            if (node != null)
             {
                 node.Value = value;
             }

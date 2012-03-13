@@ -88,9 +88,9 @@ namespace NxdbTests
                 Element fooElem = (Element)elem.Child(0);
                 Assert.AreNotEqual(copy.ToString(), fooElem.OuterXml);
                 copy.Fetch(fooElem);
-                Assert.AreEqual(copy.NumArr.Length, 3);
-                Assert.AreEqual(copy.ToString(), fooContent);
-                Assert.AreEqual(copy.ToString(), fooElem.OuterXml);
+                Assert.AreEqual(3, copy.NumArr.Length);
+                Assert.AreEqual(fooContent, copy.ToString());
+                Assert.AreEqual(fooElem.OuterXml, copy.ToString());
 
                 // Change the old instance and attach the new one
                 foo.Str = "sprgj";
@@ -171,27 +171,56 @@ namespace NxdbTests
             set
             {
                 NumArr = new[] { value + 1, value + 2, value + 3 };
+                _classes.Add(new DefaultPersistentClass());
                 _num = value;
             }
         }
 
-        [PersistentElement(Order = 1)]
+        [PersistentElement(Order = 1, Required = true)]
         public string Str { get; set; }
 
         [PersistentAttribute(Name = "bool")]
         public bool Bl { get; set; }
 
+        [PersistentArray(Order = 4)]
         public int[] NumArr { get; set; }
 
-        [PersistentObject(Order = 3)]
+        [PersistentElement(IsPersistentObject = true, Order = 3)]
         public DefaultPersistentClass Inner { get; set; }
+
+        [PersistentArray(Order = 5, ItemsArePersistentObjects = true, ItemName = "PersistentItem")]
+        private readonly List<DefaultPersistentClass> _classes
+            = new List<DefaultPersistentClass>();
 
         public string ToString(string elementName)
         {
+            string numArrString = "<NumArr />";
+            if(NumArr != null && NumArr.Length > 0)
+            {
+                numArrString = "<NumArr>";
+                foreach(int num in NumArr)
+                {
+                    numArrString += "<Item>" + num + "</Item>";
+                }
+                numArrString += "</NumArr>";
+            }
+
+            string classesString = "<_classes />";
+            if(_classes.Count > 0)
+            {
+                classesString = "<_classes>";
+                foreach(DefaultPersistentClass cls in _classes)
+                {
+                    classesString += cls.ToString("PersistentItem");
+                }
+                classesString += "</_classes>";
+            }
+
             return String.Format(
-                "<{0} bool=\"{1}\"><Str>{2}</Str><_num>{3}</_num>{4}</{0}>",
-                elementName, Bl.ToString(), Str, Num,
-                Inner == null ? String.Empty : Inner.ToString("Inner"));
+                "<{0} bool=\"{1}\">{2}<_num>{3}</_num>{4}{5}{6}</{0}>",
+                elementName, Bl.ToString(), String.IsNullOrEmpty(Str) ? "<Str />" : "<Str>" + Str + "</Str>",
+                Num, Inner == null ? String.Empty : Inner.ToString("Inner"),
+                numArrString, classesString);
         }
 
         public override string ToString()

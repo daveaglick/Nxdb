@@ -16,6 +16,7 @@
  */
 
 using System;
+using System.Reflection;
 using Nxdb.Node;
 
 namespace Nxdb.Persistence.Attributes
@@ -24,32 +25,64 @@ namespace Nxdb.Persistence.Attributes
     /// Stores and fetches the field or property to/from an attribute of the container element.
     /// </summary>
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
-    public class PersistentAttributeAttribute : NamedPersistentAttribute
+    public class PersistentAttributeAttribute : PersistentMemberAttribute
     {
-        protected override string FetchValue(Element element)
-        {
-            element = GetElementFromQuery(element);
-            if (element == null) return null;
+        /// <summary>
+        /// Gets or sets the name of the attribute to use or create. If unspecified,
+        /// the name of the field or property will be used (as converted to a valid
+        /// XML name).
+        /// </summary>
+        public string Name { get; set; }
 
-            Node.Attribute attribute = element.Attribute(Name);
-            return attribute == null ? null : attribute.Value;
+        /// <summary>
+        /// Gets or sets a default value to use if the specified node isn't found during fetch.
+        /// This value is passed to the type converter to create an instance of the target object.
+        /// </summary>
+        public string Default { get; set; }
+
+        internal override void Inititalize(MemberInfo memberInfo)
+        {
+            base.Inititalize(memberInfo);
+            Name = GetName(Name, memberInfo.Name, Query);
         }
 
-        protected override void StoreValue(Element element, string value)
+        internal override object FetchValue(Element element, object target, TypeCache typeCache, Cache cache)
         {
-            element = GetElementFromQuery(element);
-            if (element == null) return;
+            Node.Attribute attribute;
+            if (!GetNodeFromQuery(Query, CreateQuery, element, out attribute))
+            {
+                attribute = element.Attribute(Name);
+            }
+            return attribute == null ? null : GetObjectFromString(attribute.Value, Default, target, typeCache);
+        }
 
-            Node.Attribute attribute = element.Attribute(Name);
+        internal override object SerializeValue(object source, TypeCache typeCache, Cache cache)
+        {
+            return GetStringFromObject(source, typeCache);
+        }
+
+        internal override void StoreValue(Element element, object serialized, object source, TypeCache typeCache, Cache cache)
+        {
+            Node.Attribute attribute;
+            if (!GetNodeFromQuery(Query, CreateQuery, element, out attribute))
+            {
+                attribute = element.Attribute(Name);
+            }
+            else if (attribute == null)
+            {
+                return;
+            }
+
+            string value = (string) serialized;
             if (attribute == null && value != null)
             {
                 element.InsertAttribute(Name, value);
             }
-            else if(attribute != null && value == null)
+            else if (attribute != null && value == null)
             {
                 attribute.Remove();
             }
-            else if(attribute != null)
+            else if (attribute != null)
             {
                 attribute.Value = value;
             }

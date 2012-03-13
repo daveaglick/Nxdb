@@ -148,18 +148,17 @@ namespace Nxdb.Persistence
                 if (_persistentMembers == null)
                 {
                     _persistentMembers = new List<KeyValuePair<MemberInfo, PersistentMemberAttribute>>();
-                    bool text = false;
 
                     // Fields
                     foreach (FieldInfo fieldInfo in Fields)
                     {
-                        CheckMemberForPersistentAttribute(fieldInfo, _persistentMembers, ref text);
+                        CheckMemberForPersistentAttribute(fieldInfo, _persistentMembers);
                     }
 
                     // Properties
                     foreach (PropertyInfo propertyInfo in Properties)
                     {
-                        CheckMemberForPersistentAttribute(propertyInfo, _persistentMembers, ref text);
+                        CheckMemberForPersistentAttribute(propertyInfo, _persistentMembers);
                     }
 
                     // Sort by order
@@ -170,18 +169,13 @@ namespace Nxdb.Persistence
         }
 
         private void CheckMemberForPersistentAttribute(MemberInfo memberInfo,
-            List<KeyValuePair<MemberInfo, PersistentMemberAttribute>> persistentMembers, ref bool text)
+            List<KeyValuePair<MemberInfo, PersistentMemberAttribute>> persistentMembers)
         {
             object[] attributes = memberInfo.GetCustomAttributes(typeof (PersistentMemberAttribute), true);
             if(attributes.Length > 0)
             {
                 if(attributes.Length != 1) throw new Exception("Only one PersistentAttribute can be used per field or property.");
                 PersistentMemberAttribute persistentAttribute = (PersistentMemberAttribute) attributes[0];
-                if(persistentAttribute is PersistentTextAttribute)
-                {
-                    if(text) throw new Exception("Only one PersistentTextAttribute can be used per class.");
-                    text = true;
-                }
                 persistentAttribute.Inititalize(memberInfo);
                 persistentMembers.Add(new KeyValuePair<MemberInfo, PersistentMemberAttribute>(memberInfo, persistentAttribute));
             }

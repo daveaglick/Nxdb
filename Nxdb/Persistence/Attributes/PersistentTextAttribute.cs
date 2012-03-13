@@ -22,38 +22,56 @@ using Nxdb.Node;
 namespace Nxdb.Persistence.Attributes
 {
     /// <summary>
-    /// Stores and fetches the field or property to/from a text node of the container element. This attribute
-    /// can only be applied to one field or property (if it is applied more than once and exception will be thrown).
+    /// Stores and fetches the field or property to/from a text node of the container element.
     /// If the container element contains more than one text node (such as with mixed content elements), only the
     /// first text node will be used.
     /// </summary>
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
-    public class PersistentTextAttribute : StringBasedPersistentAttribute
+    public class PersistentTextAttribute : PersistentMemberAttribute
     {
-        protected override string FetchValue(Element element)
-        {
-            element = GetElementFromQuery(element);
-            if (element == null) return null;
+        /// <summary>
+        /// Gets or sets a default value to use if the specified node isn't found during fetch.
+        /// This value is passed to the type converter to create an instance of the target object.
+        /// </summary>
+        public string Default { get; set; }
 
-            Text child = element.Children.OfType<Text>().FirstOrDefault();
-            return child == null ? null : child.Value;
+        internal override object FetchValue(Element element, object target, TypeCache typeCache, Cache cache)
+        {
+            Text child;
+            if (!GetNodeFromQuery(Query, CreateQuery, element, out child))
+            {
+                child = element.Children.OfType<Text>().FirstOrDefault();
+            }
+            return child == null ? null : GetObjectFromString(child.Value, Default, target, typeCache);
         }
 
-        protected override void StoreValue(Element element, string value)
+        internal override object SerializeValue(object source, TypeCache typeCache, Cache cache)
         {
-            element = GetElementFromQuery(element);
-            if (element == null) return;
+            return GetStringFromObject(source, typeCache);
+        }
 
-            Text child = element.Children.OfType<Text>().FirstOrDefault();
-            if(child == null && value != null)
+        internal override void StoreValue(Element element, object serialized, object source, TypeCache typeCache, Cache cache)
+        {
+            Text child;
+            if (!GetNodeFromQuery(Query, CreateQuery, element, out child))
+            {
+                child = element.Children.OfType<Text>().FirstOrDefault();
+            }
+            else if (child == null)
+            {
+                return;
+            }
+
+            string value = (string) serialized;
+            if (child == null && value != null)
             {
                 element.Append(new Text(value));
             }
-            else if(child != null && value == null)
+            else if (child != null && value == null)
             {
                 child.Remove();
             }
-            else if(child != null)
+            else if (child != null)
             {
                 child.Value = value;
             }

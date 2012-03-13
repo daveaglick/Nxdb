@@ -58,10 +58,10 @@ namespace Nxdb.Persistence
             return ((ICustomPersister)source).Serialize();
         }
 
-        internal override void Store(Element element, object serialized, object target, TypeCache typeCache, Cache cache)
+        internal override void Store(Element element, object serialized, object source, TypeCache typeCache, Cache cache)
         {
-            if (target == null || serialized == null) return;
-            ((ICustomPersister)target).Store(element, serialized);
+            if (source == null || serialized == null) return;
+            ((ICustomPersister)source).Store(element, serialized);
         }
     }
 }

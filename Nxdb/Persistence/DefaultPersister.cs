@@ -41,6 +41,7 @@ namespace Nxdb.Persistence
                 object member = GetValue(kvp.Key, target, out memberType);
                 TypeCache memberTypeCache = memberType != null ? cache.GetTypeCache(memberType) : null;
                 object value = kvp.Value.FetchValue(element, member, memberTypeCache, cache);
+                if(kvp.Value.Required && value == null) throw new Exception("Could not get required member.");
                 values.Add(new KeyValuePair<MemberInfo, object>(kvp.Key, value));
             }
 
@@ -131,6 +132,23 @@ namespace Nxdb.Persistence
                     propertyInfo.SetValue(member, value, null);
                 }
             }
+        }
+
+        internal static Type GetMemberType(MemberInfo memberInfo)
+        {
+            FieldInfo fieldInfo = memberInfo as FieldInfo;
+            if (fieldInfo != null)
+            {
+                return fieldInfo.FieldType;
+            }
+
+            PropertyInfo propertyInfo = memberInfo as PropertyInfo;
+            if (propertyInfo != null)
+            {
+                return propertyInfo.PropertyType;
+            }
+
+            throw new Exception("Unexpected MemberInfo type.");
         }
     }
 }
