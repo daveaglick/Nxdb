@@ -40,10 +40,13 @@ namespace Nxdb.Persistence
             Store(element, serialized, source);
         }
 
-        // This just does both steps in one operation
+        // This just does both steps in one operation and is the primary entry point for store operations
         internal void Store(Element element, object source, TypeCache typeCache, Cache cache)
         {
-            Store(element, Serialize(source, typeCache, cache), source, typeCache, cache);
+            using (new Updates())
+            {
+                Store(element, Serialize(source, typeCache, cache), source, typeCache, cache);
+            }
         }
 
         /// <summary>

@@ -295,11 +295,12 @@ namespace Nxdb.Node
             if (nodeCache != null)
             {
                 ANode[] nodes = EnumerateANodes(ANode.children()).ToArray();
-                Updates.Do(new Delete(null, Seq.get(nodes, nodes.Length)));
-                Updates.Do(new Insert(null, nodeCache.value(), false, true, false, false, DbNode));
-                
+                using (new Updates())
+                {
+                    Updates.Do(new Delete(null, Seq.get(nodes, nodes.Length)));
+                    Updates.Do(new Insert(null, nodeCache.value(), false, true, false, false, DbNode));
+                }
             }
-                    
         }
 
         /// <inheritdoc />

@@ -140,8 +140,11 @@ namespace Nxdb.Node
         /// <inheritdoc />
         public override void RemoveAll()
         {
-            RemoveAllAttributes();
-            base.RemoveAll();
+            using (new Updates())
+            {
+                RemoveAllAttributes();
+                base.RemoveAll();
+            }
         }
 
         /// <inheritdoc />

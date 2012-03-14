@@ -415,9 +415,12 @@ namespace Nxdb
         {   
             if (_data == null) throw new ObjectDisposedException("Database");
             IntList docs = Data.resources.docs(path);
-            for (int i = docs.size() - 1; i >= 0; i--)
+            using (new Updates())
             {
-                Updates.Do(new DeleteNode(docs.get(i), Data, null));
+                for (int i = docs.size() - 1; i >= 0; i--)
+                {
+                    Updates.Do(new DeleteNode(docs.get(i), Data, null));
+                }
             }
         }
 
@@ -430,13 +433,16 @@ namespace Nxdb
         {
             if (_data == null) throw new ObjectDisposedException("Database");
             IntList docs = Data.resources.docs(path);
-            for (int i = 0, s = docs.size(); i < s; i++)
+            using (new Updates())
             {
-                int pre = docs.get(i);
-                string target = org.basex.core.cmd.Rename.target(Data, pre, path, newName);
-                if (!String.IsNullOrEmpty(target))
+                for (int i = 0, s = docs.size(); i < s; i++)
                 {
-                    Updates.Do(new ReplaceValue(pre, Data, null, target.Token()));
+                    int pre = docs.get(i);
+                    string target = org.basex.core.cmd.Rename.target(Data, pre, path, newName);
+                    if (!String.IsNullOrEmpty(target))
+                    {
+                        Updates.Do(new ReplaceValue(pre, Data, null, target.Token()));
+                    }
                 }
             }
         }
@@ -562,8 +568,11 @@ namespace Nxdb
             if (pre != -1)
             {
                 if (Data.resources.docs(path).size() != 1) throw new ArgumentException("Simple document expected as replacement target");
-                Updates.Do(new DeleteNode(pre, Data, null));
-                Add(path, nodeCache);
+                using (new Updates())
+                {
+                    Updates.Do(new DeleteNode(pre, Data, null));
+                    Add(path, nodeCache);
+                }
             }
         }
 

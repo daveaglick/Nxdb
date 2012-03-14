@@ -31,15 +31,38 @@ using org.basex.query.up.primitives;
 namespace Nxdb
 {
     /// <summary>
-    /// Encapsulates all update operations, including those from direct node manipulation as well as
-    /// XQuery Update evaluation. Instances of this class are nested to represent multiple
-    /// update operations. When the outer-most Updates instance is disposed, all pending updates are
-    /// automatically applied.
+    /// Instances of this class should be placed around combined update operations. It's primary
+    /// purpose is to prevent intermediate and premature database optimization which will greatly
+    /// impact performance. Instances of this class may be nested. If an update operation (either
+    /// directly or through a query) is applied while one or more instances of this class are
+    /// active, database optimizations and reindexing will not be performed until the final instance
+    /// of this class is disposed. Note that instances of this class do not affect the actual
+    /// application of updates operations which are still applied immediatly regardless.
     /// </summary>
-    internal static class Updates
+    public class Updates : IDisposable
     {
-        private static QueryContext _qContext = GetQueryContext();
+        private static readonly Stack<Updates> UpdatesStack = new Stack<Updates>();
+        private static readonly HashSet<Database> NeedsOptimize = new HashSet<Database>(); 
+        private static QueryContext _queryContext = GetQueryContext();
 
+        private bool _disposed = false;
+        
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Updates"/> class.
+        /// </summary>
+        public Updates()
+        {
+            UpdatesStack.Push(this);
+        }
+
+        public void Dispose()
+        {
+            if (_disposed) return;
+            while(UpdatesStack.Count > 0 && UpdatesStack.Pop() != this) {}
+            Optimize(null);
+            _disposed = true;
+        }
+        
         private static QueryContext GetQueryContext()
         {
             QueryContext queryContext = new QueryContext(Database.Context);
@@ -49,20 +72,13 @@ namespace Nxdb
 
         internal static QueryContext QueryContext
         {
-            get
-            {
-                return _qContext;
-            }
+            get { return _queryContext; }
         }
 
         // Used by Query when evaluating a query which updates the query context
         internal static org.basex.query.up.Updates QueryUpdates
         {
-            get
-            {
-                if (_qContext == null) throw new ObjectDisposedException("Updates");
-                return _qContext.updates;
-            }
+            get { return _queryContext.updates; }
         }
 
         internal static void Do(UpdatePrimitive update)
@@ -89,30 +105,84 @@ namespace Nxdb
                 // Apply the updates
                 QueryContext.updates.applyUpdates();
 
+                // Optimize databases
+                Optimize(databases);
+
                 // Update databases
                 foreach (Database database in databases)
                 {
-                    // Update database node cache
                     database.Update();
-
-                    // Optimize database(s)
-                    if (Properties.OptimizeAfterUpdates)
-                    {
-                        Optimize.optimize(database.Data);
-                    }
                 }
             }
 
             // Reset
-            _qContext = GetQueryContext();
+            _queryContext = GetQueryContext();
+        }
+
+        // Optimizes all databases that need it, but only if no Updates instances exist
+        private static void Optimize(IEnumerable<Database> databases)
+        {
+            if (UpdatesStack.Count == 0)
+            {   
+                // Not in an Updates instance
+                if (Properties.OptimizeAfterUpdates)
+                {
+                    // Optimization after updates is enabled
+                    if( NeedsOptimize.Count == 0 )
+                    {
+                        // No other databases in the optimization queue
+                        if (databases != null)
+                        {
+                            // Currently have databases to optimize
+                            foreach (Database database in databases)
+                            {
+                                // Optimize the databases
+                                org.basex.core.cmd.Optimize.optimize(database.Data);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        // Other databases in the optimization queue
+                        if (databases != null)
+                        {
+                            // And current databases - combine them with the queue first
+                            // (so we don't get duplicates and optimize a database twice)
+                            foreach (Database database in databases)
+                            {
+                                NeedsOptimize.Add(database);
+                            }
+                        }
+
+                        // Optimize pending and current databases
+                        foreach (Database database in NeedsOptimize.Where(d => d.Data != null))
+                        {
+                            org.basex.core.cmd.Optimize.optimize(database.Data);
+                        }
+                    }
+                }
+
+                // We've optimized all pending and current databases, so clear the queue
+                NeedsOptimize.Clear();
+            }
+            else if(databases != null)
+            {
+                // In an Updates instance, just add the new databases to the optimization queue
+                foreach (Database database in databases)
+                {
+                    NeedsOptimize.Add(database);
+                }
+            }
         }
 
         /// <summary>
-        /// Forgets all uncommitted updates.
+        /// Forgets all uncommitted updates. Used from the Query class
+        /// when updates are not allowed (directly added updates are always
+        /// immediatly applied, so it is impossible to forget them).
         /// </summary>
-        public static void Forget()
+        internal static void Forget()
         {
-            _qContext = GetQueryContext();
+            _queryContext = GetQueryContext();
         }
     }
 }
