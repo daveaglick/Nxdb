@@ -141,7 +141,7 @@ namespace Nxdb
             }
 
             //Attempt to drop
-            return DropDB.drop(name, Context.mprop);
+            return DropDB.drop(name, Context);
         }
         
         /// <summary>
@@ -166,7 +166,7 @@ namespace Nxdb
             {
                 try
                 {
-                    database = Get(CreateDB.create(name, Parser.emptyParser(), Context));
+                    database = Get(CreateDB.create(name, Parser.emptyParser(Context.prop), Context));
                     return false;
                 }
                 catch (Exception ex)
@@ -207,7 +207,7 @@ namespace Nxdb
         /// <returns>A new in-memory database.</returns>
         public static Database Get()
         {
-            MemData data = CreateDB.mainMem(Parser.emptyParser(), Context);
+            MemData data = CreateDB.mainMem(Parser.emptyParser(Context.prop), Context);
             return new Database(data);
         }
 

@@ -103,7 +103,7 @@ namespace Nxdb
                 List<Database> databases = QueryUpdates.mod.datas().Select(Database.Get).ToList();
 
                 // Apply the updates
-                QueryContext.updates.applyUpdates();
+                QueryContext.updates.apply();
 
                 // Optimize databases
                 Optimize(databases);
@@ -137,7 +137,7 @@ namespace Nxdb
                             foreach (Database database in databases)
                             {
                                 // Optimize the databases
-                                org.basex.core.cmd.Optimize.optimize(database.Data);
+                                org.basex.core.cmd.Optimize.optimize(database.Data, null);
                             }
                         }
                     }
@@ -157,7 +157,7 @@ namespace Nxdb
                         // Optimize pending and current databases
                         foreach (Database database in NeedsOptimize.Where(d => d.Data != null))
                         {
-                            org.basex.core.cmd.Optimize.optimize(database.Data);
+                            org.basex.core.cmd.Optimize.optimize(database.Data, null);
                         }
                     }
                 }
