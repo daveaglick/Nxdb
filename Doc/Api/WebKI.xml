@@ -2,98 +2,106 @@
 <HelpKI>
 
   <HelpKINode Title="Add method" Url="html/DC787932.htm" />
-  <HelpKINode Title="Ancestors property" Url="html/BE38C092.htm" />
-  <HelpKINode Title="AncestorsOrSelf property" Url="html/5B5DC909.htm" />
-  <HelpKINode Title="ANode property" Url="html/7FDC775D.htm" />
-  <HelpKINode Title="Append method" Url="html/4FA9B51A.htm" />
-  <HelpKINode Title="Append method" Url="html/65F60739.htm" />
-  <HelpKINode Title="Append method" Url="html/E92A5EE3.htm" />
+  <HelpKINode Title="AllowUpdates property" Url="html/28804174.htm" />
+  <HelpKINode Title="Ancestors property" Url="html/12AD8A83.htm" />
+  <HelpKINode Title="AncestorsOrSelf property" Url="html/FFF17572.htm" />
+  <HelpKINode Title="ANode property" Url="html/9B7C108F.htm" />
+  <HelpKINode Title="Append method" Url="html/1F38F929.htm" />
+  <HelpKINode Title="Append method" Url="html/63121AEC.htm" />
+  <HelpKINode Title="Append method" Url="html/760B8C11.htm" />
+  <HelpKINode Title="Append method" Url="html/8AA0D3A2.htm" />
+  <HelpKINode Title="Append method" Url="html/E898A4DC.htm" />
   <HelpKINode Title="AppendChild method" Url="html/168C360D.htm" />
   <HelpKINode Title="AppendChild method" Url="html/2D50CF9F.htm" />
   <HelpKINode Title="AppendChild method" Url="html/7640ED6B.htm" />
   <HelpKINode Title="AppendChild method" Url="html/F46ADB14.htm" />
   <HelpKINode Title="AppendData method" Url="html/469D8CF.htm" />
   <HelpKINode Title="AppendData method" Url="html/4A34BD3B.htm" />
-  <HelpKINode Title="Apply method" Url="html/D85CF0BB.htm" />
-  <HelpKINode Title="Attribute class" Url="html/3B1580E5.htm" />
-  <HelpKINode Title="Attribute class" Url="html/C5098D8B.htm" />
+  <HelpKINode Title="Attach method" Url="html/B16A074.htm" />
+  <HelpKINode Title="Attach method" Url="html/C19E1BA5.htm" />
+  <HelpKINode Title="Attach property" Url="html/DEA9A5BC.htm" />
+  <HelpKINode Title="AttachItems property" Url="html/6ECB49C3.htm" />
+  <HelpKINode Title="AttachKeys property" Url="html/887306CF.htm" />
+  <HelpKINode Title="AttachValues property" Url="html/89D0F581.htm" />
+  <HelpKINode Title="Attribute class" Url="html/243D52DB.htm" />
+  <HelpKINode Title="Attribute class" Url="html/24BEE5D1.htm" />
   <HelpKINode Title="Attribute class">
-    <HelpKINode Title="about Attribute class" Url="html/C5098D8B.htm" />
-    <HelpKINode Title="all members" Url="html/3B1580E5.htm" />
-    <HelpKINode Title="constructor" Url="html/8C2E8450.htm" />
-    <HelpKINode Title="events" Url="html/80EA940B.htm" />
-    <HelpKINode Title="methods" Url="html/F0E2FC4A.htm" />
-    <HelpKINode Title="properties" Url="html/7879CC3E.htm" />
+    <HelpKINode Title="about Attribute class" Url="html/243D52DB.htm" />
+    <HelpKINode Title="all members" Url="html/24BEE5D1.htm" />
+    <HelpKINode Title="constructor" Url="html/3E7ABF15.htm" />
+    <HelpKINode Title="events" Url="html/3E99A76C.htm" />
+    <HelpKINode Title="methods" Url="html/BDB1B1EA.htm" />
+    <HelpKINode Title="properties" Url="html/B944DD89.htm" />
   </HelpKINode>
-  <HelpKINode Title="Attribute method" Url="html/AB15C51A.htm" />
-  <HelpKINode Title="Attribute.Attribute constructor" Url="html/8C2E8450.htm" />
-  <HelpKINode Title="Attribute.CreateXmlNode method" Url="html/3893E5C2.htm" />
-  <HelpKINode Title="Attribute.Equals method" Url="html/37F129B4.htm" />
-  <HelpKINode Title="Attribute.LocalName property" Url="html/7210BA30.htm" />
-  <HelpKINode Title="Attribute.Name property" Url="html/E1C636DF.htm" />
-  <HelpKINode Title="Attribute.NamespaceUri property" Url="html/25ABC66B.htm" />
-  <HelpKINode Title="Attribute.NodeType property" Url="html/E366801.htm" />
-  <HelpKINode Title="Attribute.Prefix property" Url="html/FE728792.htm" />
-  <HelpKINode Title="Attributes property" Url="html/3D349467.htm" />
+  <HelpKINode Title="Attribute method" Url="html/35219882.htm" />
+  <HelpKINode Title="Attribute.Attribute constructor" Url="html/3E7ABF15.htm" />
+  <HelpKINode Title="Attribute.CreateXmlNode method" Url="html/115F331A.htm" />
+  <HelpKINode Title="Attribute.Equals method" Url="html/8C4B6EB6.htm" />
+  <HelpKINode Title="Attribute.LocalName property" Url="html/E28F4679.htm" />
+  <HelpKINode Title="Attribute.Name property" Url="html/AF08C9E5.htm" />
+  <HelpKINode Title="Attribute.NamespaceUri property" Url="html/EE888A4E.htm" />
+  <HelpKINode Title="Attribute.NodeType property" Url="html/54FE7630.htm" />
+  <HelpKINode Title="Attribute.Prefix property" Url="html/466A1FA4.htm" />
   <HelpKINode Title="Attributes property" Url="html/A2A189F4.htm" />
-  <HelpKINode Title="AttributeValue method" Url="html/61F29EEA.htm" />
+  <HelpKINode Title="Attributes property" Url="html/E1A984FD.htm" />
+  <HelpKINode Title="AttributeValue method" Url="html/D7665973.htm" />
+  <HelpKINode Title="AutoRefresh property" Url="html/D477F153.htm" />
+  <HelpKINode Title="BaseUri property" Url="html/3A380064.htm" />
   <HelpKINode Title="BaseURI property" Url="html/3591C32B.htm" />
   <HelpKINode Title="BaseURI property" Url="html/3BE05B4D.htm" />
   <HelpKINode Title="BaseURI property" Url="html/4E5689DE.htm" />
   <HelpKINode Title="BaseURI property" Url="html/4EAEE9D0.htm" />
-  <HelpKINode Title="BaseUri property" Url="html/53AD16BB.htm" />
   <HelpKINode Title="BaseURI property" Url="html/C1D2AF9.htm" />
   <HelpKINode Title="BaseURI property" Url="html/D10B425A.htm" />
-  <HelpKINode Title="Begin method" Url="html/8F10A9A7.htm" />
-  <HelpKINode Title="Check method" Url="html/54A35164.htm" />
-  <HelpKINode Title="Child method" Url="html/F36223C5.htm" />
+  <HelpKINode Title="Check method" Url="html/CD3AFE99.htm" />
+  <HelpKINode Title="Child method" Url="html/FAC3FEA6.htm" />
   <HelpKINode Title="ChildNodes property" Url="html/3E7DC476.htm" />
   <HelpKINode Title="ChildNodes property" Url="html/D0ECD466.htm" />
-  <HelpKINode Title="Children property" Url="html/77FC8A7.htm" />
+  <HelpKINode Title="Children property" Url="html/85A654F0.htm" />
   <HelpKINode Title="ChopWhitespace property" Url="html/10DA7F4C.htm" />
-  <HelpKINode Title="Comment class" Url="html/4739BFEE.htm" />
-  <HelpKINode Title="Comment class" Url="html/CE6F2BC3.htm" />
+  <HelpKINode Title="Comment class" Url="html/BCBAB9EB.htm" />
+  <HelpKINode Title="Comment class" Url="html/FA7B6463.htm" />
   <HelpKINode Title="Comment class">
-    <HelpKINode Title="about Comment class" Url="html/CE6F2BC3.htm" />
-    <HelpKINode Title="all members" Url="html/4739BFEE.htm" />
-    <HelpKINode Title="constructor" Url="html/4A77C6FC.htm" />
-    <HelpKINode Title="events" Url="html/A98AF862.htm" />
-    <HelpKINode Title="methods" Url="html/3E27CD6C.htm" />
-    <HelpKINode Title="properties" Url="html/67E1335F.htm" />
+    <HelpKINode Title="about Comment class" Url="html/FA7B6463.htm" />
+    <HelpKINode Title="all members" Url="html/BCBAB9EB.htm" />
+    <HelpKINode Title="constructor" Url="html/AFEA9CD9.htm" />
+    <HelpKINode Title="events" Url="html/F558D085.htm" />
+    <HelpKINode Title="methods" Url="html/44630193.htm" />
+    <HelpKINode Title="properties" Url="html/286B6F1B.htm" />
   </HelpKINode>
-  <HelpKINode Title="Comment.Comment constructor" Url="html/4A77C6FC.htm" />
-  <HelpKINode Title="Comment.CreateXmlNode method" Url="html/B52ABE87.htm" />
-  <HelpKINode Title="Comment.Equals method" Url="html/CD982AB1.htm" />
-  <HelpKINode Title="Comment.InsertAfter method" Url="html/39A0AA3E.htm" />
-  <HelpKINode Title="Comment.InsertBefore method" Url="html/ACD90A15.htm" />
-  <HelpKINode Title="Comment.NodeType property" Url="html/E31B5AB9.htm" />
-  <HelpKINode Title="ContainerNode class" Url="html/DA952E35.htm" />
-  <HelpKINode Title="ContainerNode class" Url="html/EF207FD6.htm" />
+  <HelpKINode Title="Comment.Comment constructor" Url="html/AFEA9CD9.htm" />
+  <HelpKINode Title="Comment.CreateXmlNode method" Url="html/E801C822.htm" />
+  <HelpKINode Title="Comment.Equals method" Url="html/2823FEB1.htm" />
+  <HelpKINode Title="Comment.InsertAfter method" Url="html/3F0EFDA1.htm" />
+  <HelpKINode Title="Comment.InsertBefore method" Url="html/1F291C8B.htm" />
+  <HelpKINode Title="Comment.NodeType property" Url="html/FBC18DC.htm" />
+  <HelpKINode Title="ContainerNode class" Url="html/4731F815.htm" />
+  <HelpKINode Title="ContainerNode class" Url="html/8A240A91.htm" />
   <HelpKINode Title="ContainerNode class">
-    <HelpKINode Title="about ContainerNode class" Url="html/EF207FD6.htm" />
-    <HelpKINode Title="all members" Url="html/DA952E35.htm" />
-    <HelpKINode Title="constructor" Url="html/FA9702E7.htm" />
-    <HelpKINode Title="events" Url="html/17CD154B.htm" />
-    <HelpKINode Title="methods" Url="html/25ADAF01.htm" />
-    <HelpKINode Title="properties" Url="html/21CEEDB5.htm" />
+    <HelpKINode Title="about ContainerNode class" Url="html/8A240A91.htm" />
+    <HelpKINode Title="all members" Url="html/4731F815.htm" />
+    <HelpKINode Title="constructor" Url="html/47B52A93.htm" />
+    <HelpKINode Title="events" Url="html/B0037B24.htm" />
+    <HelpKINode Title="methods" Url="html/A3BAE1BA.htm" />
+    <HelpKINode Title="properties" Url="html/E35E9E96.htm" />
   </HelpKINode>
-  <HelpKINode Title="ContainerNode.Append method" Url="html/4FA9B51A.htm" />
-  <HelpKINode Title="ContainerNode.ContainerNode constructor" Url="html/FA9702E7.htm" />
-  <HelpKINode Title="ContainerNode.Equals method" Url="html/65001369.htm" />
-  <HelpKINode Title="ContainerNode.InnerText property" Url="html/95C64415.htm" />
-  <HelpKINode Title="ContainerNode.InnerTextReader property" Url="html/1EFB21B9.htm" />
-  <HelpKINode Title="ContainerNode.InnerXml property" Url="html/911BBB65.htm" />
-  <HelpKINode Title="ContainerNode.InsertAfter method" Url="html/EB3702B3.htm" />
-  <HelpKINode Title="ContainerNode.InsertBefore method" Url="html/94562166.htm" />
-  <HelpKINode Title="ContainerNode.OuterXml property" Url="html/4EAFA678.htm" />
-  <HelpKINode Title="ContainerNode.Prepend method" Url="html/97CB9194.htm" />
-  <HelpKINode Title="ContainerNode.ReadInnerText method" Url="html/EC3EF2EC.htm" />
-  <HelpKINode Title="ContainerNode.ReadInnerXml method" Url="html/BC9D208C.htm" />
-  <HelpKINode Title="ContainerNode.RemoveAll method" Url="html/FDE4C068.htm" />
-  <HelpKINode Title="ContainerNode.Value property" Url="html/30BC0653.htm" />
-  <HelpKINode Title="ContainerNode.WriteInnerText method" Url="html/E31239D8.htm" />
-  <HelpKINode Title="ContainerNode.WriteInnerXml method" Url="html/857594DE.htm" />
-  <HelpKINode Title="ContainerNode.WriteOuterXml method" Url="html/5FCAA1C6.htm" />
+  <HelpKINode Title="ContainerNode.Append method" Url="html/E898A4DC.htm" />
+  <HelpKINode Title="ContainerNode.ContainerNode constructor" Url="html/47B52A93.htm" />
+  <HelpKINode Title="ContainerNode.Equals method" Url="html/70282D94.htm" />
+  <HelpKINode Title="ContainerNode.InnerText property" Url="html/7802E2BD.htm" />
+  <HelpKINode Title="ContainerNode.InnerTextReader property" Url="html/CA130C3F.htm" />
+  <HelpKINode Title="ContainerNode.InnerXml property" Url="html/E00DFBED.htm" />
+  <HelpKINode Title="ContainerNode.InsertAfter method" Url="html/F8D08B14.htm" />
+  <HelpKINode Title="ContainerNode.InsertBefore method" Url="html/B6814449.htm" />
+  <HelpKINode Title="ContainerNode.OuterXml property" Url="html/4ED6CD29.htm" />
+  <HelpKINode Title="ContainerNode.Prepend method" Url="html/90C0D951.htm" />
+  <HelpKINode Title="ContainerNode.ReadInnerText method" Url="html/C0A85F7A.htm" />
+  <HelpKINode Title="ContainerNode.ReadInnerXml method" Url="html/937138AD.htm" />
+  <HelpKINode Title="ContainerNode.RemoveAll method" Url="html/8B2054A9.htm" />
+  <HelpKINode Title="ContainerNode.Value property" Url="html/2161E3B2.htm" />
+  <HelpKINode Title="ContainerNode.WriteInnerText method" Url="html/EA414F9.htm" />
+  <HelpKINode Title="ContainerNode.WriteInnerXml method" Url="html/5DF18C41.htm" />
+  <HelpKINode Title="ContainerNode.WriteOuterXml method" Url="html/15798FCC.htm" />
   <HelpKINode Title="Count property" Url="html/2FBC49A9.htm" />
   <HelpKINode Title="CreateAttribute method" Url="html/671D2738.htm" />
   <HelpKINode Title="CreateCDataSection method" Url="html/A3D43A1D.htm" />
@@ -109,16 +117,17 @@
   <HelpKINode Title="CreateNavigator method" Url="html/748EB7.htm" />
   <HelpKINode Title="CreateNavigator method" Url="html/D5B0AC37.htm" />
   <HelpKINode Title="CreateNode method" Url="html/371BD190.htm" />
+  <HelpKINode Title="CreateQuery property" Url="html/30B98897.htm" />
   <HelpKINode Title="CreateSignificantWhitespace method" Url="html/B08E6057.htm" />
   <HelpKINode Title="CreateWhitespace method" Url="html/43A339C5.htm" />
   <HelpKINode Title="CreateXmlDeclaration method" Url="html/1C8F029B.htm" />
-  <HelpKINode Title="CreateXmlNode method" Url="html/3893E5C2.htm" />
-  <HelpKINode Title="CreateXmlNode method" Url="html/7B788C19.htm" />
-  <HelpKINode Title="CreateXmlNode method" Url="html/9A2864F3.htm" />
-  <HelpKINode Title="CreateXmlNode method" Url="html/B52ABE87.htm" />
-  <HelpKINode Title="CreateXmlNode method" Url="html/C08D1FA3.htm" />
-  <HelpKINode Title="CreateXmlNode method" Url="html/CCE0300.htm" />
-  <HelpKINode Title="CreateXmlNode method" Url="html/F390E254.htm" />
+  <HelpKINode Title="CreateXmlNode method" Url="html/115F331A.htm" />
+  <HelpKINode Title="CreateXmlNode method" Url="html/3582605D.htm" />
+  <HelpKINode Title="CreateXmlNode method" Url="html/545D8534.htm" />
+  <HelpKINode Title="CreateXmlNode method" Url="html/9D3DE83E.htm" />
+  <HelpKINode Title="CreateXmlNode method" Url="html/DB048DCF.htm" />
+  <HelpKINode Title="CreateXmlNode method" Url="html/DD6E703F.htm" />
+  <HelpKINode Title="CreateXmlNode method" Url="html/E801C822.htm" />
   <HelpKINode Title="Data property" Url="html/34D696C4.htm" />
   <HelpKINode Title="Data property" Url="html/DA9C89B2.htm" />
   <HelpKINode Title="Database class" Url="html/2AFB041F.htm" />
@@ -130,8 +139,9 @@
     <HelpKINode Title="methods" Url="html/CFC46662.htm" />
     <HelpKINode Title="properties" Url="html/C3458A9.htm" />
   </HelpKINode>
-  <HelpKINode Title="Database property" Url="html/7082435F.htm" />
+  <HelpKINode Title="Database property" Url="html/5527E016.htm" />
   <HelpKINode Title="Database.Add method" Url="html/DC787932.htm" />
+  <HelpKINode Title="Database.Databases property" Url="html/EE0DAE56.htm" />
   <HelpKINode Title="Database.Delete method" Url="html/C0ED2CFE.htm" />
   <HelpKINode Title="Database.Dispose method" Url="html/A7668E0B.htm" />
   <HelpKINode Title="Database.DocumentNames property" Url="html/8BF69E8F.htm" />
@@ -153,34 +163,61 @@
   <HelpKINode Title="Database.Replace method" Url="html/CFC484DD.htm" />
   <HelpKINode Title="Database.Time property" Url="html/8E7C2A53.htm" />
   <HelpKINode Title="Database.Updated event" Url="html/5B0D6875.htm" />
-  <HelpKINode Title="DbNode property" Url="html/496E7F86.htm" />
+  <HelpKINode Title="Databases property" Url="html/EE0DAE56.htm" />
+  <HelpKINode Title="DbNode property" Url="html/538BC6A4.htm" />
+  <HelpKINode Title="Default property" Url="html/13B3507A.htm" />
+  <HelpKINode Title="Default property" Url="html/5FE5D8F7.htm" />
+  <HelpKINode Title="Default property" Url="html/702DD913.htm" />
+  <HelpKINode Title="Default property" Url="html/8ABBAE21.htm" />
+  <HelpKINode Title="Default property" Url="html/BB02823A.htm" />
+  <HelpKINode Title="DefaultPersister class" Url="html/470DE689.htm" />
+  <HelpKINode Title="DefaultPersister class" Url="html/C5E51C8A.htm" />
+  <HelpKINode Title="DefaultPersister class">
+    <HelpKINode Title="about DefaultPersister class" Url="html/470DE689.htm" />
+    <HelpKINode Title="all members" Url="html/C5E51C8A.htm" />
+    <HelpKINode Title="constructor" Url="html/718A3421.htm" />
+    <HelpKINode Title="methods" Url="html/E4918E8E.htm" />
+  </HelpKINode>
+  <HelpKINode Title="DefaultPersister.DefaultPersister constructor" Url="html/718A3421.htm" />
+  <HelpKINode Title="DefaultPersisterAttribute class" Url="html/6F2FF692.htm" />
+  <HelpKINode Title="DefaultPersisterAttribute class" Url="html/D007B90.htm" />
+  <HelpKINode Title="DefaultPersisterAttribute class">
+    <HelpKINode Title="about DefaultPersisterAttribute class" Url="html/D007B90.htm" />
+    <HelpKINode Title="all members" Url="html/6F2FF692.htm" />
+    <HelpKINode Title="constructor" Url="html/4AF16C61.htm" />
+    <HelpKINode Title="methods" Url="html/4547368D.htm" />
+    <HelpKINode Title="properties" Url="html/EFAB324B.htm" />
+  </HelpKINode>
+  <HelpKINode Title="DefaultPersisterAttribute.DefaultPersisterAttribute constructor" Url="html/4AF16C61.htm" />
   <HelpKINode Title="Delete method" Url="html/C0ED2CFE.htm" />
   <HelpKINode Title="DeleteData method" Url="html/46C5E88.htm" />
   <HelpKINode Title="DeleteData method" Url="html/C08DEBE1.htm" />
-  <HelpKINode Title="Descendants property" Url="html/C3FF7E13.htm" />
-  <HelpKINode Title="DescendantsOrSelf property" Url="html/186CFF70.htm" />
+  <HelpKINode Title="Descendants property" Url="html/B78B6451.htm" />
+  <HelpKINode Title="DescendantsOrSelf property" Url="html/3BE27E12.htm" />
+  <HelpKINode Title="Detach method" Url="html/2307A265.htm" />
+  <HelpKINode Title="DetachAll method" Url="html/C16C65C0.htm" />
   <HelpKINode Title="Dispose method" Url="html/2228686E.htm" />
   <HelpKINode Title="Dispose method" Url="html/A7668E0B.htm" />
-  <HelpKINode Title="Document class" Url="html/618DDED4.htm" />
-  <HelpKINode Title="Document class" Url="html/D7D81AA7.htm" />
+  <HelpKINode Title="Document class" Url="html/3444F04C.htm" />
+  <HelpKINode Title="Document class" Url="html/5EC3C9C8.htm" />
   <HelpKINode Title="Document class">
-    <HelpKINode Title="about Document class" Url="html/618DDED4.htm" />
-    <HelpKINode Title="all members" Url="html/D7D81AA7.htm" />
-    <HelpKINode Title="constructor" Url="html/7A14D0D8.htm" />
-    <HelpKINode Title="events" Url="html/27B0D76D.htm" />
-    <HelpKINode Title="methods" Url="html/130A9367.htm" />
-    <HelpKINode Title="properties" Url="html/B2BE6F18.htm" />
+    <HelpKINode Title="about Document class" Url="html/3444F04C.htm" />
+    <HelpKINode Title="all members" Url="html/5EC3C9C8.htm" />
+    <HelpKINode Title="constructor" Url="html/1BDF3A8.htm" />
+    <HelpKINode Title="events" Url="html/9CF0C385.htm" />
+    <HelpKINode Title="methods" Url="html/63EC03A6.htm" />
+    <HelpKINode Title="properties" Url="html/934DFB22.htm" />
   </HelpKINode>
-  <HelpKINode Title="Document property" Url="html/34851220.htm" />
-  <HelpKINode Title="Document.Append method" Url="html/E92A5EE3.htm" />
-  <HelpKINode Title="Document.CreateXmlNode method" Url="html/CCE0300.htm" />
-  <HelpKINode Title="Document.Document constructor" Url="html/7A14D0D8.htm" />
-  <HelpKINode Title="Document.Equals method" Url="html/D7AF305F.htm" />
-  <HelpKINode Title="Document.InsertAfter method" Url="html/FA8668B9.htm" />
-  <HelpKINode Title="Document.InsertBefore method" Url="html/1D66E312.htm" />
-  <HelpKINode Title="Document.Name property" Url="html/D1D33A74.htm" />
-  <HelpKINode Title="Document.NodeType property" Url="html/8E746693.htm" />
-  <HelpKINode Title="Document.Prepend method" Url="html/FAFFEF62.htm" />
+  <HelpKINode Title="Document property" Url="html/6E628CEB.htm" />
+  <HelpKINode Title="Document.Append method" Url="html/8AA0D3A2.htm" />
+  <HelpKINode Title="Document.CreateXmlNode method" Url="html/DD6E703F.htm" />
+  <HelpKINode Title="Document.Document constructor" Url="html/1BDF3A8.htm" />
+  <HelpKINode Title="Document.Equals method" Url="html/8A7C1A2B.htm" />
+  <HelpKINode Title="Document.InsertAfter method" Url="html/C67FA9A5.htm" />
+  <HelpKINode Title="Document.InsertBefore method" Url="html/D5AD15DC.htm" />
+  <HelpKINode Title="Document.Name property" Url="html/824FC210.htm" />
+  <HelpKINode Title="Document.NodeType property" Url="html/E4CAD067.htm" />
+  <HelpKINode Title="Document.Prepend method" Url="html/9F18EA5B.htm" />
   <HelpKINode Title="DocumentName property" Url="html/3E5C2BFB.htm" />
   <HelpKINode Title="DocumentNames property" Url="html/8BF69E8F.htm" />
   <HelpKINode Title="Documents property" Url="html/EAA2DEBD.htm" />
@@ -467,66 +504,84 @@
   <HelpKINode Title="Drop method" Url="html/38476DE0.htm" />
   <HelpKINode Title="DROPONDISPOSE field" Url="html/327E5F4B.htm" />
   <HelpKINode Title="DropOnDispose property" Url="html/F917938B.htm" />
-  <HelpKINode Title="Element class" Url="html/1F09CAC.htm" />
-  <HelpKINode Title="Element class" Url="html/8FDD2BA0.htm" />
+  <HelpKINode Title="Element class" Url="html/1B18BA0E.htm" />
+  <HelpKINode Title="Element class" Url="html/921AB829.htm" />
   <HelpKINode Title="Element class">
-    <HelpKINode Title="about Element class" Url="html/8FDD2BA0.htm" />
-    <HelpKINode Title="all members" Url="html/1F09CAC.htm" />
-    <HelpKINode Title="constructor" Url="html/542D3C3C.htm" />
-    <HelpKINode Title="events" Url="html/802C56E0.htm" />
-    <HelpKINode Title="methods" Url="html/79C9CD0B.htm" />
-    <HelpKINode Title="properties" Url="html/B94E94E1.htm" />
+    <HelpKINode Title="about Element class" Url="html/921AB829.htm" />
+    <HelpKINode Title="all members" Url="html/1B18BA0E.htm" />
+    <HelpKINode Title="constructor" Url="html/13F8E830.htm" />
+    <HelpKINode Title="events" Url="html/D6B2CFEA.htm" />
+    <HelpKINode Title="methods" Url="html/8793C0B5.htm" />
+    <HelpKINode Title="properties" Url="html/7396EFC.htm" />
   </HelpKINode>
-  <HelpKINode Title="Element.Append method" Url="html/65F60739.htm" />
-  <HelpKINode Title="Element.Attribute method" Url="html/AB15C51A.htm" />
-  <HelpKINode Title="Element.AttributeValue method" Url="html/61F29EEA.htm" />
-  <HelpKINode Title="Element.CreateXmlNode method" Url="html/7B788C19.htm" />
-  <HelpKINode Title="Element.Element constructor" Url="html/542D3C3C.htm" />
-  <HelpKINode Title="Element.Equals method" Url="html/C94105B2.htm" />
-  <HelpKINode Title="Element.InsertAfter method" Url="html/439CAE0B.htm" />
-  <HelpKINode Title="Element.InsertAttribute method" Url="html/8E8FC595.htm" />
-  <HelpKINode Title="Element.InsertBefore method" Url="html/B6D50E02.htm" />
-  <HelpKINode Title="Element.LocalName property" Url="html/2226D595.htm" />
-  <HelpKINode Title="Element.Name property" Url="html/323047AB.htm" />
-  <HelpKINode Title="Element.NamespaceUri property" Url="html/C96C0924.htm" />
-  <HelpKINode Title="Element.NodeType property" Url="html/1C47F592.htm" />
-  <HelpKINode Title="Element.Prefix property" Url="html/EF8BBE7A.htm" />
-  <HelpKINode Title="Element.Prepend method" Url="html/85F627F6.htm" />
-  <HelpKINode Title="Element.RemoveAll method" Url="html/B7115CD6.htm" />
-  <HelpKINode Title="Element.RemoveAllAttributes method" Url="html/FC86D6DA.htm" />
-  <HelpKINode Title="Element.RemoveAttribute method" Url="html/900D8D92.htm" />
-  <HelpKINode Title="End method" Url="html/D0E8AFD3.htm" />
-  <HelpKINode Title="EnumerateANodes method" Url="html/B0BA5804.htm" />
-  <HelpKINode Title="Equals method" Url="html/37F129B4.htm" />
-  <HelpKINode Title="Equals method" Url="html/40D4F0F6.htm" />
-  <HelpKINode Title="Equals method" Url="html/54F21208.htm" />
-  <HelpKINode Title="Equals method" Url="html/65001369.htm" />
+  <HelpKINode Title="Element.Append method" Url="html/1F38F929.htm" />
+  <HelpKINode Title="Element.Attribute method" Url="html/35219882.htm" />
+  <HelpKINode Title="Element.AttributeValue method" Url="html/D7665973.htm" />
+  <HelpKINode Title="Element.CreateXmlNode method" Url="html/545D8534.htm" />
+  <HelpKINode Title="Element.Element constructor" Url="html/13F8E830.htm" />
+  <HelpKINode Title="Element.Equals method" Url="html/E83CBA3.htm" />
+  <HelpKINode Title="Element.InsertAfter method" Url="html/2685BFAC.htm" />
+  <HelpKINode Title="Element.InsertAttribute method" Url="html/3B8F7F7B.htm" />
+  <HelpKINode Title="Element.InsertBefore method" Url="html/3CACD314.htm" />
+  <HelpKINode Title="Element.LocalName property" Url="html/4C60F324.htm" />
+  <HelpKINode Title="Element.Name property" Url="html/F97D1B0.htm" />
+  <HelpKINode Title="Element.NamespaceUri property" Url="html/35D69BF5.htm" />
+  <HelpKINode Title="Element.NodeType property" Url="html/9DBA447D.htm" />
+  <HelpKINode Title="Element.Prefix property" Url="html/629055C7.htm" />
+  <HelpKINode Title="Element.Prepend method" Url="html/745F0C76.htm" />
+  <HelpKINode Title="Element.RemoveAll method" Url="html/177BA22.htm" />
+  <HelpKINode Title="Element.RemoveAllAttributes method" Url="html/9B7F2CC1.htm" />
+  <HelpKINode Title="Element.RemoveAttribute method" Url="html/BDE97F6A.htm" />
+  <HelpKINode Title="EnumerateANodes method" Url="html/5C1E45B0.htm" />
+  <HelpKINode Title="Equals method" Url="html/25B902B.htm" />
+  <HelpKINode Title="Equals method" Url="html/2823FEB1.htm" />
+  <HelpKINode Title="Equals method" Url="html/5C8F0D6B.htm" />
   <HelpKINode Title="Equals method" Url="html/68EB6E78.htm" />
-  <HelpKINode Title="Equals method" Url="html/B2C7E971.htm" />
-  <HelpKINode Title="Equals method" Url="html/C94105B2.htm" />
-  <HelpKINode Title="Equals method" Url="html/CD982AB1.htm" />
-  <HelpKINode Title="Equals method" Url="html/D7AF305F.htm" />
-  <HelpKINode Title="Equals method" Url="html/FFB3F7B1.htm" />
-  <HelpKINode Title="Eval method" Url="html/16C6A9D5.htm" />
+  <HelpKINode Title="Equals method" Url="html/70282D94.htm" />
+  <HelpKINode Title="Equals method" Url="html/8A7C1A2B.htm" />
+  <HelpKINode Title="Equals method" Url="html/8C4B6EB6.htm" />
+  <HelpKINode Title="Equals method" Url="html/AEBB26FD.htm" />
+  <HelpKINode Title="Equals method" Url="html/D087054C.htm" />
+  <HelpKINode Title="Equals method" Url="html/E83CBA3.htm" />
+  <HelpKINode Title="Eval method" Url="html/670075A4.htm" />
   <HelpKINode Title="Eval method" Url="html/6DA603A2.htm" />
   <HelpKINode Title="Eval method" Url="html/D38912A.htm" />
   <HelpKINode Title="Eval method" Url="html/EC02E141.htm" />
   <HelpKINode Title="EvalList method" Url="html/6E4479E7.htm" />
   <HelpKINode Title="EvalList method" Url="html/854BC365.htm" />
-  <HelpKINode Title="EvalList method" Url="html/BABF837.htm" />
+  <HelpKINode Title="EvalList method" Url="html/AD706F74.htm" />
   <HelpKINode Title="EvalList method" Url="html/DD621926.htm" />
   <HelpKINode Title="EvalSingle method" Url="html/40703F8F.htm" />
-  <HelpKINode Title="EvalSingle method" Url="html/66A423E6.htm" />
   <HelpKINode Title="EvalSingle method" Url="html/7340A331.htm" />
   <HelpKINode Title="EvalSingle method" Url="html/CFA83EAE.htm" />
+  <HelpKINode Title="EvalSingle method" Url="html/EBB151F1.htm" />
+  <HelpKINode Title="Extensions class" Url="html/47D02CBB.htm" />
+  <HelpKINode Title="Extensions class" Url="html/5A06354F.htm" />
+  <HelpKINode Title="Extensions class">
+    <HelpKINode Title="about Extensions class" Url="html/47D02CBB.htm" />
+    <HelpKINode Title="all members" Url="html/5A06354F.htm" />
+    <HelpKINode Title="methods" Url="html/47D4F9BA.htm" />
+  </HelpKINode>
+  <HelpKINode Title="Extensions.Append method" Url="html/760B8C11.htm" />
+  <HelpKINode Title="Extensions.Attach method" Url="html/C19E1BA5.htm" />
+  <HelpKINode Title="Extensions.Fetch method" Url="html/745CDB1D.htm" />
+  <HelpKINode Title="Extensions.GetObject method" Url="html/419F123E.htm" />
+  <HelpKINode Title="Extensions.GetObjects method" Url="html/80AD2271.htm" />
+  <HelpKINode Title="Extensions.Store method" Url="html/B8B09979.htm" />
+  <HelpKINode Title="Fetch method" Url="html/745CDB1D.htm" />
+  <HelpKINode Title="Fetch method" Url="html/95A1F60.htm" />
+  <HelpKINode Title="Fetch method" Url="html/B30385B3.htm" />
+  <HelpKINode Title="Fetch method" Url="html/C030BC3E.htm" />
+  <HelpKINode Title="Fetch property" Url="html/BF84CDC1.htm" />
+  <HelpKINode Title="FetchAll method" Url="html/EE38C34F.htm" />
   <HelpKINode Title="FirstChild property" Url="html/220982.htm" />
   <HelpKINode Title="FirstChild property" Url="html/C4167CF5.htm" />
-  <HelpKINode Title="FNode property" Url="html/7FDC77CA.htm" />
-  <HelpKINode Title="Following property" Url="html/7D409936.htm" />
-  <HelpKINode Title="FollowingSiblings property" Url="html/3E7E390E.htm" />
-  <HelpKINode Title="Get method" Url="html/413DA7CE.htm" />
+  <HelpKINode Title="FNode property" Url="html/9B99108F.htm" />
+  <HelpKINode Title="Following property" Url="html/5207EF24.htm" />
+  <HelpKINode Title="FollowingSiblings property" Url="html/4C0FF419.htm" />
   <HelpKINode Title="Get method" Url="html/20C67931.htm" />
   <HelpKINode Title="get method" Url="html/FF4CC129.htm" />
+  <HelpKINode Title="Get method" Url="html/84211D27.htm" />
   <HelpKINode Title="GetAttribute method" Url="html/C6817566.htm" />
   <HelpKINode Title="GetAttributeNode method" Url="html/A8C3636F.htm" />
   <HelpKINode Title="GetDocument method" Url="html/6BDB7F6.htm" />
@@ -536,13 +591,20 @@
   <HelpKINode Title="GetElementsByTagName method" Url="html/F20E0B3C.htm" />
   <HelpKINode Title="GetEnumerator method" Url="html/8300B931.htm" />
   <HelpKINode Title="GetHashCode method" Url="html/20838F12.htm" />
-  <HelpKINode Title="GetHashCode method" Url="html/B8DC7DD0.htm" />
+  <HelpKINode Title="GetHashCode method" Url="html/869C996.htm" />
+  <HelpKINode Title="GetName method" Url="html/9CA59484.htm" />
   <HelpKINode Title="GetNamespaceOfPrefix method" Url="html/3D659CBB.htm" />
   <HelpKINode Title="GetNamespaceOfPrefix method" Url="html/45F933F1.htm" />
   <HelpKINode Title="GetNamespaceOfPrefix method" Url="html/77F77780.htm" />
   <HelpKINode Title="GetNamespaceOfPrefix method" Url="html/80B3E8D4.htm" />
   <HelpKINode Title="GetNamespaceOfPrefix method" Url="html/92E93633.htm" />
   <HelpKINode Title="GetNamespaceOfPrefix method" Url="html/F28D25BE.htm" />
+  <HelpKINode Title="GetNodeFromQuery(Of T) method" Url="html/C2706FD5.htm" />
+  <HelpKINode Title="GetNodeFromQuery&lt;T&gt; method" Url="html/C2706FD5.htm" />
+  <HelpKINode Title="GetObject method" Url="html/1E2C23DE.htm" />
+  <HelpKINode Title="GetObject method" Url="html/419F123E.htm" />
+  <HelpKINode Title="GetObjects method" Url="html/33723DE.htm" />
+  <HelpKINode Title="GetObjects method" Url="html/80AD2271.htm" />
   <HelpKINode Title="GetPrefixOfNamespace method" Url="html/3CCC1205.htm" />
   <HelpKINode Title="GetPrefixOfNamespace method" Url="html/800C9B17.htm" />
   <HelpKINode Title="GetPrefixOfNamespace method" Url="html/92BD7AFE.htm" />
@@ -558,11 +620,22 @@
   <HelpKINode Title="Helper class">
     <HelpKINode Title="about Helper class" Url="html/509F8B4E.htm" />
     <HelpKINode Title="all members" Url="html/3E3BFAD7.htm" />
+    <HelpKINode Title="methods" Url="html/5A5175BF.htm" />
     <HelpKINode Title="properties" Url="html/659CA732.htm" />
   </HelpKINode>
   <HelpKINode Title="Helper.ReaderSettings property" Url="html/C20F0C0F.htm" />
   <HelpKINode Title="Helper.WriterSettings property" Url="html/9EBDC15B.htm" />
-  <HelpKINode Title="Id property" Url="html/14E69744.htm" />
+  <HelpKINode Title="ICustomPersister interface" Url="html/5E10A2E2.htm" />
+  <HelpKINode Title="ICustomPersister interface" Url="html/63F41C19.htm" />
+  <HelpKINode Title="ICustomPersister interface">
+    <HelpKINode Title="about ICustomPersister interface" Url="html/5E10A2E2.htm" />
+    <HelpKINode Title="all members" Url="html/63F41C19.htm" />
+    <HelpKINode Title="methods" Url="html/A4AE8460.htm" />
+  </HelpKINode>
+  <HelpKINode Title="ICustomPersister.Fetch method" Url="html/95A1F60.htm" />
+  <HelpKINode Title="ICustomPersister.Serialize method" Url="html/A531A125.htm" />
+  <HelpKINode Title="ICustomPersister.Store method" Url="html/A4BAADAD.htm" />
+  <HelpKINode Title="Id property" Url="html/9D690B9A.htm" />
   <HelpKINode Title="IDomNode interface" Url="html/4CAE7B1F.htm" />
   <HelpKINode Title="IDomNode interface" Url="html/56FE478B.htm" />
   <HelpKINode Title="IDomNode interface">
@@ -572,49 +645,50 @@
   </HelpKINode>
   <HelpKINode Title="IDomNode.Node property" Url="html/212A8ECD.htm" />
   <HelpKINode Title="ImportNode method" Url="html/15E76AF3.htm" />
-  <HelpKINode Title="Index property" Url="html/577E5CDF.htm" />
+  <HelpKINode Title="Indent property" Url="html/6D96266A.htm" />
+  <HelpKINode Title="Index property" Url="html/3854A3EE.htm" />
   <HelpKINode Title="Initialize method" Url="html/6887C3F0.htm" />
   <HelpKINode Title="InnerText property" Url="html/6135FDE9.htm" />
+  <HelpKINode Title="InnerText property" Url="html/7802E2BD.htm" />
   <HelpKINode Title="InnerText property" Url="html/81D66623.htm" />
-  <HelpKINode Title="InnerText property" Url="html/95C64415.htm" />
   <HelpKINode Title="InnerText property" Url="html/BD52B75B.htm" />
   <HelpKINode Title="InnerText property" Url="html/C79D2B73.htm" />
   <HelpKINode Title="InnerText property" Url="html/D134086C.htm" />
   <HelpKINode Title="InnerText property" Url="html/F304FB54.htm" />
-  <HelpKINode Title="InnerTextReader property" Url="html/1EFB21B9.htm" />
+  <HelpKINode Title="InnerTextReader property" Url="html/CA130C3F.htm" />
   <HelpKINode Title="InnerXml property" Url="html/3565AA69.htm" />
   <HelpKINode Title="InnerXml property" Url="html/7C67373A.htm" />
   <HelpKINode Title="InnerXml property" Url="html/7E6E6DF.htm" />
-  <HelpKINode Title="InnerXml property" Url="html/911BBB65.htm" />
   <HelpKINode Title="InnerXml property" Url="html/AA82044D.htm" />
   <HelpKINode Title="InnerXml property" Url="html/BF9F823B.htm" />
+  <HelpKINode Title="InnerXml property" Url="html/E00DFBED.htm" />
   <HelpKINode Title="InnerXml property" Url="html/FD852494.htm" />
-  <HelpKINode Title="InsertAfter method" Url="html/1567C8B9.htm" />
-  <HelpKINode Title="InsertAfter method" Url="html/39A0AA3E.htm" />
-  <HelpKINode Title="InsertAfter method" Url="html/39A1AC0B.htm" />
-  <HelpKINode Title="InsertAfter method" Url="html/3B3C1553.htm" />
-  <HelpKINode Title="InsertAfter method" Url="html/439CAE0B.htm" />
+  <HelpKINode Title="InsertAfter method" Url="html/2685BFAC.htm" />
+  <HelpKINode Title="InsertAfter method" Url="html/3F0EFDA1.htm" />
   <HelpKINode Title="InsertAfter method" Url="html/A0727BD0.htm" />
   <HelpKINode Title="InsertAfter method" Url="html/A9C2A077.htm" />
-  <HelpKINode Title="InsertAfter method" Url="html/EB3702B3.htm" />
+  <HelpKINode Title="InsertAfter method" Url="html/C67FA9A5.htm" />
+  <HelpKINode Title="InsertAfter method" Url="html/CD900C70.htm" />
+  <HelpKINode Title="InsertAfter method" Url="html/CF3FF760.htm" />
+  <HelpKINode Title="InsertAfter method" Url="html/D52AF9E.htm" />
   <HelpKINode Title="InsertAfter method" Url="html/F0B04347.htm" />
-  <HelpKINode Title="InsertAfter method" Url="html/FA8668B9.htm" />
+  <HelpKINode Title="InsertAfter method" Url="html/F8D08B14.htm" />
   <HelpKINode Title="InsertAfter method" Url="html/FD80D5CA.htm" />
-  <HelpKINode Title="InsertAttribute method" Url="html/8E8FC595.htm" />
-  <HelpKINode Title="InsertBefore method" Url="html/12F70848.htm" />
-  <HelpKINode Title="InsertBefore method" Url="html/1D66E312.htm" />
-  <HelpKINode Title="InsertBefore method" Url="html/3BB476F8.htm" />
-  <HelpKINode Title="InsertBefore method" Url="html/673CA394.htm" />
-  <HelpKINode Title="InsertBefore method" Url="html/94562166.htm" />
+  <HelpKINode Title="InsertAttribute method" Url="html/3B8F7F7B.htm" />
+  <HelpKINode Title="InsertBefore method" Url="html/1F291C8B.htm" />
+  <HelpKINode Title="InsertBefore method" Url="html/36CAB7D3.htm" />
+  <HelpKINode Title="InsertBefore method" Url="html/3CACD314.htm" />
+  <HelpKINode Title="InsertBefore method" Url="html/88D8C125.htm" />
   <HelpKINode Title="InsertBefore method" Url="html/A253AF9A.htm" />
-  <HelpKINode Title="InsertBefore method" Url="html/ACD90A15.htm" />
-  <HelpKINode Title="InsertBefore method" Url="html/B6D50E02.htm" />
+  <HelpKINode Title="InsertBefore method" Url="html/B6814449.htm" />
+  <HelpKINode Title="InsertBefore method" Url="html/D5AD15DC.htm" />
   <HelpKINode Title="InsertBefore method" Url="html/ECB3D78F.htm" />
+  <HelpKINode Title="InsertBefore method" Url="html/ED65535D.htm" />
   <HelpKINode Title="InsertBefore method" Url="html/EE5F81A0.htm" />
   <HelpKINode Title="InsertBefore method" Url="html/FFAAA387.htm" />
   <HelpKINode Title="InsertData method" Url="html/6E633FBA.htm" />
   <HelpKINode Title="InsertData method" Url="html/FDBA0739.htm" />
-  <HelpKINode Title="Invalidated event" Url="html/5F9172DE.htm" />
+  <HelpKINode Title="Invalidated event" Url="html/C7123D93.htm" />
   <HelpKINode Title="IQuery interface" Url="html/2BF32F28.htm" />
   <HelpKINode Title="IQuery interface" Url="html/47A48166.htm" />
   <HelpKINode Title="IQuery interface">
@@ -625,6 +699,7 @@
   <HelpKINode Title="IQuery.Eval method" Url="html/EC02E141.htm" />
   <HelpKINode Title="IQuery.EvalList method" Url="html/6E4479E7.htm" />
   <HelpKINode Title="IQuery.EvalSingle method" Url="html/CFA83EAE.htm" />
+  <HelpKINode Title="IsPersistentObject property" Url="html/12C7CB0C.htm" />
   <HelpKINode Title="IsReadOnly property" Url="html/1F7B8665.htm" />
   <HelpKINode Title="IsReadOnly property" Url="html/89F47061.htm" />
   <HelpKINode Title="IsReadOnly property" Url="html/97002CDC.htm" />
@@ -638,55 +713,90 @@
   <HelpKINode Title="Item property" Url="html/F107472A.htm" />
   <HelpKINode Title="Item property" Url="html/F14C0FE1.htm" />
   <HelpKINode Title="Item property" Url="html/F5303E92.htm" />
+  <HelpKINode Title="ItemName property" Url="html/7BBF0B7D.htm" />
+  <HelpKINode Title="ItemName property" Url="html/A1951F4F.htm" />
+  <HelpKINode Title="ItemQuery property" Url="html/92EC9928.htm" />
+  <HelpKINode Title="ItemQuery property" Url="html/B7F39A7E.htm" />
+  <HelpKINode Title="ItemsArePersistentObjects property" Url="html/95FA8834.htm" />
+  <HelpKINode Title="ItemType property" Url="html/A37057D0.htm" />
+  <HelpKINode Title="KeyAttributeName property" Url="html/FBE32600.htm" />
+  <HelpKINode Title="KeyElementName property" Url="html/69DD264A.htm" />
+  <HelpKINode Title="KeyQuery property" Url="html/83A3D84.htm" />
+  <HelpKINode Title="KeysArePersistentObjects property" Url="html/36B6336D.htm" />
+  <HelpKINode Title="KeyType property" Url="html/9B6CEC62.htm" />
   <HelpKINode Title="LastChild property" Url="html/165C84FB.htm" />
   <HelpKINode Title="LastChild property" Url="html/2ECA057A.htm" />
   <HelpKINode Title="Length property" Url="html/AD8F246.htm" />
   <HelpKINode Title="Length property" Url="html/C1BBAC17.htm" />
   <HelpKINode Title="Load method" Url="html/8CE06DB6.htm" />
   <HelpKINode Title="LoadXml method" Url="html/33B5ABBE.htm" />
-  <HelpKINode Title="LocalName property" Url="html/2226D595.htm" />
-  <HelpKINode Title="LocalName property" Url="html/7210BA30.htm" />
+  <HelpKINode Title="LocalName property" Url="html/4C60F324.htm" />
+  <HelpKINode Title="LocalName property" Url="html/98A12D1D.htm" />
   <HelpKINode Title="LocalName property" Url="html/A3696580.htm" />
   <HelpKINode Title="LocalName property" Url="html/A6AB1555.htm" />
-  <HelpKINode Title="LocalName property" Url="html/D5470F7E.htm" />
-  <HelpKINode Title="LocalName property" Url="html/DE33A52.htm" />
-  <HelpKINode Title="LocalNameImpl property" Url="html/E86488B0.htm" />
-  <HelpKINode Title="Locker property" Url="html/86C4FF80.htm" />
-  <HelpKINode Title="Name property" Url="html/2C817CD4.htm" />
+  <HelpKINode Title="LocalName property" Url="html/DAD10BCB.htm" />
+  <HelpKINode Title="LocalName property" Url="html/E28F4679.htm" />
+  <HelpKINode Title="LocalNameImpl property" Url="html/4BA84129.htm" />
+  <HelpKINode Title="Manager class" Url="html/1609E18C.htm" />
+  <HelpKINode Title="Manager class" Url="html/A045ED25.htm" />
+  <HelpKINode Title="Manager class">
+    <HelpKINode Title="about Manager class" Url="html/1609E18C.htm" />
+    <HelpKINode Title="all members" Url="html/A045ED25.htm" />
+    <HelpKINode Title="constructor" Url="html/8B975FEE.htm" />
+    <HelpKINode Title="methods" Url="html/BE46B699.htm" />
+    <HelpKINode Title="properties" Url="html/E761A4FF.htm" />
+  </HelpKINode>
+  <HelpKINode Title="Manager.Append method" Url="html/63121AEC.htm" />
+  <HelpKINode Title="Manager.Attach method" Url="html/B16A074.htm" />
+  <HelpKINode Title="Manager.AutoRefresh property" Url="html/D477F153.htm" />
+  <HelpKINode Title="Manager.Default property" Url="html/BB02823A.htm" />
+  <HelpKINode Title="Manager.Detach method" Url="html/2307A265.htm" />
+  <HelpKINode Title="Manager.DetachAll method" Url="html/C16C65C0.htm" />
+  <HelpKINode Title="Manager.Fetch method" Url="html/B30385B3.htm" />
+  <HelpKINode Title="Manager.FetchAll method" Url="html/EE38C34F.htm" />
+  <HelpKINode Title="Manager.GetObject method" Url="html/1E2C23DE.htm" />
+  <HelpKINode Title="Manager.GetObjects method" Url="html/33723DE.htm" />
+  <HelpKINode Title="Manager.Manager constructor" Url="html/8B975FEE.htm" />
+  <HelpKINode Title="Manager.Store method" Url="html/36181858.htm" />
   <HelpKINode Title="Name property" Url="html/2D7AFD56.htm" />
-  <HelpKINode Title="Name property" Url="html/323047AB.htm" />
+  <HelpKINode Title="Name property" Url="html/2ED1F2F0.htm" />
+  <HelpKINode Title="Name property" Url="html/4ABF8FCD.htm" />
+  <HelpKINode Title="Name property" Url="html/4CD306D.htm" />
   <HelpKINode Title="Name property" Url="html/559A3555.htm" />
+  <HelpKINode Title="Name property" Url="html/6598DB93.htm" />
+  <HelpKINode Title="Name property" Url="html/6B6F2A51.htm" />
+  <HelpKINode Title="Name property" Url="html/824FC210.htm" />
   <HelpKINode Title="Name property" Url="html/8E842A59.htm" />
-  <HelpKINode Title="Name property" Url="html/D1D33A74.htm" />
-  <HelpKINode Title="Name property" Url="html/D99982AA.htm" />
-  <HelpKINode Title="Name property" Url="html/E1C636DF.htm" />
-  <HelpKINode Title="NameImpl property" Url="html/B8B8580E.htm" />
-  <HelpKINode Title="NamespaceUri property" Url="html/F607C9CA.htm" />
-  <HelpKINode Title="NamespaceURI property" Url="html/43BE9042.htm" />
-  <HelpKINode Title="NamespaceURI property" Url="html/B526810C.htm" />
-  <HelpKINode Title="NamespaceUri property" Url="html/F46595D3.htm" />
-  <HelpKINode Title="NamespaceUri property" Url="html/25ABC66B.htm" />
-  <HelpKINode Title="NamespaceURI property" Url="html/C152AB4C.htm" />
+  <HelpKINode Title="Name property" Url="html/A4C4D907.htm" />
+  <HelpKINode Title="Name property" Url="html/AF08C9E5.htm" />
+  <HelpKINode Title="Name property" Url="html/F97D1B0.htm" />
+  <HelpKINode Title="NameImpl property" Url="html/4E8256D5.htm" />
+  <HelpKINode Title="NamespaceUri property" Url="html/3DEDF507.htm" />
   <HelpKINode Title="NamespaceURI property" Url="html/F329E692.htm" />
+  <HelpKINode Title="NamespaceUri property" Url="html/35D69BF5.htm" />
+  <HelpKINode Title="NamespaceURI property" Url="html/C152AB4C.htm" />
+  <HelpKINode Title="NamespaceURI property" Url="html/B526810C.htm" />
+  <HelpKINode Title="NamespaceUri property" Url="html/EE888A4E.htm" />
+  <HelpKINode Title="NamespaceURI property" Url="html/43BE9042.htm" />
   <HelpKINode Title="NamespaceURI property" Url="html/F919986.htm" />
   <HelpKINode Title="NamespaceURI property" Url="html/FA7D5A9E.htm" />
-  <HelpKINode Title="NamespaceUri property" Url="html/C96C0924.htm" />
-  <HelpKINode Title="NamespaceUriImpl property" Url="html/48A1376A.htm" />
+  <HelpKINode Title="NamespaceUri property" Url="html/FBFC5775.htm" />
+  <HelpKINode Title="NamespaceUriImpl property" Url="html/37C4C2A9.htm" />
   <HelpKINode Title="NextSibling property" Url="html/2608388E.htm" />
   <HelpKINode Title="NextSibling property" Url="html/3BFC1219.htm" />
   <HelpKINode Title="NextSibling property" Url="html/40EE3F9B.htm" />
   <HelpKINode Title="NextSibling property" Url="html/4E0F39A2.htm" />
   <HelpKINode Title="NextSibling property" Url="html/6D14858D.htm" />
   <HelpKINode Title="NextSibling property" Url="html/E49D6E4C.htm" />
-  <HelpKINode Title="Node class" Url="html/5E375077.htm" />
-  <HelpKINode Title="Node class" Url="html/C76993F.htm" />
+  <HelpKINode Title="Node class" Url="html/77AF5B5D.htm" />
+  <HelpKINode Title="Node class" Url="html/B9F93C1B.htm" />
   <HelpKINode Title="Node class">
-    <HelpKINode Title="about Node class" Url="html/5E375077.htm" />
-    <HelpKINode Title="all members" Url="html/C76993F.htm" />
-    <HelpKINode Title="constructor" Url="html/56FA8036.htm" />
-    <HelpKINode Title="events" Url="html/868CDC67.htm" />
-    <HelpKINode Title="methods" Url="html/C90D115E.htm" />
-    <HelpKINode Title="properties" Url="html/2B2B8E26.htm" />
+    <HelpKINode Title="about Node class" Url="html/B9F93C1B.htm" />
+    <HelpKINode Title="all members" Url="html/77AF5B5D.htm" />
+    <HelpKINode Title="constructor" Url="html/D35C45AC.htm" />
+    <HelpKINode Title="events" Url="html/79D4CB58.htm" />
+    <HelpKINode Title="methods" Url="html/837555B0.htm" />
+    <HelpKINode Title="properties" Url="html/6046056A.htm" />
   </HelpKINode>
   <HelpKINode Title="Node property" Url="html/212A8ECD.htm" />
   <HelpKINode Title="Node property" Url="html/3ED0355C.htm" />
@@ -695,61 +805,57 @@
   <HelpKINode Title="Node property" Url="html/A0052D93.htm" />
   <HelpKINode Title="Node property" Url="html/CE0C90ED.htm" />
   <HelpKINode Title="Node property" Url="html/F11A08C6.htm" />
-  <HelpKINode Title="Node.Ancestors property" Url="html/BE38C092.htm" />
-  <HelpKINode Title="Node.AncestorsOrSelf property" Url="html/5B5DC909.htm" />
-  <HelpKINode Title="Node.ANode property" Url="html/7FDC775D.htm" />
-  <HelpKINode Title="Node.Attributes property" Url="html/3D349467.htm" />
-  <HelpKINode Title="Node.BaseUri property" Url="html/53AD16BB.htm" />
-  <HelpKINode Title="Node.Check method" Url="html/54A35164.htm" />
-  <HelpKINode Title="Node.Child method" Url="html/F36223C5.htm" />
-  <HelpKINode Title="Node.Children property" Url="html/77FC8A7.htm" />
-  <HelpKINode Title="Node.CreateXmlNode method" Url="html/C08D1FA3.htm" />
-  <HelpKINode Title="Node.Database property" Url="html/7082435F.htm" />
-  <HelpKINode Title="Node.DbNode property" Url="html/496E7F86.htm" />
-  <HelpKINode Title="Node.Descendants property" Url="html/C3FF7E13.htm" />
-  <HelpKINode Title="Node.DescendantsOrSelf property" Url="html/186CFF70.htm" />
-  <HelpKINode Title="Node.Document property" Url="html/34851220.htm" />
-  <HelpKINode Title="Node.EnumerateANodes method" Url="html/B0BA5804.htm" />
-  <HelpKINode Title="Node.Equals method" Url="html/54F21208.htm" />
-  <HelpKINode Title="Node.Eval method" Url="html/16C6A9D5.htm" />
-  <HelpKINode Title="Node.EvalList method" Url="html/BABF837.htm" />
-  <HelpKINode Title="Node.EvalSingle method" Url="html/66A423E6.htm" />
-  <HelpKINode Title="Node.FNode property" Url="html/7FDC77CA.htm" />
-  <HelpKINode Title="Node.Following property" Url="html/7D409936.htm" />
-  <HelpKINode Title="Node.FollowingSiblings property" Url="html/3E7E390E.htm" />
-  <HelpKINode Title="Node.Get method" Url="html/413DA7CE.htm" />
-  <HelpKINode Title="Node.GetHashCode method" Url="html/B8DC7DD0.htm" />
-  <HelpKINode Title="Node.Id property" Url="html/14E69744.htm" />
-  <HelpKINode Title="Node.Index property" Url="html/577E5CDF.htm" />
-  <HelpKINode Title="Node.Invalidated event" Url="html/5F9172DE.htm" />
-  <HelpKINode Title="Node.LocalName property" Url="html/DE33A52.htm" />
-  <HelpKINode Title="Node.LocalNameImpl property" Url="html/E86488B0.htm" />
-  <HelpKINode Title="Node.Locker property" Url="html/86C4FF80.htm" />
-  <HelpKINode Title="Node.Name property" Url="html/2C817CD4.htm" />
-  <HelpKINode Title="Node.NameImpl property" Url="html/B8B8580E.htm" />
-  <HelpKINode Title="Node.NamespaceUri property" Url="html/F607C9CA.htm" />
-  <HelpKINode Title="Node.NamespaceUriImpl property" Url="html/48A1376A.htm" />
-  <HelpKINode Title="Node.Node constructor" Url="html/56FA8036.htm" />
-  <HelpKINode Title="Node.NodeType property" Url="html/615D27CC.htm" />
-  <HelpKINode Title="Node.Parent property" Url="html/E6832CAC.htm" />
-  <HelpKINode Title="Node.Preceding property" Url="html/8B9FA4ED.htm" />
-  <HelpKINode Title="Node.PrecedingSiblings property" Url="html/30BE07AB.htm" />
-  <HelpKINode Title="Node.Prefix property" Url="html/12B3EAFE.htm" />
-  <HelpKINode Title="Node.PrefixImpl property" Url="html/24B037D6.htm" />
-  <HelpKINode Title="Node.ReadLock method" Url="html/B3C83327.htm" />
-  <HelpKINode Title="Node.Remove method" Url="html/F322F372.htm" />
-  <HelpKINode Title="Node.UpgradeableReadLock method" Url="html/4EF2ADFF.htm" />
-  <HelpKINode Title="Node.Valid property" Url="html/9925053E.htm" />
-  <HelpKINode Title="Node.Value property" Url="html/21E1053F.htm" />
-  <HelpKINode Title="Node.WriteLock method" Url="html/D38DF13.htm" />
-  <HelpKINode Title="Node.XmlNode property" Url="html/9001D82A.htm" />
-  <HelpKINode Title="NodeType property" Url="html/1C47F592.htm" />
-  <HelpKINode Title="NodeType property" Url="html/615D27CC.htm" />
-  <HelpKINode Title="NodeType property" Url="html/8E746693.htm" />
-  <HelpKINode Title="NodeType property" Url="html/C90F7E43.htm" />
-  <HelpKINode Title="NodeType property" Url="html/E31B5AB9.htm" />
-  <HelpKINode Title="NodeType property" Url="html/E366801.htm" />
-  <HelpKINode Title="NodeType property" Url="html/E6ABA86E.htm" />
+  <HelpKINode Title="Node.Ancestors property" Url="html/12AD8A83.htm" />
+  <HelpKINode Title="Node.AncestorsOrSelf property" Url="html/FFF17572.htm" />
+  <HelpKINode Title="Node.ANode property" Url="html/9B7C108F.htm" />
+  <HelpKINode Title="Node.Attributes property" Url="html/E1A984FD.htm" />
+  <HelpKINode Title="Node.BaseUri property" Url="html/3A380064.htm" />
+  <HelpKINode Title="Node.Check method" Url="html/CD3AFE99.htm" />
+  <HelpKINode Title="Node.Child method" Url="html/FAC3FEA6.htm" />
+  <HelpKINode Title="Node.Children property" Url="html/85A654F0.htm" />
+  <HelpKINode Title="Node.CreateXmlNode method" Url="html/3582605D.htm" />
+  <HelpKINode Title="Node.Database property" Url="html/5527E016.htm" />
+  <HelpKINode Title="Node.DbNode property" Url="html/538BC6A4.htm" />
+  <HelpKINode Title="Node.Descendants property" Url="html/B78B6451.htm" />
+  <HelpKINode Title="Node.DescendantsOrSelf property" Url="html/3BE27E12.htm" />
+  <HelpKINode Title="Node.Document property" Url="html/6E628CEB.htm" />
+  <HelpKINode Title="Node.EnumerateANodes method" Url="html/5C1E45B0.htm" />
+  <HelpKINode Title="Node.Equals method" Url="html/5C8F0D6B.htm" />
+  <HelpKINode Title="Node.Eval method" Url="html/670075A4.htm" />
+  <HelpKINode Title="Node.EvalList method" Url="html/AD706F74.htm" />
+  <HelpKINode Title="Node.EvalSingle method" Url="html/EBB151F1.htm" />
+  <HelpKINode Title="Node.FNode property" Url="html/9B99108F.htm" />
+  <HelpKINode Title="Node.Following property" Url="html/5207EF24.htm" />
+  <HelpKINode Title="Node.FollowingSiblings property" Url="html/4C0FF419.htm" />
+  <HelpKINode Title="Node.Get method" Url="html/84211D27.htm" />
+  <HelpKINode Title="Node.GetHashCode method" Url="html/869C996.htm" />
+  <HelpKINode Title="Node.Id property" Url="html/9D690B9A.htm" />
+  <HelpKINode Title="Node.Index property" Url="html/3854A3EE.htm" />
+  <HelpKINode Title="Node.Invalidated event" Url="html/C7123D93.htm" />
+  <HelpKINode Title="Node.LocalName property" Url="html/98A12D1D.htm" />
+  <HelpKINode Title="Node.LocalNameImpl property" Url="html/4BA84129.htm" />
+  <HelpKINode Title="Node.Name property" Url="html/4ABF8FCD.htm" />
+  <HelpKINode Title="Node.NameImpl property" Url="html/4E8256D5.htm" />
+  <HelpKINode Title="Node.NamespaceUri property" Url="html/3DEDF507.htm" />
+  <HelpKINode Title="Node.NamespaceUriImpl property" Url="html/37C4C2A9.htm" />
+  <HelpKINode Title="Node.Node constructor" Url="html/D35C45AC.htm" />
+  <HelpKINode Title="Node.NodeType property" Url="html/1723ABE8.htm" />
+  <HelpKINode Title="Node.Parent property" Url="html/B15BE99A.htm" />
+  <HelpKINode Title="Node.Preceding property" Url="html/6A709EA5.htm" />
+  <HelpKINode Title="Node.PrecedingSiblings property" Url="html/D715D330.htm" />
+  <HelpKINode Title="Node.Prefix property" Url="html/6B20C71E.htm" />
+  <HelpKINode Title="Node.PrefixImpl property" Url="html/642CFFC.htm" />
+  <HelpKINode Title="Node.Remove method" Url="html/AF789900.htm" />
+  <HelpKINode Title="Node.Valid property" Url="html/D3288FC9.htm" />
+  <HelpKINode Title="Node.Value property" Url="html/D3278FBD.htm" />
+  <HelpKINode Title="Node.XmlNode property" Url="html/72CB2EC9.htm" />
+  <HelpKINode Title="NodeType property" Url="html/1723ABE8.htm" />
+  <HelpKINode Title="NodeType property" Url="html/54FE7630.htm" />
+  <HelpKINode Title="NodeType property" Url="html/9DBA447D.htm" />
+  <HelpKINode Title="NodeType property" Url="html/E4CAD067.htm" />
+  <HelpKINode Title="NodeType property" Url="html/E5B0FEAE.htm" />
+  <HelpKINode Title="NodeType property" Url="html/F296A35E.htm" />
+  <HelpKINode Title="NodeType property" Url="html/FBC18DC.htm" />
   <HelpKINode Title="Normalize method" Url="html/28AA3701.htm" />
   <HelpKINode Title="Normalize method" Url="html/35562A47.htm" />
   <HelpKINode Title="Normalize method" Url="html/AD62CE5A.htm" />
@@ -757,16 +863,8 @@
   <HelpKINode Title="Normalize method" Url="html/C2CB9045.htm" />
   <HelpKINode Title="Normalize method" Url="html/E02B00B5.htm" />
   <HelpKINode Title="Nxdb namespace" Url="html/CF56BA88.htm" />
-  <HelpKINode Title="Nxdb.Attribute class" Url="html/3B1580E5.htm" />
-  <HelpKINode Title="Nxdb.Attribute class" Url="html/C5098D8B.htm" />
-  <HelpKINode Title="Nxdb.Comment class" Url="html/4739BFEE.htm" />
-  <HelpKINode Title="Nxdb.Comment class" Url="html/CE6F2BC3.htm" />
-  <HelpKINode Title="Nxdb.ContainerNode class" Url="html/DA952E35.htm" />
-  <HelpKINode Title="Nxdb.ContainerNode class" Url="html/EF207FD6.htm" />
   <HelpKINode Title="Nxdb.Database class" Url="html/2AFB041F.htm" />
   <HelpKINode Title="Nxdb.Database class" Url="html/7262D38.htm" />
-  <HelpKINode Title="Nxdb.Document class" Url="html/618DDED4.htm" />
-  <HelpKINode Title="Nxdb.Document class" Url="html/D7D81AA7.htm" />
   <HelpKINode Title="Nxdb.Dom namespace" Url="html/48608DDC.htm" />
   <HelpKINode Title="Nxdb.Dom.DomAttribute class" Url="html/64D7C81F.htm" />
   <HelpKINode Title="Nxdb.Dom.DomAttribute class" Url="html/F3EF3013.htm" />
@@ -784,26 +882,69 @@
   <HelpKINode Title="Nxdb.Dom.DomText class" Url="html/3793F483.htm" />
   <HelpKINode Title="Nxdb.Dom.IDomNode interface" Url="html/4CAE7B1F.htm" />
   <HelpKINode Title="Nxdb.Dom.IDomNode interface" Url="html/56FE478B.htm" />
-  <HelpKINode Title="Nxdb.Element class" Url="html/1F09CAC.htm" />
-  <HelpKINode Title="Nxdb.Element class" Url="html/8FDD2BA0.htm" />
   <HelpKINode Title="Nxdb.Helper class" Url="html/3E3BFAD7.htm" />
   <HelpKINode Title="Nxdb.Helper class" Url="html/509F8B4E.htm" />
   <HelpKINode Title="Nxdb.IQuery interface" Url="html/2BF32F28.htm" />
   <HelpKINode Title="Nxdb.IQuery interface" Url="html/47A48166.htm" />
-  <HelpKINode Title="Nxdb.Node class" Url="html/5E375077.htm" />
-  <HelpKINode Title="Nxdb.Node class" Url="html/C76993F.htm" />
+  <HelpKINode Title="Nxdb.Node namespace" Url="html/5E371D29.htm" />
+  <HelpKINode Title="Nxdb.Node.Attribute class" Url="html/243D52DB.htm" />
+  <HelpKINode Title="Nxdb.Node.Attribute class" Url="html/24BEE5D1.htm" />
+  <HelpKINode Title="Nxdb.Node.Comment class" Url="html/BCBAB9EB.htm" />
+  <HelpKINode Title="Nxdb.Node.Comment class" Url="html/FA7B6463.htm" />
+  <HelpKINode Title="Nxdb.Node.ContainerNode class" Url="html/4731F815.htm" />
+  <HelpKINode Title="Nxdb.Node.ContainerNode class" Url="html/8A240A91.htm" />
+  <HelpKINode Title="Nxdb.Node.Document class" Url="html/3444F04C.htm" />
+  <HelpKINode Title="Nxdb.Node.Document class" Url="html/5EC3C9C8.htm" />
+  <HelpKINode Title="Nxdb.Node.Element class" Url="html/1B18BA0E.htm" />
+  <HelpKINode Title="Nxdb.Node.Element class" Url="html/921AB829.htm" />
+  <HelpKINode Title="Nxdb.Node.Node class" Url="html/77AF5B5D.htm" />
+  <HelpKINode Title="Nxdb.Node.Node class" Url="html/B9F93C1B.htm" />
+  <HelpKINode Title="Nxdb.Node.ProcessingInstruction class" Url="html/489B383B.htm" />
+  <HelpKINode Title="Nxdb.Node.ProcessingInstruction class" Url="html/5B251B4D.htm" />
+  <HelpKINode Title="Nxdb.Node.Text class" Url="html/4500C4E1.htm" />
+  <HelpKINode Title="Nxdb.Node.Text class" Url="html/F4E4199E.htm" />
+  <HelpKINode Title="Nxdb.Node.TreeNode class" Url="html/7A7F9834.htm" />
+  <HelpKINode Title="Nxdb.Node.TreeNode class" Url="html/B7857051.htm" />
   <HelpKINode Title="Nxdb.NxdbProp class" Url="html/35C0724B.htm" />
   <HelpKINode Title="Nxdb.NxdbProp class" Url="html/CF026478.htm" />
-  <HelpKINode Title="Nxdb.ProcessingInstruction class" Url="html/E54B0735.htm" />
-  <HelpKINode Title="Nxdb.ProcessingInstruction class" Url="html/F6DE650A.htm" />
+  <HelpKINode Title="Nxdb.Persistence namespace" Url="html/1A461975.htm" />
+  <HelpKINode Title="Nxdb.Persistence.Attributes namespace" Url="html/41EAC51E.htm" />
+  <HelpKINode Title="Nxdb.Persistence.Attributes.DefaultPersisterAttribute class" Url="html/6F2FF692.htm" />
+  <HelpKINode Title="Nxdb.Persistence.Attributes.DefaultPersisterAttribute class" Url="html/D007B90.htm" />
+  <HelpKINode Title="Nxdb.Persistence.Attributes.PersistentAttributeAttribute class" Url="html/6206F83F.htm" />
+  <HelpKINode Title="Nxdb.Persistence.Attributes.PersistentAttributeAttribute class" Url="html/CD5D4AEC.htm" />
+  <HelpKINode Title="Nxdb.Persistence.Attributes.PersistentCollectionAttribute class" Url="html/9C6DA1B2.htm" />
+  <HelpKINode Title="Nxdb.Persistence.Attributes.PersistentCollectionAttribute class" Url="html/D399F605.htm" />
+  <HelpKINode Title="Nxdb.Persistence.Attributes.PersistentElementAttribute class" Url="html/4BD8FE6D.htm" />
+  <HelpKINode Title="Nxdb.Persistence.Attributes.PersistentElementAttribute class" Url="html/D053E48C.htm" />
+  <HelpKINode Title="Nxdb.Persistence.Attributes.PersistentKvpCollectionAttribute class" Url="html/38BE7AD2.htm" />
+  <HelpKINode Title="Nxdb.Persistence.Attributes.PersistentKvpCollectionAttribute class" Url="html/E9C7529C.htm" />
+  <HelpKINode Title="Nxdb.Persistence.Attributes.PersistentMemberAttribute class" Url="html/7B6A34D2.htm" />
+  <HelpKINode Title="Nxdb.Persistence.Attributes.PersistentMemberAttribute class" Url="html/F7F17EC9.htm" />
+  <HelpKINode Title="Nxdb.Persistence.Attributes.PersistentPathAttribute class" Url="html/12F4D038.htm" />
+  <HelpKINode Title="Nxdb.Persistence.Attributes.PersistentPathAttribute class" Url="html/EF896E1A.htm" />
+  <HelpKINode Title="Nxdb.Persistence.Attributes.PersistentTextAttribute class" Url="html/1D9AE438.htm" />
+  <HelpKINode Title="Nxdb.Persistence.Attributes.PersistentTextAttribute class" Url="html/5507272E.htm" />
+  <HelpKINode Title="Nxdb.Persistence.Attributes.PersisterAttribute class" Url="html/3E571D48.htm" />
+  <HelpKINode Title="Nxdb.Persistence.Attributes.PersisterAttribute class" Url="html/91393DBB.htm" />
+  <HelpKINode Title="Nxdb.Persistence.Attributes.XmlSerializerPersisterAttribute class" Url="html/45A8F81B.htm" />
+  <HelpKINode Title="Nxdb.Persistence.Attributes.XmlSerializerPersisterAttribute class" Url="html/6FC0E484.htm" />
+  <HelpKINode Title="Nxdb.Persistence.DefaultPersister class" Url="html/470DE689.htm" />
+  <HelpKINode Title="Nxdb.Persistence.DefaultPersister class" Url="html/C5E51C8A.htm" />
+  <HelpKINode Title="Nxdb.Persistence.Extensions class" Url="html/47D02CBB.htm" />
+  <HelpKINode Title="Nxdb.Persistence.Extensions class" Url="html/5A06354F.htm" />
+  <HelpKINode Title="Nxdb.Persistence.ICustomPersister interface" Url="html/5E10A2E2.htm" />
+  <HelpKINode Title="Nxdb.Persistence.ICustomPersister interface" Url="html/63F41C19.htm" />
+  <HelpKINode Title="Nxdb.Persistence.Manager class" Url="html/1609E18C.htm" />
+  <HelpKINode Title="Nxdb.Persistence.Manager class" Url="html/A045ED25.htm" />
+  <HelpKINode Title="Nxdb.Persistence.Persister class" Url="html/75B83F08.htm" />
+  <HelpKINode Title="Nxdb.Persistence.Persister class" Url="html/F35C1270.htm" />
+  <HelpKINode Title="Nxdb.Persistence.XmlSerializerPersister class" Url="html/81A2E63D.htm" />
+  <HelpKINode Title="Nxdb.Persistence.XmlSerializerPersister class" Url="html/90556281.htm" />
   <HelpKINode Title="Nxdb.Properties class" Url="html/26539056.htm" />
   <HelpKINode Title="Nxdb.Properties class" Url="html/A1AF939A.htm" />
   <HelpKINode Title="Nxdb.Query class" Url="html/5D44559D.htm" />
   <HelpKINode Title="Nxdb.Query class" Url="html/FBF73C50.htm" />
-  <HelpKINode Title="Nxdb.Text class" Url="html/4E4654D5.htm" />
-  <HelpKINode Title="Nxdb.Text class" Url="html/95B52596.htm" />
-  <HelpKINode Title="Nxdb.TreeNode class" Url="html/32FCC66C.htm" />
-  <HelpKINode Title="Nxdb.TreeNode class" Url="html/693D6CF0.htm" />
   <HelpKINode Title="Nxdb.Updates class" Url="html/B926B30F.htm" />
   <HelpKINode Title="Nxdb.Updates class" Url="html/EE4EC9CD.htm" />
   <HelpKINode Title="NxdbProp class" Url="html/35C0724B.htm" />
@@ -823,32 +964,163 @@
   <HelpKINode Title="OPTIMIZEAFTERUPDATES field" Url="html/161876B9.htm" />
   <HelpKINode Title="OptimizeAfterUpdates property" Url="html/DEDA6391.htm" />
   <HelpKINode Title="OptimizeAll method" Url="html/2D044DCA.htm" />
+  <HelpKINode Title="Order property" Url="html/FF5B1670.htm" />
   <HelpKINode Title="OuterXml property" Url="html/19F7D347.htm" />
   <HelpKINode Title="OuterXml property" Url="html/3E41E79D.htm" />
   <HelpKINode Title="OuterXml property" Url="html/41DB365E.htm" />
-  <HelpKINode Title="OuterXml property" Url="html/4EAFA678.htm" />
+  <HelpKINode Title="OuterXml property" Url="html/4ED6CD29.htm" />
   <HelpKINode Title="OuterXml property" Url="html/BFF918D5.htm" />
   <HelpKINode Title="OuterXml property" Url="html/CAD37E72.htm" />
   <HelpKINode Title="OuterXml property" Url="html/EFA921FF.htm" />
   <HelpKINode Title="OwnerElement property" Url="html/B116E96E.htm" />
-  <HelpKINode Title="Parent property" Url="html/E6832CAC.htm" />
+  <HelpKINode Title="Parent property" Url="html/B15BE99A.htm" />
   <HelpKINode Title="ParentNode property" Url="html/569C7B7.htm" />
   <HelpKINode Title="ParentNode property" Url="html/694BE6E6.htm" />
   <HelpKINode Title="ParentNode property" Url="html/6DC8FC7C.htm" />
   <HelpKINode Title="ParentNode property" Url="html/81BD4C13.htm" />
   <HelpKINode Title="ParentNode property" Url="html/8C279CA1.htm" />
-  <HelpKINode Title="Preceding property" Url="html/8B9FA4ED.htm" />
-  <HelpKINode Title="PrecedingSiblings property" Url="html/30BE07AB.htm" />
-  <HelpKINode Title="Prefix property" Url="html/12B3EAFE.htm" />
+  <HelpKINode Title="PersistentAttributeAttribute class" Url="html/6206F83F.htm" />
+  <HelpKINode Title="PersistentAttributeAttribute class" Url="html/CD5D4AEC.htm" />
+  <HelpKINode Title="PersistentAttributeAttribute class">
+    <HelpKINode Title="about PersistentAttributeAttribute class" Url="html/CD5D4AEC.htm" />
+    <HelpKINode Title="all members" Url="html/6206F83F.htm" />
+    <HelpKINode Title="constructor" Url="html/F81915C4.htm" />
+    <HelpKINode Title="methods" Url="html/16F5C119.htm" />
+    <HelpKINode Title="properties" Url="html/10C36108.htm" />
+  </HelpKINode>
+  <HelpKINode Title="PersistentAttributeAttribute.Default property" Url="html/8ABBAE21.htm" />
+  <HelpKINode Title="PersistentAttributeAttribute.Name property" Url="html/6B6F2A51.htm" />
+  <HelpKINode Title="PersistentAttributeAttribute.PersistentAttributeAttribute constructor" Url="html/F81915C4.htm" />
+  <HelpKINode Title="PersistentCollectionAttribute class" Url="html/9C6DA1B2.htm" />
+  <HelpKINode Title="PersistentCollectionAttribute class" Url="html/D399F605.htm" />
+  <HelpKINode Title="PersistentCollectionAttribute class">
+    <HelpKINode Title="about PersistentCollectionAttribute class" Url="html/9C6DA1B2.htm" />
+    <HelpKINode Title="all members" Url="html/D399F605.htm" />
+    <HelpKINode Title="constructor" Url="html/EA11F161.htm" />
+    <HelpKINode Title="methods" Url="html/5B846954.htm" />
+    <HelpKINode Title="properties" Url="html/651AD920.htm" />
+  </HelpKINode>
+  <HelpKINode Title="PersistentCollectionAttribute.AttachItems property" Url="html/6ECB49C3.htm" />
+  <HelpKINode Title="PersistentCollectionAttribute.ItemName property" Url="html/7BBF0B7D.htm" />
+  <HelpKINode Title="PersistentCollectionAttribute.ItemQuery property" Url="html/B7F39A7E.htm" />
+  <HelpKINode Title="PersistentCollectionAttribute.ItemsArePersistentObjects property" Url="html/95FA8834.htm" />
+  <HelpKINode Title="PersistentCollectionAttribute.ItemType property" Url="html/A37057D0.htm" />
+  <HelpKINode Title="PersistentCollectionAttribute.Name property" Url="html/2ED1F2F0.htm" />
+  <HelpKINode Title="PersistentCollectionAttribute.PersistentCollectionAttribute constructor" Url="html/EA11F161.htm" />
+  <HelpKINode Title="PersistentElementAttribute class" Url="html/4BD8FE6D.htm" />
+  <HelpKINode Title="PersistentElementAttribute class" Url="html/D053E48C.htm" />
+  <HelpKINode Title="PersistentElementAttribute class">
+    <HelpKINode Title="about PersistentElementAttribute class" Url="html/D053E48C.htm" />
+    <HelpKINode Title="all members" Url="html/4BD8FE6D.htm" />
+    <HelpKINode Title="constructor" Url="html/3A81DA5D.htm" />
+    <HelpKINode Title="methods" Url="html/C4AAD629.htm" />
+    <HelpKINode Title="properties" Url="html/F39FE6B1.htm" />
+  </HelpKINode>
+  <HelpKINode Title="PersistentElementAttribute.Attach property" Url="html/DEA9A5BC.htm" />
+  <HelpKINode Title="PersistentElementAttribute.Default property" Url="html/702DD913.htm" />
+  <HelpKINode Title="PersistentElementAttribute.IsPersistentObject property" Url="html/12C7CB0C.htm" />
+  <HelpKINode Title="PersistentElementAttribute.Name property" Url="html/4CD306D.htm" />
+  <HelpKINode Title="PersistentElementAttribute.PersistentElementAttribute constructor" Url="html/3A81DA5D.htm" />
+  <HelpKINode Title="PersistentKvpCollectionAttribute class" Url="html/38BE7AD2.htm" />
+  <HelpKINode Title="PersistentKvpCollectionAttribute class" Url="html/E9C7529C.htm" />
+  <HelpKINode Title="PersistentKvpCollectionAttribute class">
+    <HelpKINode Title="about PersistentKvpCollectionAttribute class" Url="html/38BE7AD2.htm" />
+    <HelpKINode Title="all members" Url="html/E9C7529C.htm" />
+    <HelpKINode Title="constructor" Url="html/1295A36D.htm" />
+    <HelpKINode Title="methods" Url="html/37A271C8.htm" />
+    <HelpKINode Title="properties" Url="html/A88E10AF.htm" />
+  </HelpKINode>
+  <HelpKINode Title="PersistentKvpCollectionAttribute.AttachKeys property" Url="html/887306CF.htm" />
+  <HelpKINode Title="PersistentKvpCollectionAttribute.AttachValues property" Url="html/89D0F581.htm" />
+  <HelpKINode Title="PersistentKvpCollectionAttribute.ItemName property" Url="html/A1951F4F.htm" />
+  <HelpKINode Title="PersistentKvpCollectionAttribute.ItemQuery property" Url="html/92EC9928.htm" />
+  <HelpKINode Title="PersistentKvpCollectionAttribute.KeyAttributeName property" Url="html/FBE32600.htm" />
+  <HelpKINode Title="PersistentKvpCollectionAttribute.KeyElementName property" Url="html/69DD264A.htm" />
+  <HelpKINode Title="PersistentKvpCollectionAttribute.KeyQuery property" Url="html/83A3D84.htm" />
+  <HelpKINode Title="PersistentKvpCollectionAttribute.KeysArePersistentObjects property" Url="html/36B6336D.htm" />
+  <HelpKINode Title="PersistentKvpCollectionAttribute.KeyType property" Url="html/9B6CEC62.htm" />
+  <HelpKINode Title="PersistentKvpCollectionAttribute.Name property" Url="html/6598DB93.htm" />
+  <HelpKINode Title="PersistentKvpCollectionAttribute.PersistentKvpCollectionAttribute constructor" Url="html/1295A36D.htm" />
+  <HelpKINode Title="PersistentKvpCollectionAttribute.ValueAttributeName property" Url="html/7470DCAC.htm" />
+  <HelpKINode Title="PersistentKvpCollectionAttribute.ValueElementName property" Url="html/402DEFC1.htm" />
+  <HelpKINode Title="PersistentKvpCollectionAttribute.ValueQuery property" Url="html/675BF7A9.htm" />
+  <HelpKINode Title="PersistentKvpCollectionAttribute.ValuesArePersistentObjects property" Url="html/29ACA5B3.htm" />
+  <HelpKINode Title="PersistentKvpCollectionAttribute.ValueType property" Url="html/DFBF5E1E.htm" />
+  <HelpKINode Title="PersistentMemberAttribute class" Url="html/7B6A34D2.htm" />
+  <HelpKINode Title="PersistentMemberAttribute class" Url="html/F7F17EC9.htm" />
+  <HelpKINode Title="PersistentMemberAttribute class">
+    <HelpKINode Title="about PersistentMemberAttribute class" Url="html/F7F17EC9.htm" />
+    <HelpKINode Title="all members" Url="html/7B6A34D2.htm" />
+    <HelpKINode Title="constructor" Url="html/F233C0EA.htm" />
+    <HelpKINode Title="methods" Url="html/F9914A1D.htm" />
+    <HelpKINode Title="properties" Url="html/DC4C791C.htm" />
+  </HelpKINode>
+  <HelpKINode Title="PersistentMemberAttribute.CreateQuery property" Url="html/30B98897.htm" />
+  <HelpKINode Title="PersistentMemberAttribute.Fetch property" Url="html/BF84CDC1.htm" />
+  <HelpKINode Title="PersistentMemberAttribute.GetName method" Url="html/9CA59484.htm" />
+  <HelpKINode Title="PersistentMemberAttribute.GetNodeFromQuery(Of T) method" Url="html/C2706FD5.htm" />
+  <HelpKINode Title="PersistentMemberAttribute.GetNodeFromQuery&lt;T&gt; method" Url="html/C2706FD5.htm" />
+  <HelpKINode Title="PersistentMemberAttribute.Order property" Url="html/FF5B1670.htm" />
+  <HelpKINode Title="PersistentMemberAttribute.PersistentMemberAttribute constructor" Url="html/F233C0EA.htm" />
+  <HelpKINode Title="PersistentMemberAttribute.Query property" Url="html/86F9A09A.htm" />
+  <HelpKINode Title="PersistentMemberAttribute.Required property" Url="html/27CB61BA.htm" />
+  <HelpKINode Title="PersistentMemberAttribute.Store property" Url="html/56C55D02.htm" />
+  <HelpKINode Title="PersistentPathAttribute class" Url="html/12F4D038.htm" />
+  <HelpKINode Title="PersistentPathAttribute class" Url="html/EF896E1A.htm" />
+  <HelpKINode Title="PersistentPathAttribute class">
+    <HelpKINode Title="about PersistentPathAttribute class" Url="html/EF896E1A.htm" />
+    <HelpKINode Title="all members" Url="html/12F4D038.htm" />
+    <HelpKINode Title="constructor" Url="html/D94999E0.htm" />
+    <HelpKINode Title="methods" Url="html/FF234633.htm" />
+    <HelpKINode Title="properties" Url="html/3601A264.htm" />
+  </HelpKINode>
+  <HelpKINode Title="PersistentPathAttribute.Default property" Url="html/13B3507A.htm" />
+  <HelpKINode Title="PersistentPathAttribute.PersistentPathAttribute constructor" Url="html/D94999E0.htm" />
+  <HelpKINode Title="PersistentTextAttribute class" Url="html/1D9AE438.htm" />
+  <HelpKINode Title="PersistentTextAttribute class" Url="html/5507272E.htm" />
+  <HelpKINode Title="PersistentTextAttribute class">
+    <HelpKINode Title="about PersistentTextAttribute class" Url="html/1D9AE438.htm" />
+    <HelpKINode Title="all members" Url="html/5507272E.htm" />
+    <HelpKINode Title="constructor" Url="html/BEFCA8E9.htm" />
+    <HelpKINode Title="methods" Url="html/8A06F1B9.htm" />
+    <HelpKINode Title="properties" Url="html/5D621412.htm" />
+  </HelpKINode>
+  <HelpKINode Title="PersistentTextAttribute.Default property" Url="html/5FE5D8F7.htm" />
+  <HelpKINode Title="PersistentTextAttribute.PersistentTextAttribute constructor" Url="html/BEFCA8E9.htm" />
+  <HelpKINode Title="Persister class" Url="html/75B83F08.htm" />
+  <HelpKINode Title="Persister class" Url="html/F35C1270.htm" />
+  <HelpKINode Title="Persister class">
+    <HelpKINode Title="about Persister class" Url="html/F35C1270.htm" />
+    <HelpKINode Title="all members" Url="html/75B83F08.htm" />
+    <HelpKINode Title="constructor" Url="html/7E72D30C.htm" />
+    <HelpKINode Title="methods" Url="html/68D274C5.htm" />
+  </HelpKINode>
+  <HelpKINode Title="Persister.Fetch method" Url="html/C030BC3E.htm" />
+  <HelpKINode Title="Persister.Persister constructor" Url="html/7E72D30C.htm" />
+  <HelpKINode Title="Persister.Serialize method" Url="html/FF0A32C7.htm" />
+  <HelpKINode Title="Persister.Store method" Url="html/69D4FDE4.htm" />
+  <HelpKINode Title="PersisterAttribute class" Url="html/3E571D48.htm" />
+  <HelpKINode Title="PersisterAttribute class" Url="html/91393DBB.htm" />
+  <HelpKINode Title="PersisterAttribute class">
+    <HelpKINode Title="about PersisterAttribute class" Url="html/3E571D48.htm" />
+    <HelpKINode Title="all members" Url="html/91393DBB.htm" />
+    <HelpKINode Title="constructor" Url="html/717E713B.htm" />
+    <HelpKINode Title="methods" Url="html/724A6384.htm" />
+    <HelpKINode Title="properties" Url="html/3E91650A.htm" />
+  </HelpKINode>
+  <HelpKINode Title="PersisterAttribute.PersisterAttribute constructor" Url="html/717E713B.htm" />
+  <HelpKINode Title="Preceding property" Url="html/6A709EA5.htm" />
+  <HelpKINode Title="PrecedingSiblings property" Url="html/D715D330.htm" />
+  <HelpKINode Title="Prefix property" Url="html/466A1FA4.htm" />
   <HelpKINode Title="Prefix property" Url="html/5D83DC4B.htm" />
+  <HelpKINode Title="Prefix property" Url="html/629055C7.htm" />
+  <HelpKINode Title="Prefix property" Url="html/6B20C71E.htm" />
   <HelpKINode Title="Prefix property" Url="html/72265018.htm" />
-  <HelpKINode Title="Prefix property" Url="html/7AF28A5C.htm" />
-  <HelpKINode Title="Prefix property" Url="html/EF8BBE7A.htm" />
-  <HelpKINode Title="Prefix property" Url="html/FE728792.htm" />
-  <HelpKINode Title="PrefixImpl property" Url="html/24B037D6.htm" />
-  <HelpKINode Title="Prepend method" Url="html/85F627F6.htm" />
-  <HelpKINode Title="Prepend method" Url="html/97CB9194.htm" />
-  <HelpKINode Title="Prepend method" Url="html/FAFFEF62.htm" />
+  <HelpKINode Title="Prefix property" Url="html/C72534D3.htm" />
+  <HelpKINode Title="PrefixImpl property" Url="html/642CFFC.htm" />
+  <HelpKINode Title="Prepend method" Url="html/745F0C76.htm" />
+  <HelpKINode Title="Prepend method" Url="html/90C0D951.htm" />
+  <HelpKINode Title="Prepend method" Url="html/9F18EA5B.htm" />
   <HelpKINode Title="PrependChild method" Url="html/2CD6C8F4.htm" />
   <HelpKINode Title="PrependChild method" Url="html/2D365351.htm" />
   <HelpKINode Title="PrependChild method" Url="html/5EA01E08.htm" />
@@ -859,31 +1131,32 @@
   <HelpKINode Title="PreviousSibling property" Url="html/C04DC446.htm" />
   <HelpKINode Title="PreviousSibling property" Url="html/DAB32713.htm" />
   <HelpKINode Title="PreviousSibling property" Url="html/FF0FBD91.htm" />
-  <HelpKINode Title="ProcessingInstruction class" Url="html/E54B0735.htm" />
-  <HelpKINode Title="ProcessingInstruction class" Url="html/F6DE650A.htm" />
+  <HelpKINode Title="ProcessingInstruction class" Url="html/489B383B.htm" />
+  <HelpKINode Title="ProcessingInstruction class" Url="html/5B251B4D.htm" />
   <HelpKINode Title="ProcessingInstruction class">
-    <HelpKINode Title="about ProcessingInstruction class" Url="html/E54B0735.htm" />
-    <HelpKINode Title="all members" Url="html/F6DE650A.htm" />
-    <HelpKINode Title="constructor" Url="html/803AB352.htm" />
-    <HelpKINode Title="events" Url="html/F84FA4B.htm" />
-    <HelpKINode Title="methods" Url="html/D7023C12.htm" />
-    <HelpKINode Title="properties" Url="html/36AFE04B.htm" />
+    <HelpKINode Title="about ProcessingInstruction class" Url="html/5B251B4D.htm" />
+    <HelpKINode Title="all members" Url="html/489B383B.htm" />
+    <HelpKINode Title="constructor" Url="html/C2B0E047.htm" />
+    <HelpKINode Title="events" Url="html/5DE07C89.htm" />
+    <HelpKINode Title="methods" Url="html/BCE29D7.htm" />
+    <HelpKINode Title="properties" Url="html/81D2A3F1.htm" />
   </HelpKINode>
-  <HelpKINode Title="ProcessingInstruction.CreateXmlNode method" Url="html/9A2864F3.htm" />
-  <HelpKINode Title="ProcessingInstruction.Equals method" Url="html/FFB3F7B1.htm" />
-  <HelpKINode Title="ProcessingInstruction.InsertAfter method" Url="html/39A1AC0B.htm" />
-  <HelpKINode Title="ProcessingInstruction.InsertBefore method" Url="html/12F70848.htm" />
-  <HelpKINode Title="ProcessingInstruction.LocalName property" Url="html/D5470F7E.htm" />
-  <HelpKINode Title="ProcessingInstruction.Name property" Url="html/D99982AA.htm" />
-  <HelpKINode Title="ProcessingInstruction.NamespaceUri property" Url="html/F46595D3.htm" />
-  <HelpKINode Title="ProcessingInstruction.NodeType property" Url="html/C90F7E43.htm" />
-  <HelpKINode Title="ProcessingInstruction.Prefix property" Url="html/7AF28A5C.htm" />
-  <HelpKINode Title="ProcessingInstruction.ProcessingInstruction constructor" Url="html/803AB352.htm" />
+  <HelpKINode Title="ProcessingInstruction.CreateXmlNode method" Url="html/DB048DCF.htm" />
+  <HelpKINode Title="ProcessingInstruction.Equals method" Url="html/AEBB26FD.htm" />
+  <HelpKINode Title="ProcessingInstruction.InsertAfter method" Url="html/CF3FF760.htm" />
+  <HelpKINode Title="ProcessingInstruction.InsertBefore method" Url="html/88D8C125.htm" />
+  <HelpKINode Title="ProcessingInstruction.LocalName property" Url="html/DAD10BCB.htm" />
+  <HelpKINode Title="ProcessingInstruction.Name property" Url="html/A4C4D907.htm" />
+  <HelpKINode Title="ProcessingInstruction.NamespaceUri property" Url="html/FBFC5775.htm" />
+  <HelpKINode Title="ProcessingInstruction.NodeType property" Url="html/E5B0FEAE.htm" />
+  <HelpKINode Title="ProcessingInstruction.Prefix property" Url="html/C72534D3.htm" />
+  <HelpKINode Title="ProcessingInstruction.ProcessingInstruction constructor" Url="html/C2B0E047.htm" />
   <HelpKINode Title="Properties class" Url="html/26539056.htm" />
   <HelpKINode Title="Properties class" Url="html/A1AF939A.htm" />
   <HelpKINode Title="Properties class">
     <HelpKINode Title="about Properties class" Url="html/A1AF939A.htm" />
     <HelpKINode Title="all members" Url="html/26539056.htm" />
+    <HelpKINode Title="methods" Url="html/E0ABF0C9.htm" />
     <HelpKINode Title="properties" Url="html/A0CF60B.htm" />
   </HelpKINode>
   <HelpKINode Title="Properties.ChopWhitespace property" Url="html/10DA7F4C.htm" />
@@ -901,7 +1174,10 @@
     <HelpKINode Title="all members" Url="html/5D44559D.htm" />
     <HelpKINode Title="constructor" Url="html/AA9E15D7.htm" />
     <HelpKINode Title="methods" Url="html/9698FD57.htm" />
+    <HelpKINode Title="properties" Url="html/D445A916.htm" />
   </HelpKINode>
+  <HelpKINode Title="Query property" Url="html/86F9A09A.htm" />
+  <HelpKINode Title="Query.AllowUpdates property" Url="html/28804174.htm" />
   <HelpKINode Title="Query.Eval method" Url="html/6DA603A2.htm" />
   <HelpKINode Title="Query.EvalList method" Url="html/DD621926.htm" />
   <HelpKINode Title="Query.EvalSingle method" Url="html/7340A331.htm" />
@@ -911,20 +1187,19 @@
   <HelpKINode Title="Query.SetExternal method" Url="html/97E5EC28.htm" />
   <HelpKINode Title="Query.SetVariable method" Url="html/A21AA777.htm" />
   <HelpKINode Title="ReaderSettings property" Url="html/C20F0C0F.htm" />
-  <HelpKINode Title="ReadInnerText method" Url="html/EC3EF2EC.htm" />
-  <HelpKINode Title="ReadInnerXml method" Url="html/BC9D208C.htm" />
-  <HelpKINode Title="ReadLock method" Url="html/B3C83327.htm" />
+  <HelpKINode Title="ReadInnerText method" Url="html/C0A85F7A.htm" />
+  <HelpKINode Title="ReadInnerXml method" Url="html/937138AD.htm" />
   <HelpKINode Title="ReadNode method" Url="html/71CAB152.htm" />
-  <HelpKINode Title="Remove method" Url="html/F322F372.htm" />
+  <HelpKINode Title="Remove method" Url="html/AF789900.htm" />
+  <HelpKINode Title="RemoveAll method" Url="html/177BA22.htm" />
   <HelpKINode Title="RemoveAll method" Url="html/414F04B3.htm" />
   <HelpKINode Title="RemoveAll method" Url="html/45B644C8.htm" />
   <HelpKINode Title="RemoveAll method" Url="html/7B796130.htm" />
+  <HelpKINode Title="RemoveAll method" Url="html/8B2054A9.htm" />
   <HelpKINode Title="RemoveAll method" Url="html/93B5E69E.htm" />
-  <HelpKINode Title="RemoveAll method" Url="html/B7115CD6.htm" />
-  <HelpKINode Title="RemoveAll method" Url="html/FDE4C068.htm" />
-  <HelpKINode Title="RemoveAllAttributes method" Url="html/FC86D6DA.htm" />
-  <HelpKINode Title="RemoveAttribute method" Url="html/900D8D92.htm" />
+  <HelpKINode Title="RemoveAllAttributes method" Url="html/9B7F2CC1.htm" />
   <HelpKINode Title="RemoveAttribute method" Url="html/93F85683.htm" />
+  <HelpKINode Title="RemoveAttribute method" Url="html/BDE97F6A.htm" />
   <HelpKINode Title="RemoveAttributeAt method" Url="html/B8938291.htm" />
   <HelpKINode Title="RemoveAttributeNode method" Url="html/831B1195.htm" />
   <HelpKINode Title="Rename method" Url="html/A93241B1.htm" />
@@ -937,7 +1212,7 @@
   <HelpKINode Title="ReplaceChild method" Url="html/FD53FFE8.htm" />
   <HelpKINode Title="ReplaceData method" Url="html/72EDFDF2.htm" />
   <HelpKINode Title="ReplaceData method" Url="html/735D789B.htm" />
-  <HelpKINode Title="Reset method" Url="html/15D420EB.htm" />
+  <HelpKINode Title="Required property" Url="html/27CB61BA.htm" />
   <HelpKINode Title="Save method" Url="html/66290A9C.htm" />
   <HelpKINode Title="SchemaInfo property" Url="html/14AAA54E.htm" />
   <HelpKINode Title="SchemaInfo property" Url="html/24D87048.htm" />
@@ -957,6 +1232,8 @@
   <HelpKINode Title="SelectSingleNode method" Url="html/85B0148B.htm" />
   <HelpKINode Title="SelectSingleNode method" Url="html/C093ACB9.htm" />
   <HelpKINode Title="SelectSingleNode method" Url="html/C1BBFE92.htm" />
+  <HelpKINode Title="Serialize method" Url="html/A531A125.htm" />
+  <HelpKINode Title="Serialize method" Url="html/FF0A32C7.htm" />
   <HelpKINode Title="set method" Url="html/1B68C129.htm" />
   <HelpKINode Title="SetAttribute method" Url="html/D3DD7560.htm" />
   <HelpKINode Title="SetAttributeNode method" Url="html/73276333.htm" />
@@ -966,6 +1243,11 @@
   <HelpKINode Title="SetVariable method" Url="html/A21AA777.htm" />
   <HelpKINode Title="Specified property" Url="html/ADA661C2.htm" />
   <HelpKINode Title="SplitText method" Url="html/453F3A72.htm" />
+  <HelpKINode Title="Store method" Url="html/36181858.htm" />
+  <HelpKINode Title="Store method" Url="html/69D4FDE4.htm" />
+  <HelpKINode Title="Store method" Url="html/A4BAADAD.htm" />
+  <HelpKINode Title="Store method" Url="html/B8B09979.htm" />
+  <HelpKINode Title="Store property" Url="html/56C55D02.htm" />
   <HelpKINode Title="Substring method" Url="html/8249843F.htm" />
   <HelpKINode Title="Substring method" Url="html/C299B589.htm" />
   <HelpKINode Title="Supports method" Url="html/354F2F2E.htm" />
@@ -974,37 +1256,37 @@
   <HelpKINode Title="Supports method" Url="html/8F485813.htm" />
   <HelpKINode Title="Supports method" Url="html/A2B4633C.htm" />
   <HelpKINode Title="Supports method" Url="html/F8797826.htm" />
-  <HelpKINode Title="Text class" Url="html/4E4654D5.htm" />
-  <HelpKINode Title="Text class" Url="html/95B52596.htm" />
+  <HelpKINode Title="Text class" Url="html/4500C4E1.htm" />
+  <HelpKINode Title="Text class" Url="html/F4E4199E.htm" />
   <HelpKINode Title="Text class">
-    <HelpKINode Title="about Text class" Url="html/95B52596.htm" />
-    <HelpKINode Title="all members" Url="html/4E4654D5.htm" />
-    <HelpKINode Title="constructor" Url="html/9EE16062.htm" />
-    <HelpKINode Title="events" Url="html/9E034E3D.htm" />
-    <HelpKINode Title="methods" Url="html/A0BEE67D.htm" />
-    <HelpKINode Title="properties" Url="html/9F8BD288.htm" />
+    <HelpKINode Title="about Text class" Url="html/4500C4E1.htm" />
+    <HelpKINode Title="all members" Url="html/F4E4199E.htm" />
+    <HelpKINode Title="constructor" Url="html/4E007DEE.htm" />
+    <HelpKINode Title="events" Url="html/97758999.htm" />
+    <HelpKINode Title="methods" Url="html/3A96834A.htm" />
+    <HelpKINode Title="properties" Url="html/864305F.htm" />
   </HelpKINode>
-  <HelpKINode Title="Text.CreateXmlNode method" Url="html/F390E254.htm" />
-  <HelpKINode Title="Text.Equals method" Url="html/40D4F0F6.htm" />
-  <HelpKINode Title="Text.InsertAfter method" Url="html/3B3C1553.htm" />
-  <HelpKINode Title="Text.InsertBefore method" Url="html/3BB476F8.htm" />
-  <HelpKINode Title="Text.NodeType property" Url="html/E6ABA86E.htm" />
-  <HelpKINode Title="Text.Text constructor" Url="html/9EE16062.htm" />
+  <HelpKINode Title="Text.CreateXmlNode method" Url="html/9D3DE83E.htm" />
+  <HelpKINode Title="Text.Equals method" Url="html/D087054C.htm" />
+  <HelpKINode Title="Text.InsertAfter method" Url="html/D52AF9E.htm" />
+  <HelpKINode Title="Text.InsertBefore method" Url="html/ED65535D.htm" />
+  <HelpKINode Title="Text.NodeType property" Url="html/F296A35E.htm" />
+  <HelpKINode Title="Text.Text constructor" Url="html/4E007DEE.htm" />
   <HelpKINode Title="Time property" Url="html/8E7C2A53.htm" />
-  <HelpKINode Title="TreeNode class" Url="html/32FCC66C.htm" />
-  <HelpKINode Title="TreeNode class" Url="html/693D6CF0.htm" />
+  <HelpKINode Title="TreeNode class" Url="html/7A7F9834.htm" />
+  <HelpKINode Title="TreeNode class" Url="html/B7857051.htm" />
   <HelpKINode Title="TreeNode class">
-    <HelpKINode Title="about TreeNode class" Url="html/32FCC66C.htm" />
-    <HelpKINode Title="all members" Url="html/693D6CF0.htm" />
-    <HelpKINode Title="constructor" Url="html/CC07B15C.htm" />
-    <HelpKINode Title="events" Url="html/A9FB86BC.htm" />
-    <HelpKINode Title="methods" Url="html/13D14172.htm" />
-    <HelpKINode Title="properties" Url="html/47B00799.htm" />
+    <HelpKINode Title="about TreeNode class" Url="html/B7857051.htm" />
+    <HelpKINode Title="all members" Url="html/7A7F9834.htm" />
+    <HelpKINode Title="constructor" Url="html/448228F8.htm" />
+    <HelpKINode Title="events" Url="html/725DACDD.htm" />
+    <HelpKINode Title="methods" Url="html/D9B70C2D.htm" />
+    <HelpKINode Title="properties" Url="html/9F5110EC.htm" />
   </HelpKINode>
-  <HelpKINode Title="TreeNode.Equals method" Url="html/B2C7E971.htm" />
-  <HelpKINode Title="TreeNode.InsertAfter method" Url="html/1567C8B9.htm" />
-  <HelpKINode Title="TreeNode.InsertBefore method" Url="html/673CA394.htm" />
-  <HelpKINode Title="TreeNode.TreeNode constructor" Url="html/CC07B15C.htm" />
+  <HelpKINode Title="TreeNode.Equals method" Url="html/25B902B.htm" />
+  <HelpKINode Title="TreeNode.InsertAfter method" Url="html/CD900C70.htm" />
+  <HelpKINode Title="TreeNode.InsertBefore method" Url="html/36CAB7D3.htm" />
+  <HelpKINode Title="TreeNode.TreeNode constructor" Url="html/448228F8.htm" />
   <HelpKINode Title="Updated event" Url="html/5B0D6875.htm" />
   <HelpKINode Title="UpdateIndexes property" Url="html/C4FFD210.htm" />
   <HelpKINode Title="Updates class" Url="html/B926B30F.htm" />
@@ -1015,34 +1297,33 @@
     <HelpKINode Title="constructor" Url="html/48EB6547.htm" />
     <HelpKINode Title="methods" Url="html/AF24A20C.htm" />
   </HelpKINode>
-  <HelpKINode Title="Updates.Apply method" Url="html/D85CF0BB.htm" />
-  <HelpKINode Title="Updates.Begin method" Url="html/8F10A9A7.htm" />
   <HelpKINode Title="Updates.Dispose method" Url="html/2228686E.htm" />
-  <HelpKINode Title="Updates.End method" Url="html/D0E8AFD3.htm" />
-  <HelpKINode Title="Updates.Reset method" Url="html/15D420EB.htm" />
   <HelpKINode Title="Updates.Updates constructor" Url="html/48EB6547.htm" />
-  <HelpKINode Title="UpgradeableReadLock method" Url="html/4EF2ADFF.htm" />
   <HelpKINode Title="UseAttributeIndex property" Url="html/FA51F749.htm" />
   <HelpKINode Title="UseFullTextIndex property" Url="html/92EAE6DB.htm" />
   <HelpKINode Title="UsePathIndex property" Url="html/91E0DC9C.htm" />
   <HelpKINode Title="UseTextIndex property" Url="html/83C3E8CC.htm" />
-  <HelpKINode Title="Valid property" Url="html/9925053E.htm" />
+  <HelpKINode Title="Valid property" Url="html/D3288FC9.htm" />
   <HelpKINode Title="Validate method" Url="html/15FFA20F.htm" />
   <HelpKINode Title="Value property" Url="html/12AA5CE.htm" />
-  <HelpKINode Title="Value property" Url="html/21E1053F.htm" />
-  <HelpKINode Title="Value property" Url="html/30BC0653.htm" />
+  <HelpKINode Title="Value property" Url="html/2161E3B2.htm" />
   <HelpKINode Title="Value property" Url="html/7A89D25D.htm" />
   <HelpKINode Title="Value property" Url="html/7BB64737.htm" />
   <HelpKINode Title="Value property" Url="html/CD9402AB.htm" />
+  <HelpKINode Title="Value property" Url="html/D3278FBD.htm" />
   <HelpKINode Title="Value property" Url="html/E8AAC1C6.htm" />
+  <HelpKINode Title="ValueAttributeName property" Url="html/7470DCAC.htm" />
+  <HelpKINode Title="ValueElementName property" Url="html/402DEFC1.htm" />
+  <HelpKINode Title="ValueQuery property" Url="html/675BF7A9.htm" />
+  <HelpKINode Title="ValuesArePersistentObjects property" Url="html/29ACA5B3.htm" />
+  <HelpKINode Title="ValueType property" Url="html/DFBF5E1E.htm" />
   <HelpKINode Title="wait method" Url="html/4727460B.htm" />
   <HelpKINode Title="WriteContentTo method" Url="html/15FE4745.htm" />
   <HelpKINode Title="WriteContentTo method" Url="html/3BD6A76C.htm" />
   <HelpKINode Title="WriteContentTo method" Url="html/C5ED59F3.htm" />
-  <HelpKINode Title="WriteInnerText method" Url="html/E31239D8.htm" />
-  <HelpKINode Title="WriteInnerXml method" Url="html/857594DE.htm" />
-  <HelpKINode Title="WriteLock method" Url="html/D38DF13.htm" />
-  <HelpKINode Title="WriteOuterXml method" Url="html/5FCAA1C6.htm" />
+  <HelpKINode Title="WriteInnerText method" Url="html/EA414F9.htm" />
+  <HelpKINode Title="WriteInnerXml method" Url="html/5DF18C41.htm" />
+  <HelpKINode Title="WriteOuterXml method" Url="html/15798FCC.htm" />
   <HelpKINode Title="WriterSettings property" Url="html/9EBDC15B.htm" />
   <HelpKINode Title="WriteTo method" Url="html/72955FF0.htm" />
   <HelpKINode Title="WriteTo method" Url="html/80C8CCC2.htm" />
@@ -1050,6 +1331,26 @@
   <HelpKINode Title="WriteTo method" Url="html/CEBC9371.htm" />
   <HelpKINode Title="WriteTo method" Url="html/D579DAFB.htm" />
   <HelpKINode Title="WriteTo method" Url="html/DD732D64.htm" />
-  <HelpKINode Title="XmlNode property" Url="html/9001D82A.htm" />
+  <HelpKINode Title="XmlNode property" Url="html/72CB2EC9.htm" />
   <HelpKINode Title="XmlResolver property" Url="html/EE8082EB.htm" />
+  <HelpKINode Title="XmlSerializerPersister class" Url="html/81A2E63D.htm" />
+  <HelpKINode Title="XmlSerializerPersister class" Url="html/90556281.htm" />
+  <HelpKINode Title="XmlSerializerPersister class">
+    <HelpKINode Title="about XmlSerializerPersister class" Url="html/81A2E63D.htm" />
+    <HelpKINode Title="all members" Url="html/90556281.htm" />
+    <HelpKINode Title="constructor" Url="html/5F54D300.htm" />
+    <HelpKINode Title="methods" Url="html/95D325F.htm" />
+  </HelpKINode>
+  <HelpKINode Title="XmlSerializerPersister.XmlSerializerPersister constructor" Url="html/5F54D300.htm" />
+  <HelpKINode Title="XmlSerializerPersisterAttribute class" Url="html/45A8F81B.htm" />
+  <HelpKINode Title="XmlSerializerPersisterAttribute class" Url="html/6FC0E484.htm" />
+  <HelpKINode Title="XmlSerializerPersisterAttribute class">
+    <HelpKINode Title="about XmlSerializerPersisterAttribute class" Url="html/45A8F81B.htm" />
+    <HelpKINode Title="all members" Url="html/6FC0E484.htm" />
+    <HelpKINode Title="constructor" Url="html/7A063F41.htm" />
+    <HelpKINode Title="methods" Url="html/B81B8F03.htm" />
+    <HelpKINode Title="properties" Url="html/B8DB33B9.htm" />
+  </HelpKINode>
+  <HelpKINode Title="XmlSerializerPersisterAttribute.Indent property" Url="html/6D96266A.htm" />
+  <HelpKINode Title="XmlSerializerPersisterAttribute.XmlSerializerPersisterAttribute constructor" Url="html/7A063F41.htm" />
 </HelpKI>
