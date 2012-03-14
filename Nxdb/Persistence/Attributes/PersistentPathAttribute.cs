@@ -59,12 +59,12 @@ namespace Nxdb.Persistence.Attributes
             if (result == null) return null;
             Node.Node node = result as Node.Node;
             return GetObjectFromString(
-                node != null ? node.Value : result.ToString(), Default, target, typeCache);
+                node != null ? node.Value : result.ToString(), Default, target, typeCache.Type);
         }
 
         internal override object SerializeValue(object source, TypeCache typeCache, Cache cache)
         {
-            return GetStringFromObject(source, typeCache);
+            return GetStringFromObject(source, typeCache.Type);
         }
 
         internal override void StoreValue(Element element, object serialized, object source, TypeCache typeCache, Cache cache)

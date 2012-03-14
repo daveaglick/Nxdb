@@ -42,12 +42,12 @@ namespace Nxdb.Persistence.Attributes
             {
                 child = element.Children.OfType<Text>().FirstOrDefault();
             }
-            return child == null ? null : GetObjectFromString(child.Value, Default, target, typeCache);
+            return child == null ? null : GetObjectFromString(child.Value, Default, target, typeCache.Type);
         }
 
         internal override object SerializeValue(object source, TypeCache typeCache, Cache cache)
         {
-            return GetStringFromObject(source, typeCache);
+            return GetStringFromObject(source, typeCache.Type);
         }
 
         internal override void StoreValue(Element element, object serialized, object source, TypeCache typeCache, Cache cache)

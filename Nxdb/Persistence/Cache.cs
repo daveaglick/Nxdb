@@ -44,7 +44,7 @@ namespace Nxdb.Persistence
             TypeCache typeCache;
             if (!_typeCaches.TryGetValue(type, out typeCache))
             {
-                typeCache = new TypeCache(type);
+                typeCache = new TypeCache(type, this);
                 _typeCaches.Add(type, typeCache);
             }
             return typeCache;

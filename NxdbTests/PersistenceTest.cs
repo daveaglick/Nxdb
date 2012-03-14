@@ -173,6 +173,11 @@ namespace NxdbTests
                 NumArr = new[] { value + 1, value + 2, value + 3 };
                 _classes.Add(new DefaultPersistentClass());
                 _num = value;
+                _dictionary.Clear();
+                foreach (int key in NumArr)
+                {
+                    _dictionary.Add(key, "abc" + key + 5);
+                }
             }
         }
 
@@ -191,6 +196,10 @@ namespace NxdbTests
         [PersistentCollection(Order = 5, ItemsArePersistentObjects = true, ItemName = "PersistentItem")]
         private readonly List<DefaultPersistentClass> _classes
             = new List<DefaultPersistentClass>();
+
+        [PersistentKvpCollection(Order = 6, KeyAttributeName = "k")]
+        private readonly Dictionary<int, string> _dictionary
+            = new Dictionary<int, string>(); 
 
         public string ToString(string elementName)
         {
@@ -216,11 +225,22 @@ namespace NxdbTests
                 classesString += "</_classes>";
             }
 
+            string dictionaryString = "<_dictionary />";
+            if(_dictionary.Count > 0)
+            {
+                dictionaryString = "<_dictionary>";
+                foreach(KeyValuePair<int, string> kvp in _dictionary)
+                {
+                    dictionaryString += String.Format("<Item k=\"{0}\"><Value>{1}</Value></Item>", kvp.Key, kvp.Value);
+                }
+                dictionaryString += "</_dictionary>";
+            }
+
             return String.Format(
-                "<{0} bool=\"{1}\">{2}<_num>{3}</_num>{4}{5}{6}</{0}>",
+                "<{0} bool=\"{1}\">{2}<_num>{3}</_num>{4}{5}{6}{7}</{0}>",
                 elementName, Bl.ToString(), String.IsNullOrEmpty(Str) ? "<Str />" : "<Str>" + Str + "</Str>",
                 Num, Inner == null ? String.Empty : Inner.ToString("Inner"),
-                numArrString, classesString);
+                numArrString, classesString, dictionaryString);
         }
 
         public override string ToString()

@@ -31,6 +31,8 @@ namespace Nxdb.Persistence
     internal class TypeCache
     {
         private readonly Type _type;
+        private readonly Cache _cache;
+
         private readonly Dictionary<Element, HashSet<ObjectWrapper>> _elementToWrappers
             = new Dictionary<Element, HashSet<ObjectWrapper>>();
 
@@ -42,9 +44,10 @@ namespace Nxdb.Persistence
         private PersisterAttribute _persisterAttribute = null;
         private List<KeyValuePair<MemberInfo, PersistentMemberAttribute>> _persistentMembers;
 
-        public TypeCache(Type type)
+        public TypeCache(Type type, Cache cache)
         {
             _type = type;
+            _cache = cache;
         }
 
         public Type Type
@@ -176,7 +179,7 @@ namespace Nxdb.Persistence
             {
                 if(attributes.Length != 1) throw new Exception("Only one PersistentAttribute can be used per field or property.");
                 PersistentMemberAttribute persistentAttribute = (PersistentMemberAttribute) attributes[0];
-                persistentAttribute.Inititalize(memberInfo);
+                persistentAttribute.Inititalize(memberInfo, _cache);
                 persistentMembers.Add(new KeyValuePair<MemberInfo, PersistentMemberAttribute>(memberInfo, persistentAttribute));
             }
         }

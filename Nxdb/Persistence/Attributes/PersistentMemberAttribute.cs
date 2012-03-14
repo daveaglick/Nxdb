@@ -79,7 +79,7 @@ namespace Nxdb.Persistence.Attributes
         /// <summary>
         /// Allows derived classes to initialze state based on attached member.
         /// </summary>
-        internal virtual void Inititalize(MemberInfo memberInfo)
+        internal virtual void Inititalize(MemberInfo memberInfo, Cache cache)
         {
         }
 
@@ -87,20 +87,20 @@ namespace Nxdb.Persistence.Attributes
         internal abstract object SerializeValue(object source, TypeCache typeCache, Cache cache);
         internal abstract void StoreValue(Element element, object serialized, object source, TypeCache typeCache, Cache cache);
 
-        internal static object GetObjectFromString(string value, string defaultValue, object target, TypeCache typeCache)
+        internal static object GetObjectFromString(string value, string defaultValue, object target, Type type)
         {
             value = value ?? defaultValue;
             TypeConverter typeConverter = target == null
-                ? TypeDescriptor.GetConverter(typeCache.Type) : TypeDescriptor.GetConverter(target);
+                ? TypeDescriptor.GetConverter(type) : TypeDescriptor.GetConverter(target);
             if (typeConverter == null) throw new Exception("Could not get TypeConverter for member.");
             if (!typeConverter.CanConvertFrom(typeof(string))) throw new Exception("Can not convert member from string.");
             return typeConverter.ConvertFromString(value);
         }
 
-        internal static string GetStringFromObject(object source, TypeCache typeCache)
+        internal static string GetStringFromObject(object source, Type type)
         {
             TypeConverter typeConverter = source == null
-                ? TypeDescriptor.GetConverter(typeCache.Type) : TypeDescriptor.GetConverter(source);
+                ? TypeDescriptor.GetConverter(type) : TypeDescriptor.GetConverter(source);
             if (typeConverter == null) throw new Exception("Could not get TypeConverter for member.");
             if (!typeConverter.CanConvertTo(typeof(string))) throw new Exception("Can not convert member to string.");
             return typeConverter.ConvertToString(source);
@@ -130,9 +130,13 @@ namespace Nxdb.Persistence.Attributes
 
         protected string GetName(string name, string defaultName, params string[] exclusive)
         {
-            if (exclusive.Any(e => !String.IsNullOrEmpty(e) && !String.IsNullOrEmpty(name)))
+            if (exclusive.Any(e => !String.IsNullOrEmpty(e)))
             {
-                throw new Exception("Multiple exclusive properties specified.");
+                if (!String.IsNullOrEmpty(name))
+                {
+                    throw new Exception("Multiple exclusive properties specified.");
+                }
+                return null;
             }
             if (String.IsNullOrEmpty(name))
             {

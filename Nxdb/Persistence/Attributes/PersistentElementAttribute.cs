@@ -17,6 +17,7 @@
 
 using System;
 using System.Linq;
+using System.Reflection;
 using Nxdb.Node;
 
 namespace Nxdb.Persistence.Attributes
@@ -60,9 +61,9 @@ namespace Nxdb.Persistence.Attributes
             Attach = true;
         }
 
-        internal override void Inititalize(System.Reflection.MemberInfo memberInfo)
+        internal override void Inititalize(MemberInfo memberInfo, Cache cache)
         {
-            base.Inititalize(memberInfo);
+            base.Inititalize(memberInfo, cache);
             Name = GetName(Name, memberInfo.Name, Query, CreateQuery);
             if(IsPersistentObject && !String.IsNullOrEmpty(Default))
                 throw new Exception("Persistent object based members cannot specify a default value.");
@@ -98,7 +99,7 @@ namespace Nxdb.Persistence.Attributes
             }
             else
             {
-                return GetObjectFromString(child.Value, Default, target, typeCache);
+                return GetObjectFromString(child.Value, Default, target, typeCache.Type);
             }
         }
 
@@ -106,7 +107,7 @@ namespace Nxdb.Persistence.Attributes
         {
             return IsPersistentObject
                 ? typeCache.Persister.Serialize(source, typeCache, cache)
-                : GetStringFromObject(source, typeCache);
+                : GetStringFromObject(source, typeCache.Type);
         }
 
         internal override void StoreValue(Element element, object serialized, object source, TypeCache typeCache, Cache cache)

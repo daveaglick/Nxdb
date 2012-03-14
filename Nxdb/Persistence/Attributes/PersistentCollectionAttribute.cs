@@ -84,7 +84,8 @@ namespace Nxdb.Persistence.Attributes
         /// detached instance will be created on every fetch for each item.
         /// </summary>
         public bool AttachItems { get; set; }
-        
+
+        private TypeCache _itemTypeCache = null;
         private Func<int, object> _getCollection = null;
         private Action<object, int, object> _setCollectionItem = null; // (collection, index, value)
 
@@ -96,9 +97,9 @@ namespace Nxdb.Persistence.Attributes
             AttachItems = true;
         }
 
-        internal override void Inititalize(MemberInfo memberInfo)
+        internal override void Inititalize(MemberInfo memberInfo, Cache cache)
         {
-            base.Inititalize(memberInfo);
+            base.Inititalize(memberInfo, cache);
 
             Name = GetName(Name, memberInfo.Name, Query, CreateQuery);
             ItemName = GetName(ItemName, "Item", ItemQuery);
@@ -127,43 +128,31 @@ namespace Nxdb.Persistence.Attributes
             else
             {
                 // Not an array, check interfaces   
-                Type collectionType = typeof (ICollection<>);
                 List<Type> collectionInterfaces = new List<Type>(memberType.GetInterfaces()
-                    .Where(t => t.IsGenericType && t.GetGenericTypeDefinition() == collectionType));
-
+                    .Where(t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(ICollection<>)));
                 if (collectionInterfaces.Count > 0)
                 {
-                    // The member implements ICollection<T>, resolve the ItemType
-                    Type genericType = null;
-                    if (ItemType != null)
+                    // The member implements ICollection<T>, verify the ItemType (if specified) is compatable
+                    Type collectionType = null;
+                    foreach (Type collectionInterface in collectionInterfaces)
                     {
-                        genericType = collectionType.MakeGenericType(ItemType);
-                        if (!genericType.IsAssignableFrom(memberType))
-                            throw new Exception("The target object must be assignable to a ICollection<ItemType>.");
-                    }
-                    else
-                    {
-                        // Get the first compatible item type
-                        foreach (Type itemType in collectionInterfaces.Select(t => t.GetGenericArguments()[0]))
+                        Type itemType = collectionInterface.GetGenericArguments()[0];
+                        if (ItemType == null || itemType.IsAssignableFrom(ItemType))
                         {
-                            genericType = collectionType.MakeGenericType(itemType);
-                            if (genericType.IsAssignableFrom(memberType))
-                            {
-                                ItemType = itemType;
-                                break;
-                            }
-
+                            if(ItemType == null) ItemType = itemType;
+                            collectionType = collectionInterface;
+                            break;
                         }
                     }
 
                     // Make sure we got an item type
-                    if (ItemType == null) throw new Exception("No appropriate item type could be found.");
+                    if (collectionType == null) throw new Exception("No appropriate item type could be found.");
 
                     // Get the constructor and add functions
                     ConstructorInfo constructor = memberType.GetConstructor(Type.EmptyTypes);
                     if (constructor == null) throw new Exception("Persistent collection member must implement an empty constructor.");
                     _getCollection = s => constructor.Invoke(null);
-                    MethodInfo addMethod = genericType.GetMethod("Add");
+                    MethodInfo addMethod = collectionType.GetMethod("Add");
                     _setCollectionItem = (c, i, v) => addMethod.Invoke(c, new[] {v});
                 }
                 else if (typeof(IList).IsAssignableFrom(memberType))
@@ -180,6 +169,8 @@ namespace Nxdb.Persistence.Attributes
                     throw new Exception("Persistent collection member must be an array, implement ICollection<T>, or implement IList.");
                 }
             }
+
+            _itemTypeCache = cache.GetTypeCache(ItemType);
         }
 
         internal override object FetchValue(Element element, object target, TypeCache typeCache, Cache cache)
@@ -204,7 +195,6 @@ namespace Nxdb.Persistence.Attributes
             object collection = _getCollection(items.Count);
 
             // Populate with values
-            TypeCache itemTypeCache = cache.GetTypeCache(ItemType);
             int c = 0;
             foreach(object item in items)
             {
@@ -212,8 +202,8 @@ namespace Nxdb.Persistence.Attributes
                 {
                     // Get, attach, and fetch the persistent object instance
                     Element itemElement = item as Element;
-                    if (itemElement == null) throw new Exception("Array item nodes must be elements.");
-                    object itemObject = cache.GetObject(itemTypeCache, itemElement, AttachItems);
+                    if (itemElement == null) throw new Exception("Persistent value node must be an element.");
+                    object itemObject = cache.GetObject(_itemTypeCache, itemElement, AttachItems);
                     if (AttachItems)
                     {
                         ObjectWrapper wrapper = cache.Attach(itemObject, itemElement);
@@ -221,7 +211,7 @@ namespace Nxdb.Persistence.Attributes
                     }
                     else
                     {
-                        typeCache.Persister.Fetch(itemElement, itemObject, itemTypeCache, cache);
+                        typeCache.Persister.Fetch(itemElement, itemObject, _itemTypeCache, cache);
                     }
                     _setCollectionItem(collection, c++, itemObject);
                 }
@@ -229,7 +219,7 @@ namespace Nxdb.Persistence.Attributes
                 {
                     Node.Node itemNode = item as Node.Node;
                     object itemObject = GetObjectFromString(
-                        itemNode != null ? itemNode.Value : item.ToString(), null, null, itemTypeCache);
+                        itemNode != null ? itemNode.Value : item.ToString(), null, null, _itemTypeCache.Type);
                     _setCollectionItem(collection, c++, itemObject);
                 }
             }
@@ -247,13 +237,12 @@ namespace Nxdb.Persistence.Attributes
             // Iterate over the source object
             if (source != null)
             {
-                TypeCache itemTypeCache = cache.GetTypeCache(ItemType);
                 IEnumerable items = (IEnumerable) source;
                 foreach (object item in items)
                 {
-                    object value = ItemsArePersistentObjects ?
-                                                                 typeCache.Persister.Serialize(item, itemTypeCache, cache)
-                                       : GetStringFromObject(item, itemTypeCache);
+                    object value = ItemsArePersistentObjects
+                        ? _itemTypeCache.Persister.Serialize(item, _itemTypeCache, cache)
+                        : GetStringFromObject(item, _itemTypeCache.Type);
                     values.Add(new KeyValuePair<object, object>(item, value));
                 }
             }
@@ -292,7 +281,7 @@ namespace Nxdb.Persistence.Attributes
                 return;
             }
 
-            // Remove all item elements with the item name
+            // Remove all elements with the item name
             List<Element> removeElements =
                 child.Children.OfType<Element>()
                 .Where(e => e.Name == ItemName).ToList();
@@ -302,7 +291,6 @@ namespace Nxdb.Persistence.Attributes
             }
 
             // Store all items
-            TypeCache itemTypeCache = cache.GetTypeCache(ItemType);
             foreach (KeyValuePair<object, object> kvp in
                 (IEnumerable<KeyValuePair<object, object>>) serialized)
             {
@@ -310,7 +298,7 @@ namespace Nxdb.Persistence.Attributes
                 Element itemElement = (Element) child.Children.Last();
                 if (ItemsArePersistentObjects)
                 {
-                    itemTypeCache.Persister.Store(itemElement, kvp.Value, kvp.Key, itemTypeCache, cache);
+                    _itemTypeCache.Persister.Store(itemElement, kvp.Value, kvp.Key, _itemTypeCache, cache);
                 }
                 else
                 {

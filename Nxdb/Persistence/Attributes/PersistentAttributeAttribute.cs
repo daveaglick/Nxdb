@@ -40,9 +40,9 @@ namespace Nxdb.Persistence.Attributes
         /// </summary>
         public string Default { get; set; }
 
-        internal override void Inititalize(MemberInfo memberInfo)
+        internal override void Inititalize(MemberInfo memberInfo, Cache cache)
         {
-            base.Inititalize(memberInfo);
+            base.Inititalize(memberInfo, cache);
             Name = GetName(Name, memberInfo.Name, Query, CreateQuery);
         }
 
@@ -53,12 +53,12 @@ namespace Nxdb.Persistence.Attributes
             {
                 attribute = element.Attribute(Name);
             }
-            return attribute == null ? null : GetObjectFromString(attribute.Value, Default, target, typeCache);
+            return attribute == null ? null : GetObjectFromString(attribute.Value, Default, target, typeCache.Type);
         }
 
         internal override object SerializeValue(object source, TypeCache typeCache, Cache cache)
         {
-            return GetStringFromObject(source, typeCache);
+            return GetStringFromObject(source, typeCache.Type);
         }
 
         internal override void StoreValue(Element element, object serialized, object source, TypeCache typeCache, Cache cache)
