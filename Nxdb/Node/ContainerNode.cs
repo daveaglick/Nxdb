@@ -303,7 +303,6 @@ namespace Nxdb.Node
             }
         }
 
-        /// <inheritdoc />
         public override string Value
         {
             get { return InnerText; }

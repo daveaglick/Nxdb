@@ -24,7 +24,6 @@ using org.basex.query.expr;
 using org.basex.query.item;
 using org.basex.query.iter;
 using org.basex.util;
-using Type = System.Type;
 
 namespace Nxdb
 {
@@ -142,7 +141,7 @@ namespace Nxdb
         /// </summary>
         /// <param name="ns">The namespace of the external class functions.</param>
         /// <param name="type">The type that contains the static methods for this namespace.</param>
-        public void SetExternal(string ns, Type type)
+        public void SetExternal(string ns, System.Type type)
         {
             if (ns == null) throw new ArgumentNullException("ns");
             if (ns == String.Empty) throw new ArgumentException("ns");
@@ -162,13 +161,12 @@ namespace Nxdb
         /// will be available.
         /// </summary>
         /// <param name="type">The type that contains the static methods you wish to call.</param>
-        public void SetExternal(Type type)
+        public void SetExternal(System.Type type)
         {
             if (type == null) throw new ArgumentNullException("type");
             SetExternal(type.Name, type);
         }
 
-        /// <inheritdoc />
         public IEnumerable<object> Eval(string expression)
         {
             if (expression == null) throw new ArgumentNullException("expression");
@@ -230,31 +228,26 @@ namespace Nxdb
             return iterEnum;
         }
 
-        /// <inheritdoc />
         public IEnumerable<T> Eval<T>(string expression)
         {
             return Eval(expression).OfType<T>();
         }
 
-        /// <inheritdoc />
         public IList<object> EvalList(string expression)
         {
             return new List<object>(Eval(expression));
         }
 
-        /// <inheritdoc />
         public IList<T> EvalList<T>(string expression)
         {
             return new List<T>(Eval(expression).OfType<T>());
         }
 
-        /// <inheritdoc />
         public object EvalSingle(string expression)
         {
             return Eval(expression).FirstOrDefault();
         }
 
-        /// <inheritdoc />
         public T EvalSingle<T>(string expression) where T : class
         {
             return Eval<T>(expression).FirstOrDefault();

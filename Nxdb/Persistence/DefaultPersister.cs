@@ -25,7 +25,7 @@ using Nxdb.Persistence.Attributes;
 
 namespace Nxdb.Persistence
 {
-    public class DefaultPersister : Persister
+    internal class DefaultPersister : Persister
     {
         internal override void Fetch(Element element, object target, TypeCache typeCache, Cache cache)
         {

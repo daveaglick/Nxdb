@@ -31,7 +31,7 @@ namespace Nxdb.Persistence
     // If any other objects are attached to child nodes, they will be automatically detached when this
     // object is stored due to the child node invalidation.
     // TODO: Once the matching algorithm has been reimplemented, use that for store operations instead of total replacement
-    public class XmlSerializerPersister : Persister
+    internal class XmlSerializerPersister : Persister
     {
         private readonly XmlWriterSettings _writerSettings;
 

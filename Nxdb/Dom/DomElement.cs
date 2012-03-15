@@ -31,8 +31,6 @@ using Nxdb.Node;
 using org.basex.query.item;
 using org.basex.query.iter;
 using org.basex.util;
-using Attribute = Nxdb.Node.Attribute;
-using Type=System.Type;
 
 namespace Nxdb.Dom
 {
@@ -157,7 +155,7 @@ namespace Nxdb.Dom
                 _addingAttributes = true;
                 XmlAttributeCollection attributes = base.Attributes;
                 base.Attributes.RemoveAll();
-                foreach (Attribute attributeNode in _node.Attributes)
+                foreach (Node.Attribute attributeNode in _node.Attributes)
                 {
                     DomAttribute attribute = (DomAttribute)attributeNode.XmlNode;
                     attribute.EnableOwnerElement = false;

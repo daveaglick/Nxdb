@@ -1,0 +1,4 @@
+var searchData=
+[
+  ['baseuri',['BaseUri',['../class_nxdb_1_1_node_1_1_node.html#a1d6a9eaa8fc8455490fb4bc751944712',1,'Nxdb.Node.Node.BaseUri()'],['../class_nxdb_1_1_dom_1_1_dom_attribute.html#a64186e8b71ce85ddcf2080f576dbb007',1,'Nxdb.Dom.DomAttribute.BaseURI()'],['../class_nxdb_1_1_dom_1_1_dom_comment.html#aaf53ad51391396db87115f74615d8a47',1,'Nxdb.Dom.DomComment.BaseURI()'],['../class_nxdb_1_1_dom_1_1_dom_document.html#a17c114c548d794d86ffbeedd87742c7a',1,'Nxdb.Dom.DomDocument.BaseURI()'],['../class_nxdb_1_1_dom_1_1_dom_element.html#a90ef32d474e515e9461f70c577c0a3a7',1,'Nxdb.Dom.DomElement.BaseURI()'],['../class_nxdb_1_1_dom_1_1_dom_processing_instruction.html#aa0468a129e9023ab8e5577c46108e377',1,'Nxdb.Dom.DomProcessingInstruction.BaseURI()'],['../class_nxdb_1_1_dom_1_1_dom_text.html#a7f82ab3bb11c48eecc15f96a6253fe1c',1,'Nxdb.Dom.DomText.BaseURI()']]]
+];

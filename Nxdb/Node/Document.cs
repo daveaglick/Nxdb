@@ -39,7 +39,6 @@ namespace Nxdb.Node
         /// <param name="name">The name of the document.</param>
         public Document(string name) : base(new FDoc(name.Token()), Data.DOC, null) { }
 
-        /// <inheritdoc />
         public override System.Xml.XmlNodeType NodeType
         {
             get { return System.Xml.XmlNodeType.Document; }
@@ -65,7 +64,6 @@ namespace Nxdb.Node
             throw new NotSupportedException("cannot insert after a document node");
         }
 
-        /// <inheritdoc />
         public override string Name
         {
             get
@@ -81,7 +79,6 @@ namespace Nxdb.Node
             }
         }
 
-        /// <inheritdoc />
         protected override XmlNode CreateXmlNode()
         {
             return new DomDocument(this);

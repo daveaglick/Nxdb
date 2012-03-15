@@ -38,38 +38,32 @@ namespace Nxdb.Node
         /// <param name="value">The value of the processing instruction.</param>
         public ProcessingInstruction(string name, string value) : base(new FPI(new QNm(name.Token()), value.Token()), Data.PI, null) { }
 
-        /// <inheritdoc />
         public override System.Xml.XmlNodeType NodeType
         {
             get { return System.Xml.XmlNodeType.ProcessingInstruction; }
         }
 
-        /// <inheritdoc />
         public override string Name
         {
             get { return NameImpl; }
             set { NameImpl = value; }
         }
 
-        /// <inheritdoc />
         public override string LocalName
         {
             get { return LocalNameImpl; }
         }
 
-        /// <inheritdoc />
         public override string Prefix
         {
             get { return PrefixImpl; }
         }
 
-        /// <inheritdoc />
         public override string NamespaceUri
         {
             get { return NamespaceUriImpl; }
         }
 
-        /// <inheritdoc />
         protected override XmlNode CreateXmlNode()
         {
             return new DomProcessingInstruction(this);

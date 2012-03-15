@@ -22,7 +22,6 @@ using System.Linq;
 using System.Reflection;
 using System.Xml;
 using Nxdb.Node;
-using Attribute = System.Attribute;
 
 namespace Nxdb.Persistence.Attributes
 {
@@ -30,7 +29,7 @@ namespace Nxdb.Persistence.Attributes
     /// The base class for all persistent attributes.
     /// </summary>
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
-    public abstract class PersistentMemberAttribute : Attribute
+    public abstract class PersistentMemberAttribute : System.Attribute
     {
         protected PersistentMemberAttribute()
         {

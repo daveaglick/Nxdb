@@ -37,13 +37,11 @@ namespace Nxdb.Node
         /// <param name="comment">The comment content.</param>
         public Comment(string comment) : base(new FComm(comment.Token()), Data.COMM, null) { }
 
-        /// <inheritdoc />
         public override System.Xml.XmlNodeType NodeType
         {
             get { return System.Xml.XmlNodeType.Comment; }
         }
 
-        /// <inheritdoc />
         protected override XmlNode CreateXmlNode()
         {
             return new DomComment(this);

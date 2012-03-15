@@ -40,7 +40,6 @@ namespace Nxdb.Node
         /// <param name="name">The name of the element.</param>
         public Element(string name) : base(new FElem(new QNm(name.Token())), Data.ELEM, null) { }
 
-        /// <inheritdoc />
         public override System.Xml.XmlNodeType NodeType
         {
             get { return System.Xml.XmlNodeType.Element; }
@@ -137,7 +136,6 @@ namespace Nxdb.Node
             }
         }
 
-        /// <inheritdoc />
         public override void RemoveAll()
         {
             using (new Updates())
@@ -147,32 +145,27 @@ namespace Nxdb.Node
             }
         }
 
-        /// <inheritdoc />
         public override string Name
         {
             get { return NameImpl; }
             set { NameImpl = value; }
         }
 
-        /// <inheritdoc />
         public override string LocalName
         {
             get { return LocalNameImpl; }
         }
 
-        /// <inheritdoc />
         public override string Prefix
         {
             get { return PrefixImpl; }
         }
 
-        /// <inheritdoc />
         public override string NamespaceUri
         {
             get { return NamespaceUriImpl; }
         }
 
-        /// <inheritdoc />
         protected override XmlNode CreateXmlNode()
         {
             return new DomElement(this);

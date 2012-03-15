@@ -37,13 +37,11 @@ namespace Nxdb.Node
         /// <param name="text">The text content.</param>
         public Text(string text) : base(new FTxt(text.Token()), Data.TEXT, null) { }
 
-        /// <inheritdoc />
         public override System.Xml.XmlNodeType NodeType
         {
             get { return System.Xml.XmlNodeType.Text; }
         }
 
-        /// <inheritdoc />
         protected override XmlNode CreateXmlNode()
         {
             return new DomText(this);

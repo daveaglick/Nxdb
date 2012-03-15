@@ -38,38 +38,32 @@ namespace Nxdb.Node
         /// <param name="value">The value of the attribute.</param>
         public Attribute(string name, string value) : base(new FAttr(new QNm(name.Token()), value.Token()), Data.ATTR, null) { }
         
-        /// <inheritdoc />
         public override System.Xml.XmlNodeType NodeType
         {
             get { return System.Xml.XmlNodeType.Attribute; }
         }
 
-        /// <inheritdoc />
         public override string Name
         {
             get { return NameImpl; }
             set { NameImpl = value; }
         }
 
-        /// <inheritdoc />
         public override string LocalName
         {
             get { return LocalNameImpl; }
         }
 
-        /// <inheritdoc />
         public override string Prefix
         {
             get { return PrefixImpl; }
         }
 
-        /// <inheritdoc />
         public override string NamespaceUri
         {
             get { return NamespaceUriImpl; }
         }
 
-        /// <inheritdoc />
         protected override XmlNode CreateXmlNode()
         {
             return new DomAttribute(this);

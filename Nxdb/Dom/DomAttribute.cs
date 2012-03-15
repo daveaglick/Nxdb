@@ -24,13 +24,12 @@ using System.Xml.Schema;
 using System.Xml.XPath;
 using org.basex.query.item;
 using org.basex.util;
-using Attribute = Nxdb.Node.Attribute;
 
 namespace Nxdb.Dom
 {
     public class DomAttribute : XmlAttribute, IDomNode
     {
-        private readonly Attribute _node;
+        private readonly Node.Attribute _node;
         public Node.Node Node
         {
             get { return _node; }
@@ -41,7 +40,7 @@ namespace Nxdb.Dom
         internal bool EnableOwnerElement
         { set { _enableOwnerElement = value; } }
 
-        internal DomAttribute(Attribute node)
+        internal DomAttribute(Node.Attribute node)
             : base(node.Prefix, node.LocalName, node.NamespaceUri, (XmlDocument)node.Document.XmlNode)
         {
             _node = node;
