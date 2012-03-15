@@ -26,6 +26,11 @@ using Nxdb.Node;
 
 namespace Nxdb.Persistence
 {
+    /// <summary>
+    /// The manager for the object persistence framework. More than one Manager can be
+    /// created, each with different settings and object caches. If only one is going to
+    /// be used, it is recommended to use the static Manager.Default manager.
+    /// </summary>
     public class Manager
     {
         private static Manager _default = null;

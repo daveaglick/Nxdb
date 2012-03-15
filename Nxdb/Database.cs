@@ -15,12 +15,28 @@
  * 
  */
 
+#region Doxygen Comments
+
 /** @mainpage Nxdb API Documentation
  * Nxdb is a high-performance embedded XML database for .NET with full
  * XQuery support and a powerful object persistence framework. This is the
  * API documentation for Nxdb. For more information, please see the Nxdb
  * portal at https://dracorp.assembla.com/spaces/nxdb.
  */
+
+//! @namespace Nxdb The primary Nxdb namespace that contains classes for database access, querying, and other general capabilities.
+
+//! @namespace Nxdb.Dom Contains classes that replicate the .NET DOM interface for compatibility with other .NET XML components.
+
+//! @namespace Nxdb.Io Contains internal classes relevant for data input and output.
+
+//! @namespace Nxdb.Node Contains classes that represent the internal Nxdb data model and that provide direct database access.
+
+//! @namespace Nxdb.Persistence Contains the Nxdb persistence framework.
+
+//! @namespace Nxdb.Persistence.Attributes Contains all of the custom attributes used in the Nxdb persistence framework.
+
+#endregion
 
 using System;
 using System.Collections;

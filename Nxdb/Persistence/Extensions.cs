@@ -24,7 +24,9 @@ using Nxdb.Node;
 namespace Nxdb.Persistence
 {
     /// <summary>
-    /// Provides extension methods for the persistence framework.
+    /// Provides extension methods for the object persistence framework. These extension methods
+    /// operate on the Manager.Default persistence manager. If other persistence managers are used,
+    /// their methods will need to be called directly.
     /// </summary>
     public static class Extensions
     {

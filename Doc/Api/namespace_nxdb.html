@@ -76,13 +76,20 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="title">Package Nxdb</div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p>The primary <a class="el" href="namespace_nxdb.html" title="The primary Nxdb namespace that contains classes for database access, querying, and other general cap...">Nxdb</a> namespace that contains classes for database access, querying, and other general capabilities.  
+<a href="#details">More...</a></p>
 <table class="memberdecls">
 <tr><td colspan="2"><h2><a name="namespaces"></a>
 Namespaces</h2></td></tr>
 <tr class="memitem:namespace_nxdb_1_1_dom"><td class="memItemLeft" align="right" valign="top">package &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespace_nxdb_1_1_dom.html">Dom</a></td></tr>
+<tr class="memdesc:namespace_nxdb_1_1_dom"><td class="mdescLeft">&#160;</td><td class="mdescRight">Contains classes that replicate the .NET DOM interface for compatibility with other .NET XML components. <br/></td></tr>
 <tr class="memitem:namespace_nxdb_1_1_io"><td class="memItemLeft" align="right" valign="top">package &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespace_nxdb_1_1_io.html">Io</a></td></tr>
+<tr class="memdesc:namespace_nxdb_1_1_io"><td class="mdescLeft">&#160;</td><td class="mdescRight">Contains internal classes relevant for data input and output. <br/></td></tr>
 <tr class="memitem:namespace_nxdb_1_1_node"><td class="memItemLeft" align="right" valign="top">package &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespace_nxdb_1_1_node.html">Node</a></td></tr>
+<tr class="memdesc:namespace_nxdb_1_1_node"><td class="mdescLeft">&#160;</td><td class="mdescRight">Contains classes that represent the internal <a class="el" href="namespace_nxdb.html" title="The primary Nxdb namespace that contains classes for database access, querying, and other general cap...">Nxdb</a> data model and that provide direct database access. <br/></td></tr>
 <tr class="memitem:namespace_nxdb_1_1_persistence"><td class="memItemLeft" align="right" valign="top">package &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespace_nxdb_1_1_persistence.html">Persistence</a></td></tr>
+<tr class="memdesc:namespace_nxdb_1_1_persistence"><td class="mdescLeft">&#160;</td><td class="mdescRight">Contains the <a class="el" href="namespace_nxdb.html" title="The primary Nxdb namespace that contains classes for database access, querying, and other general cap...">Nxdb</a> persistence framework. <br/></td></tr>
 <tr><td colspan="2"><h2><a name="nested-classes"></a>
 Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><b>Conversions</b></td></tr>
@@ -96,13 +103,15 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_nxdb_1_1_properties.html">Properties</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Static class used to get and set global properties.  <a href="class_nxdb_1_1_properties.html#details">More...</a><br/></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_nxdb_1_1_nxdb_prop.html">NxdbProp</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="class_nxdb_1_1_properties.html" title="Static class used to get and set global properties.">Properties</a> container for Nxdb-specific properties. Intended for BaseX - not to be used directly by <a class="el" href="namespace_nxdb.html">Nxdb</a> users.  <a href="class_nxdb_1_1_nxdb_prop.html#details">More...</a><br/></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="class_nxdb_1_1_properties.html" title="Static class used to get and set global properties.">Properties</a> container for Nxdb-specific properties. Intended for BaseX - not to be used directly by <a class="el" href="namespace_nxdb.html" title="The primary Nxdb namespace that contains classes for database access, querying, and other general cap...">Nxdb</a> users.  <a href="class_nxdb_1_1_nxdb_prop.html#details">More...</a><br/></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_nxdb_1_1_query.html">Query</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Encapsulates an XQuery.  <a href="class_nxdb_1_1_query.html#details">More...</a><br/></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_nxdb_1_1_updates.html">Updates</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Instances of this class should be placed around combined update operations. It's primary purpose is to prevent intermediate and premature database optimization which will greatly impact performance. Instances of this class may be nested. If an update operation (either directly or through a query) is applied while one or more instances of this class are active, database optimizations and reindexing will not be performed until the final instance of this class is disposed. Note that instances of this class do not affect the actual application of updates operations which are still applied immediatly regardless.  <a href="class_nxdb_1_1_updates.html#details">More...</a><br/></td></tr>
 </table>
-</div><!-- contents -->
+<hr/><a name="details" id="details"></a><h2>Detailed Description</h2>
+<div class="textblock"><p>The primary <a class="el" href="namespace_nxdb.html" title="The primary Nxdb namespace that contains classes for database access, querying, and other general cap...">Nxdb</a> namespace that contains classes for database access, querying, and other general capabilities. </p>
+</div></div><!-- contents -->
 
 
 <hr class="footer"/><address class="footer"><small>
