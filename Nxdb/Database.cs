@@ -15,6 +15,13 @@
  * 
  */
 
+/** @mainpage Nxdb API Documentation
+ * Nxdb is a high-performance embedded XML database for .NET with full
+ * XQuery support and a powerful object persistence framework. This is the
+ * API documentation for Nxdb. For more information, please see the Nxdb
+ * portal at https://dracorp.assembla.com/spaces/nxdb.
+ */
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
