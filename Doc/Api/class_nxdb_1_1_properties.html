@@ -94,26 +94,51 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 Properties</h2></td></tr>
 <tr class="memitem:a9b48353514c5bab1bb80754e1e261cdb"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_nxdb_1_1_properties.html#a9b48353514c5bab1bb80754e1e261cdb">ChopWhitespace</a><code> [get, set]</code></td></tr>
 <tr class="memdesc:a9b48353514c5bab1bb80754e1e261cdb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets or sets a value indicating whether whitespace should be chopped (removed).  <a href="#a9b48353514c5bab1bb80754e1e261cdb"></a><br/></td></tr>
-<tr class="memitem:a82c4754d9954a4fe1b06abedbbf518d2"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_nxdb_1_1_properties.html#a82c4754d9954a4fe1b06abedbbf518d2">UsePathIndex</a><code> [get, set]</code></td></tr>
-<tr class="memdesc:a82c4754d9954a4fe1b06abedbbf518d2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets or sets a value indicating whether a path index should be used.  <a href="#a82c4754d9954a4fe1b06abedbbf518d2"></a><br/></td></tr>
-<tr class="memitem:a4c235535033d1a6342c8877be80b0953"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_nxdb_1_1_properties.html#a4c235535033d1a6342c8877be80b0953">UseTextIndex</a><code> [get, set]</code></td></tr>
-<tr class="memdesc:a4c235535033d1a6342c8877be80b0953"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets or sets a value indicating whether a text index should be used.  <a href="#a4c235535033d1a6342c8877be80b0953"></a><br/></td></tr>
-<tr class="memitem:ab64e9536675f045f79e3735730a23e6d"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_nxdb_1_1_properties.html#ab64e9536675f045f79e3735730a23e6d">UseAttributeIndex</a><code> [get, set]</code></td></tr>
-<tr class="memdesc:ab64e9536675f045f79e3735730a23e6d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets or sets a value indicating whether an attribute index should be used.  <a href="#ab64e9536675f045f79e3735730a23e6d"></a><br/></td></tr>
-<tr class="memitem:a1c967c13054b17efa37ac19f68b8d8d9"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_nxdb_1_1_properties.html#a1c967c13054b17efa37ac19f68b8d8d9">UseFullTextIndex</a><code> [get, set]</code></td></tr>
-<tr class="memdesc:a1c967c13054b17efa37ac19f68b8d8d9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets or sets a value indicating whether a full text index should be used.  <a href="#a1c967c13054b17efa37ac19f68b8d8d9"></a><br/></td></tr>
+<tr class="memitem:a392d52223cc45314db8b145b4f47c3b0"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_nxdb_1_1_properties.html#a392d52223cc45314db8b145b4f47c3b0">CreatePathIndex</a><code> [get, set]</code></td></tr>
+<tr class="memdesc:a392d52223cc45314db8b145b4f47c3b0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a path index whenever a new database is created. A path index helps to optimize location paths.  <a href="#a392d52223cc45314db8b145b4f47c3b0"></a><br/></td></tr>
+<tr class="memitem:a1ed308d63dbfd3d5faa475d53db1eb80"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_nxdb_1_1_properties.html#a1ed308d63dbfd3d5faa475d53db1eb80">CreateTextIndex</a><code> [get, set]</code></td></tr>
+<tr class="memdesc:a1ed308d63dbfd3d5faa475d53db1eb80"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a text index whenever a new database is created. A text index speeds up queries with equality comparisons on text nodes.  <a href="#a1ed308d63dbfd3d5faa475d53db1eb80"></a><br/></td></tr>
+<tr class="memitem:a49a03f9ce98bf2c3a848ed6a875744a6"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_nxdb_1_1_properties.html#a49a03f9ce98bf2c3a848ed6a875744a6">CreateAttributeIndex</a><code> [get, set]</code></td></tr>
+<tr class="memdesc:a49a03f9ce98bf2c3a848ed6a875744a6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates an attribute index whenever a new database is created. An attribute index speeds up queries with equality comparisons on attribute values.  <a href="#a49a03f9ce98bf2c3a848ed6a875744a6"></a><br/></td></tr>
+<tr class="memitem:af84682c0964a64e8ce00e38ea8dc2426"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_nxdb_1_1_properties.html#af84682c0964a64e8ce00e38ea8dc2426">CreateFullTextIndex</a><code> [get, set]</code></td></tr>
+<tr class="memdesc:af84682c0964a64e8ce00e38ea8dc2426"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a full-text index whenever a new database is created. A full-text index speeds up queries with full-text expressions.  <a href="#af84682c0964a64e8ce00e38ea8dc2426"></a><br/></td></tr>
+<tr class="memitem:a10e363dd1fea016fc7d76fa3dba9c6fd"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_nxdb_1_1_properties.html#a10e363dd1fea016fc7d76fa3dba9c6fd">MaximumStringIndexLength</a><code> [get, set]</code></td></tr>
+<tr class="memdesc:a10e363dd1fea016fc7d76fa3dba9c6fd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Specifies the maximum length of strings that are to be indexed by the name, path, value, and full-text index structures. The value of this option will be assigned once to a new database, and cannot be changed after that.  <a href="#a10e363dd1fea016fc7d76fa3dba9c6fd"></a><br/></td></tr>
+<tr class="memitem:a69c38e3c9519b1c4227c149052560624"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_nxdb_1_1_properties.html#a69c38e3c9519b1c4227c149052560624">MaximumIndexCategories</a><code> [get, set]</code></td></tr>
+<tr class="memdesc:a69c38e3c9519b1c4227c149052560624"><td class="mdescLeft">&#160;</td><td class="mdescRight">Specifies the maximum number of distinct values (categories) that will be remembered for a particular tag/attribute name or unique path. The value of this option will be assigned once to a new database, and cannot be changed after that.  <a href="#a69c38e3c9519b1c4227c149052560624"></a><br/></td></tr>
 <tr class="memitem:af57d7b793d25d8310e65c055c1877393"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_nxdb_1_1_properties.html#af57d7b793d25d8310e65c055c1877393">UpdateIndexes</a><code> [get, set]</code></td></tr>
-<tr class="memdesc:af57d7b793d25d8310e65c055c1877393"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets or sets a value indicating whether indexes should be incrementally updated.  <a href="#af57d7b793d25d8310e65c055c1877393"></a><br/></td></tr>
+<tr class="memdesc:af57d7b793d25d8310e65c055c1877393"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets or sets a value indicating whether indexes should be incrementally updated. The value of this option will be assigned once to a new database, and cannot be changed after that. The advantage of incremental indexes is that the value index structures will always be up-to-date. The downside is that updates will take a little bit longer.  <a href="#af57d7b793d25d8310e65c055c1877393"></a><br/></td></tr>
+<tr class="memitem:a7414dec4ad4d04f83daefdc932cf4ac0"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_nxdb_1_1_properties.html#a7414dec4ad4d04f83daefdc932cf4ac0">AutoFlush</a><code> [get, set]</code></td></tr>
+<tr class="memdesc:a7414dec4ad4d04f83daefdc932cf4ac0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Flushes database buffers to disk after each update. If this option is set to false, bulk operations (multiple single updates) will be evaluated faster. As a drawback, the chance of data loss increases if the database is not explicitly flushed.  <a href="#a7414dec4ad4d04f83daefdc932cf4ac0"></a><br/></td></tr>
 <tr class="memitem:a7a704d274cf9ad07e7ab349ab20da7d7"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_nxdb_1_1_properties.html#a7a704d274cf9ad07e7ab349ab20da7d7">DropOnDispose</a><code> [get, set]</code></td></tr>
-<tr class="memdesc:a7a704d274cf9ad07e7ab349ab20da7d7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets or sets a value indicating whether databases should be dropped (deleted from disk) when disposed.  <a href="#a7a704d274cf9ad07e7ab349ab20da7d7"></a><br/></td></tr>
+<tr class="memdesc:a7a704d274cf9ad07e7ab349ab20da7d7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Specifies whether databases should be dropped (deleted from disk) when disposed.  <a href="#a7a704d274cf9ad07e7ab349ab20da7d7"></a><br/></td></tr>
 <tr class="memitem:a26a8194f20b7452a2ef049d07d7047c6"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_nxdb_1_1_properties.html#a26a8194f20b7452a2ef049d07d7047c6">OptimizeAfterUpdates</a><code> [get, set]</code></td></tr>
-<tr class="memdesc:a26a8194f20b7452a2ef049d07d7047c6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets or sets a value indicating whether databases should be optimized after update operations.  <a href="#a26a8194f20b7452a2ef049d07d7047c6"></a><br/></td></tr>
+<tr class="memdesc:a26a8194f20b7452a2ef049d07d7047c6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Specifies whether databases should be optimized after update operations. If this is true and an <a class="el" href="class_nxdb_1_1_updates.html" title="Instances of this class should be placed around combined update operations. It&#39;s primary purpose is t...">Updates</a> instance exists, optimizations will be performed when the outer-most <a class="el" href="class_nxdb_1_1_updates.html" title="Instances of this class should be placed around combined update operations. It&#39;s primary purpose is t...">Updates</a> instance is disposed. Otherwise, optimizations will be performed immediately after each update operation. If this is false, the database will not be implicitly optimized and <a class="el" href="class_nxdb_1_1_database.html#a1732d38502f77bbb07815444ab6da0d8" title="Optimizes database structures and updates indexes.">Database.Optimize()</a> must be called.  <a href="#a26a8194f20b7452a2ef049d07d7047c6"></a><br/></td></tr>
+<tr class="memitem:a5a2edccb60a4fdcc2724e5d7b2911c30"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_nxdb_1_1_properties.html#a5a2edccb60a4fdcc2724e5d7b2911c30">FlushAfterUpdates</a><code> [get, set]</code></td></tr>
+<tr class="memdesc:a5a2edccb60a4fdcc2724e5d7b2911c30"><td class="mdescLeft">&#160;</td><td class="mdescRight">Specifies whether databases should be flushed after update operations. This is only used if AutoFlush is false. If this is true and an <a class="el" href="class_nxdb_1_1_updates.html" title="Instances of this class should be placed around combined update operations. It&#39;s primary purpose is t...">Updates</a> instance exists, a flush will be performed when the outer-most <a class="el" href="class_nxdb_1_1_updates.html" title="Instances of this class should be placed around combined update operations. It&#39;s primary purpose is t...">Updates</a> instance is disposed. Otherwise, a flush will be performed immediately after each update operation. If this is false, the database will not be implicitly flushed (if AutoFlush is false) and <a class="el" href="class_nxdb_1_1_database.html#ae797869228dfa4a829a5c8593580e172" title="Flushes this database to disk. This is needed if Properties.AutoFlush is set to false.">Database.Flush()</a> must be called.  <a href="#a5a2edccb60a4fdcc2724e5d7b2911c30"></a><br/></td></tr>
 </table>
 <hr/><a name="details" id="details"></a><h2>Detailed Description</h2>
 <div class="textblock"><p>Static class used to get and set global properties. </p>
 
 <p>Definition at line <a class="el" href="_properties_8cs_source.html#l00029">29</a> of file <a class="el" href="_properties_8cs_source.html">Properties.cs</a>.</p>
 </div><hr/><h2>Property Documentation</h2>
+<a class="anchor" id="a7414dec4ad4d04f83daefdc932cf4ac0"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool <a class="el" href="class_nxdb_1_1_properties.html#a7414dec4ad4d04f83daefdc932cf4ac0">Nxdb.Properties.AutoFlush</a><code> [static, get, set]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Flushes database buffers to disk after each update. If this option is set to false, bulk operations (multiple single updates) will be evaluated faster. As a drawback, the chance of data loss increases if the database is not explicitly flushed. </p>
+
+<p>Definition at line <a class="el" href="_properties_8cs_source.html#l00123">123</a> of file <a class="el" href="_properties_8cs_source.html">Properties.cs</a>.</p>
+
+</div>
+</div>
 <a class="anchor" id="a9b48353514c5bab1bb80754e1e261cdb"></a>
 <div class="memitem">
 <div class="memproto">
@@ -131,6 +156,74 @@ Properties</h2></td></tr>
 
 </div>
 </div>
+<a class="anchor" id="a49a03f9ce98bf2c3a848ed6a875744a6"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool <a class="el" href="class_nxdb_1_1_properties.html#a49a03f9ce98bf2c3a848ed6a875744a6">Nxdb.Properties.CreateAttributeIndex</a><code> [static, get, set]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Creates an attribute index whenever a new database is created. An attribute index speeds up queries with equality comparisons on attribute values. </p>
+
+<p>Definition at line <a class="el" href="_properties_8cs_source.html#l00065">65</a> of file <a class="el" href="_properties_8cs_source.html">Properties.cs</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="af84682c0964a64e8ce00e38ea8dc2426"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool <a class="el" href="class_nxdb_1_1_properties.html#af84682c0964a64e8ce00e38ea8dc2426">Nxdb.Properties.CreateFullTextIndex</a><code> [static, get, set]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Creates a full-text index whenever a new database is created. A full-text index speeds up queries with full-text expressions. </p>
+
+<p>Definition at line <a class="el" href="_properties_8cs_source.html#l00075">75</a> of file <a class="el" href="_properties_8cs_source.html">Properties.cs</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a392d52223cc45314db8b145b4f47c3b0"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool <a class="el" href="class_nxdb_1_1_properties.html#a392d52223cc45314db8b145b4f47c3b0">Nxdb.Properties.CreatePathIndex</a><code> [static, get, set]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Creates a path index whenever a new database is created. A path index helps to optimize location paths. </p>
+
+<p>Definition at line <a class="el" href="_properties_8cs_source.html#l00045">45</a> of file <a class="el" href="_properties_8cs_source.html">Properties.cs</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a1ed308d63dbfd3d5faa475d53db1eb80"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool <a class="el" href="class_nxdb_1_1_properties.html#a1ed308d63dbfd3d5faa475d53db1eb80">Nxdb.Properties.CreateTextIndex</a><code> [static, get, set]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Creates a text index whenever a new database is created. A text index speeds up queries with equality comparisons on text nodes. </p>
+
+<p>Definition at line <a class="el" href="_properties_8cs_source.html#l00055">55</a> of file <a class="el" href="_properties_8cs_source.html">Properties.cs</a>.</p>
+
+</div>
+</div>
 <a class="anchor" id="a7a704d274cf9ad07e7ab349ab20da7d7"></a>
 <div class="memitem">
 <div class="memproto">
@@ -142,9 +235,60 @@ Properties</h2></td></tr>
 </div>
 <div class="memdoc">
 
-<p>Gets or sets a value indicating whether databases should be dropped (deleted from disk) when disposed. </p>
+<p>Specifies whether databases should be dropped (deleted from disk) when disposed. </p>
 
-<p>Definition at line <a class="el" href="_properties_8cs_source.html#l00089">89</a> of file <a class="el" href="_properties_8cs_source.html">Properties.cs</a>.</p>
+<p>Definition at line <a class="el" href="_properties_8cs_source.html#l00132">132</a> of file <a class="el" href="_properties_8cs_source.html">Properties.cs</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a5a2edccb60a4fdcc2724e5d7b2911c30"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool <a class="el" href="class_nxdb_1_1_properties.html#a5a2edccb60a4fdcc2724e5d7b2911c30">Nxdb.Properties.FlushAfterUpdates</a><code> [static, get, set]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Specifies whether databases should be flushed after update operations. This is only used if AutoFlush is false. If this is true and an <a class="el" href="class_nxdb_1_1_updates.html" title="Instances of this class should be placed around combined update operations. It&#39;s primary purpose is t...">Updates</a> instance exists, a flush will be performed when the outer-most <a class="el" href="class_nxdb_1_1_updates.html" title="Instances of this class should be placed around combined update operations. It&#39;s primary purpose is t...">Updates</a> instance is disposed. Otherwise, a flush will be performed immediately after each update operation. If this is false, the database will not be implicitly flushed (if AutoFlush is false) and <a class="el" href="class_nxdb_1_1_database.html#ae797869228dfa4a829a5c8593580e172" title="Flushes this database to disk. This is needed if Properties.AutoFlush is set to false.">Database.Flush()</a> must be called. </p>
+
+<p>Definition at line <a class="el" href="_properties_8cs_source.html#l00159">159</a> of file <a class="el" href="_properties_8cs_source.html">Properties.cs</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a69c38e3c9519b1c4227c149052560624"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int <a class="el" href="class_nxdb_1_1_properties.html#a69c38e3c9519b1c4227c149052560624">Nxdb.Properties.MaximumIndexCategories</a><code> [static, get, set]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Specifies the maximum number of distinct values (categories) that will be remembered for a particular tag/attribute name or unique path. The value of this option will be assigned once to a new database, and cannot be changed after that. </p>
+
+<p>Definition at line <a class="el" href="_properties_8cs_source.html#l00099">99</a> of file <a class="el" href="_properties_8cs_source.html">Properties.cs</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a10e363dd1fea016fc7d76fa3dba9c6fd"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int <a class="el" href="class_nxdb_1_1_properties.html#a10e363dd1fea016fc7d76fa3dba9c6fd">Nxdb.Properties.MaximumStringIndexLength</a><code> [static, get, set]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Specifies the maximum length of strings that are to be indexed by the name, path, value, and full-text index structures. The value of this option will be assigned once to a new database, and cannot be changed after that. </p>
+
+<p>Definition at line <a class="el" href="_properties_8cs_source.html#l00087">87</a> of file <a class="el" href="_properties_8cs_source.html">Properties.cs</a>.</p>
 
 </div>
 </div>
@@ -159,9 +303,9 @@ Properties</h2></td></tr>
 </div>
 <div class="memdoc">
 
-<p>Gets or sets a value indicating whether databases should be optimized after update operations. </p>
+<p>Specifies whether databases should be optimized after update operations. If this is true and an <a class="el" href="class_nxdb_1_1_updates.html" title="Instances of this class should be placed around combined update operations. It&#39;s primary purpose is t...">Updates</a> instance exists, optimizations will be performed when the outer-most <a class="el" href="class_nxdb_1_1_updates.html" title="Instances of this class should be placed around combined update operations. It&#39;s primary purpose is t...">Updates</a> instance is disposed. Otherwise, optimizations will be performed immediately after each update operation. If this is false, the database will not be implicitly optimized and <a class="el" href="class_nxdb_1_1_database.html#a1732d38502f77bbb07815444ab6da0d8" title="Optimizes database structures and updates indexes.">Database.Optimize()</a> must be called. </p>
 
-<p>Definition at line <a class="el" href="_properties_8cs_source.html#l00098">98</a> of file <a class="el" href="_properties_8cs_source.html">Properties.cs</a>.</p>
+<p>Definition at line <a class="el" href="_properties_8cs_source.html#l00145">145</a> of file <a class="el" href="_properties_8cs_source.html">Properties.cs</a>.</p>
 
 </div>
 </div>
@@ -176,77 +320,9 @@ Properties</h2></td></tr>
 </div>
 <div class="memdoc">
 
-<p>Gets or sets a value indicating whether indexes should be incrementally updated. </p>
+<p>Gets or sets a value indicating whether indexes should be incrementally updated. The value of this option will be assigned once to a new database, and cannot be changed after that. The advantage of incremental indexes is that the value index structures will always be up-to-date. The downside is that updates will take a little bit longer. </p>
 
-<p>Definition at line <a class="el" href="_properties_8cs_source.html#l00080">80</a> of file <a class="el" href="_properties_8cs_source.html">Properties.cs</a>.</p>
-
-</div>
-</div>
-<a class="anchor" id="ab64e9536675f045f79e3735730a23e6d"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">bool <a class="el" href="class_nxdb_1_1_properties.html#ab64e9536675f045f79e3735730a23e6d">Nxdb.Properties.UseAttributeIndex</a><code> [static, get, set]</code></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-
-<p>Gets or sets a value indicating whether an attribute index should be used. </p>
-
-<p>Definition at line <a class="el" href="_properties_8cs_source.html#l00062">62</a> of file <a class="el" href="_properties_8cs_source.html">Properties.cs</a>.</p>
-
-</div>
-</div>
-<a class="anchor" id="a1c967c13054b17efa37ac19f68b8d8d9"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">bool <a class="el" href="class_nxdb_1_1_properties.html#a1c967c13054b17efa37ac19f68b8d8d9">Nxdb.Properties.UseFullTextIndex</a><code> [static, get, set]</code></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-
-<p>Gets or sets a value indicating whether a full text index should be used. </p>
-
-<p>Definition at line <a class="el" href="_properties_8cs_source.html#l00071">71</a> of file <a class="el" href="_properties_8cs_source.html">Properties.cs</a>.</p>
-
-</div>
-</div>
-<a class="anchor" id="a82c4754d9954a4fe1b06abedbbf518d2"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">bool <a class="el" href="class_nxdb_1_1_properties.html#a82c4754d9954a4fe1b06abedbbf518d2">Nxdb.Properties.UsePathIndex</a><code> [static, get, set]</code></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-
-<p>Gets or sets a value indicating whether a path index should be used. </p>
-
-<p>Definition at line <a class="el" href="_properties_8cs_source.html#l00044">44</a> of file <a class="el" href="_properties_8cs_source.html">Properties.cs</a>.</p>
-
-</div>
-</div>
-<a class="anchor" id="a4c235535033d1a6342c8877be80b0953"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">bool <a class="el" href="class_nxdb_1_1_properties.html#a4c235535033d1a6342c8877be80b0953">Nxdb.Properties.UseTextIndex</a><code> [static, get, set]</code></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-
-<p>Gets or sets a value indicating whether a text index should be used. </p>
-
-<p>Definition at line <a class="el" href="_properties_8cs_source.html#l00053">53</a> of file <a class="el" href="_properties_8cs_source.html">Properties.cs</a>.</p>
+<p>Definition at line <a class="el" href="_properties_8cs_source.html#l00112">112</a> of file <a class="el" href="_properties_8cs_source.html">Properties.cs</a>.</p>
 
 </div>
 </div>

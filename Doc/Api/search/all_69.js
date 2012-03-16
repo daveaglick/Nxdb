@@ -1,6 +1,7 @@
 var searchData=
 [
-  ['icustompersister',['ICustomPersister',['../interface_nxdb_1_1_persistence_1_1_i_custom_persister.html',1,'Nxdb::Persistence']]],
+  ['icustompersistence',['ICustomPersistence',['../interface_nxdb_1_1_persistence_1_1_i_custom_persistence.html',1,'Nxdb::Persistence']]],
+  ['icustompersistence_2ecs',['ICustomPersistence.cs',['../_i_custom_persistence_8cs.html',1,'']]],
   ['id',['Id',['../class_nxdb_1_1_node_1_1_node.html#a7ae381643338ba30bfd541f0ed37a850',1,'Nxdb::Node::Node']]],
   ['idomnode',['IDomNode',['../interface_nxdb_1_1_dom_1_1_i_dom_node.html',1,'Nxdb::Dom']]],
   ['idomnode_2ecs',['IDomNode.cs',['../_i_dom_node_8cs.html',1,'']]],

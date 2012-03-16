@@ -127,6 +127,33 @@ namespace NxdbTests
         string ToString(string elementName);
     }
 
+public class Vehicle
+{
+    [PersistentAttribute]
+    private int _numberWheels;
+
+    [PersistentAttribute]
+    private bool _isCar;
+
+    public int NumberWheels
+    {
+        get { return _numberWheels; }
+        set
+        {
+            _numberWheels = value;
+            _isCar = value == 4;
+        }
+    }
+
+    public bool IsCar
+    {
+        get { return _isCar; }
+    }
+
+    [PersistentElement]
+    public string Model { get; set; }
+}
+
     [XmlSerializerPersister(Indent = false)]
     public class XmlSerializerPersistentClass : IPersistentClass
     {

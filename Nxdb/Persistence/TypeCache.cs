@@ -117,7 +117,7 @@ namespace Nxdb.Persistence
             {
                 if(_persister == null)
                 {
-                    _persister = typeof(ICustomPersister).IsAssignableFrom(_type)
+                    _persister = typeof(ICustomPersistence).IsAssignableFrom(_type)
                         ? new CustomPersister() : PersisterAttribute.Persister;
                 }
                 return _persister;

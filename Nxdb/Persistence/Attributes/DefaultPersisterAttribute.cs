@@ -22,6 +22,9 @@ using System.Text;
 
 namespace Nxdb.Persistence.Attributes
 {
+    /// <summary>
+    /// Indicates that the class this is applied to should use the default persister.
+    /// </summary>
     public class DefaultPersisterAttribute : PersisterAttribute
     {
         private readonly DefaultPersister _persister = new DefaultPersister();

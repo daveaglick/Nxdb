@@ -23,6 +23,10 @@ using System.Xml;
 
 namespace Nxdb.Persistence.Attributes
 {
+    /// <summary>
+    /// Indicates that the class this is applied to should use the .NET XmlSerializer
+    /// for serialization and deserialization.
+    /// </summary>
     public class XmlSerializerPersisterAttribute : PersisterAttribute
     {
         private XmlSerializerPersister _persister = null;

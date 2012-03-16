@@ -469,7 +469,7 @@ namespace Nxdb
         }
 
         /// <summary>
-        /// Optimizes database structures.
+        /// Optimizes database structures and updates indexes.
         /// </summary>
         public void Optimize()
         {
@@ -478,12 +478,27 @@ namespace Nxdb
         }
 
         /// <summary>
-        /// Optimizes database structures and minimizes size.
+        /// Optimizes database structures and updates indexes. The internal
+        /// database structures are completely rebuilt which often leads to
+        /// a reduction of the total database size.
         /// </summary>
         public void OptimizeAll()
         {
             if (_data == null) throw new ObjectDisposedException("Database");
             Updates.Do(new DBOptimize(Data, Context, true, null));
+        }
+
+        /// <summary>
+        /// Flushes this database to disk. This is needed if Properties.AutoFlush
+        /// is set to false.
+        /// </summary>
+        public void Flush()
+        {
+            if (_data == null) throw new ObjectDisposedException("Database");
+            bool autoFlush = Nxdb.Properties.AutoFlush;
+            Nxdb.Properties.AutoFlush = true;
+            _data.flush();
+            Nxdb.Properties.AutoFlush = autoFlush;
         }
 
         /// <summary>

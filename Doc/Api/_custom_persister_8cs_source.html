@@ -94,36 +94,27 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <a name="l00019"></a>00019 
 <a name="l00020"></a>00020 <span class="keyword">namespace </span>Nxdb.Persistence
 <a name="l00021"></a>00021 {
-<a name="l00025"></a><a class="code" href="interface_nxdb_1_1_persistence_1_1_i_custom_persister.html">00025</a>     <span class="keyword">public</span> <span class="keyword">interface </span><a class="code" href="interface_nxdb_1_1_persistence_1_1_i_custom_persister.html" title="Implement this interface to provide custom persistence logic on a per-object basis.">ICustomPersister</a>
-<a name="l00026"></a>00026     {
-<a name="l00031"></a>00031         <span class="keywordtype">void</span> Fetch(<a class="code" href="class_nxdb_1_1_node_1_1_element.html" title="Representation of an XML element node.">Element</a> element);
-<a name="l00032"></a>00032 
-<a name="l00037"></a>00037         <span class="keywordtype">object</span> Serialize();
-<a name="l00038"></a>00038 
-<a name="l00044"></a>00044         <span class="keywordtype">void</span> Store(<a class="code" href="class_nxdb_1_1_node_1_1_element.html" title="Representation of an XML element node.">Element</a> element, <span class="keywordtype">object</span> serialized);
-<a name="l00045"></a>00045     }
-<a name="l00046"></a>00046 
-<a name="l00047"></a>00047     <span class="keyword">internal</span> <span class="keyword">class </span>CustomPersister : <a class="code" href="class_nxdb_1_1_persistence_1_1_persister.html" title="This is the base class for reusable persisters. To add new persisters, create a derived class and ove...">Persister</a>
-<a name="l00048"></a>00048     {
-<a name="l00049"></a>00049         <span class="keyword">internal</span> <span class="keyword">override</span> <span class="keywordtype">void</span> Fetch(<a class="code" href="class_nxdb_1_1_node_1_1_element.html" title="Representation of an XML element node.">Element</a> element, <span class="keywordtype">object</span> target, TypeCache typeCache, Cache cache)
-<a name="l00050"></a>00050         {
-<a name="l00051"></a>00051             <span class="keywordflow">if</span> (target == null) <span class="keywordflow">return</span>;
-<a name="l00052"></a>00052             ((<a class="code" href="interface_nxdb_1_1_persistence_1_1_i_custom_persister.html" title="Implement this interface to provide custom persistence logic on a per-object basis.">ICustomPersister</a>)target).Fetch(element);
-<a name="l00053"></a>00053         }
-<a name="l00054"></a>00054 
-<a name="l00055"></a>00055         <span class="keyword">internal</span> <span class="keyword">override</span> <span class="keywordtype">object</span> Serialize(<span class="keywordtype">object</span> source, TypeCache typeCache, Cache cache)
-<a name="l00056"></a>00056         {
-<a name="l00057"></a>00057             <span class="keywordflow">if</span> (source == null) <span class="keywordflow">return</span> null;
-<a name="l00058"></a>00058             <span class="keywordflow">return</span> ((ICustomPersister)source).Serialize();
-<a name="l00059"></a>00059         }
-<a name="l00060"></a>00060 
-<a name="l00061"></a>00061         <span class="keyword">internal</span> <span class="keyword">override</span> <span class="keywordtype">void</span> Store(<a class="code" href="class_nxdb_1_1_node_1_1_element.html" title="Representation of an XML element node.">Element</a> element, <span class="keywordtype">object</span> serialized, <span class="keywordtype">object</span> source, TypeCache typeCache, Cache cache)
-<a name="l00062"></a>00062         {
-<a name="l00063"></a>00063             <span class="keywordflow">if</span> (source == null || serialized == null) <span class="keywordflow">return</span>;
-<a name="l00064"></a>00064             ((ICustomPersister)source).Store(element, serialized);
-<a name="l00065"></a>00065         }
-<a name="l00066"></a>00066     }
-<a name="l00067"></a>00067 }
+<a name="l00022"></a>00022     <span class="keyword">internal</span> <span class="keyword">class </span>CustomPersister : Persister
+<a name="l00023"></a>00023     {
+<a name="l00024"></a>00024         <span class="keyword">internal</span> <span class="keyword">override</span> <span class="keywordtype">void</span> Fetch(<a class="code" href="class_nxdb_1_1_node_1_1_element.html" title="Representation of an XML element node.">Element</a> element, <span class="keywordtype">object</span> target, TypeCache typeCache, Cache cache)
+<a name="l00025"></a>00025         {
+<a name="l00026"></a>00026             <span class="keywordflow">if</span> (target == null) <span class="keywordflow">return</span>;
+<a name="l00027"></a>00027             ((ICustomPersistence)target).Fetch(element);
+<a name="l00028"></a>00028         }
+<a name="l00029"></a>00029 
+<a name="l00030"></a>00030         <span class="keyword">internal</span> <span class="keyword">override</span> <span class="keywordtype">object</span> Serialize(<span class="keywordtype">object</span> source, TypeCache typeCache, Cache cache)
+<a name="l00031"></a>00031         {
+<a name="l00032"></a>00032             <span class="keywordflow">if</span> (source == null) <span class="keywordflow">return</span> null;
+<a name="l00033"></a>00033             <span class="keywordflow">return</span> ((ICustomPersistence)source).Serialize();
+<a name="l00034"></a>00034         }
+<a name="l00035"></a>00035 
+<a name="l00036"></a>00036         <span class="keyword">internal</span> <span class="keyword">override</span> <span class="keywordtype">void</span> Store(<a class="code" href="class_nxdb_1_1_node_1_1_element.html" title="Representation of an XML element node.">Element</a> element, <span class="keywordtype">object</span> serialized, <span class="keywordtype">object</span> source, TypeCache typeCache, Cache cache)
+<a name="l00037"></a>00037         {
+<a name="l00038"></a>00038             <span class="keywordflow">if</span> (source == null || serialized == null) <span class="keywordflow">return</span>;
+<a name="l00039"></a>00039             ((ICustomPersistence)source).Store(element, serialized);
+<a name="l00040"></a>00040         }
+<a name="l00041"></a>00041     }
+<a name="l00042"></a>00042 }
 </pre></div></div><!-- contents -->
 
 

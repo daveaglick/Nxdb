@@ -39,5 +39,5 @@ var searchData=
   ['domtext',['DomText',['../class_nxdb_1_1_dom_1_1_dom_text.html',1,'Nxdb::Dom']]],
   ['domtext_2ecs',['DomText.cs',['../_dom_text_8cs.html',1,'']]],
   ['drop',['Drop',['../class_nxdb_1_1_database.html#aad55be59ba9d2314687f5dd4c96f9e4e',1,'Nxdb::Database']]],
-  ['dropondispose',['DropOnDispose',['../class_nxdb_1_1_properties.html#a7a704d274cf9ad07e7ab349ab20da7d7',1,'Nxdb.Properties.DropOnDispose()'],['../class_nxdb_1_1_nxdb_prop.html#a9ac7e76fe19d792893a1ede5504588cd',1,'Nxdb.NxdbProp.DROPONDISPOSE()']]]
+  ['dropondispose',['DROPONDISPOSE',['../class_nxdb_1_1_nxdb_prop.html#a9ac7e76fe19d792893a1ede5504588cd',1,'Nxdb.NxdbProp.DROPONDISPOSE()'],['../class_nxdb_1_1_properties.html#a7a704d274cf9ad07e7ab349ab20da7d7',1,'Nxdb.Properties.DropOnDispose()']]]
 ];

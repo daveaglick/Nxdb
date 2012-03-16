@@ -42,7 +42,7 @@ namespace Nxdb
     public class Updates : IDisposable
     {
         private static readonly Stack<Updates> UpdatesStack = new Stack<Updates>();
-        private static readonly HashSet<Database> NeedsOptimize = new HashSet<Database>(); 
+        private static readonly HashSet<Database> NeedsCleanup = new HashSet<Database>(); 
         private static QueryContext _queryContext = GetQueryContext();
 
         private bool _disposed = false;
@@ -59,7 +59,7 @@ namespace Nxdb
         {
             if (_disposed) return;
             while(UpdatesStack.Count > 0 && UpdatesStack.Pop() != this) {}
-            Optimize(null);
+            Cleanup(null);
             _disposed = true;
         }
         
@@ -106,7 +106,7 @@ namespace Nxdb
                 QueryContext.updates.apply();
 
                 // Optimize databases
-                Optimize(databases);
+                Cleanup(databases);
 
                 // Update databases
                 foreach (Database database in databases)
@@ -119,58 +119,74 @@ namespace Nxdb
             _queryContext = GetQueryContext();
         }
 
-        // Optimizes all databases that need it, but only if no Updates instances exist
-        private static void Optimize(IEnumerable<Database> databases)
+        // Cleans up (optimizes and flushes) all databases that need it, but only if no Updates instances exist
+        private static void Cleanup(IEnumerable<Database> databases)
         {
+            // Check if we have open Updates instances
             if (UpdatesStack.Count == 0)
             {   
                 // Not in an Updates instance
-                if (Properties.OptimizeAfterUpdates)
+                if( NeedsCleanup.Count == 0 )
                 {
-                    // Optimization after updates is enabled
-                    if( NeedsOptimize.Count == 0 )
+                    // No other databases in the cleanup queue
+                    if (databases != null)
                     {
-                        // No other databases in the optimization queue
-                        if (databases != null)
+                        // Currently have databases to cleanup
+                        foreach (Database database in databases)
                         {
-                            // Currently have databases to optimize
-                            foreach (Database database in databases)
+                            // Flush the database
+                            if (!Properties.AutoFlush && Properties.FlushAfterUpdates)
                             {
-                                // Optimize the databases
-                                org.basex.core.cmd.Optimize.optimize(database.Data, null);
+                                database.Flush();
+                            }
+
+                            // Optimize the database
+                            if (Properties.OptimizeAfterUpdates)
+                            {
+                                Optimize.optimize(database.Data, null);
                             }
                         }
                     }
-                    else
+                }
+                else
+                {
+                    // Other databases in the cleanup queue
+                    if (databases != null)
                     {
-                        // Other databases in the optimization queue
-                        if (databases != null)
+                        // And current databases - combine them with the queue first
+                        // (so we don't get duplicates and cleanup a database twice)
+                        foreach (Database database in databases)
                         {
-                            // And current databases - combine them with the queue first
-                            // (so we don't get duplicates and optimize a database twice)
-                            foreach (Database database in databases)
-                            {
-                                NeedsOptimize.Add(database);
-                            }
+                            NeedsCleanup.Add(database);
+                        }
+                    }
+
+                    // Cleanup pending and current databases
+                    foreach (Database database in NeedsCleanup.Where(d => d.Data != null))
+                    {
+                        // Flush the database
+                        if (!Properties.AutoFlush && Properties.FlushAfterUpdates)
+                        {
+                            database.Flush();
                         }
 
-                        // Optimize pending and current databases
-                        foreach (Database database in NeedsOptimize.Where(d => d.Data != null))
+                        // Optimize the database
+                        if (Properties.OptimizeAfterUpdates)
                         {
-                            org.basex.core.cmd.Optimize.optimize(database.Data, null);
+                            Optimize.optimize(database.Data, null);
                         }
                     }
                 }
 
-                // We've optimized all pending and current databases, so clear the queue
-                NeedsOptimize.Clear();
+                // We've cleaned up all pending and current databases, so clear the queue
+                NeedsCleanup.Clear();
             }
             else if(databases != null)
             {
-                // In an Updates instance, just add the new databases to the optimization queue
+                // In an Updates instance, just add the new databases to the cleanup queue
                 foreach (Database database in databases)
                 {
-                    NeedsOptimize.Add(database);
+                    NeedsCleanup.Add(database);
                 }
             }
         }

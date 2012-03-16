@@ -12,10 +12,11 @@ var searchData=
   ['attachitems',['AttachItems',['../class_nxdb_1_1_persistence_1_1_attributes_1_1_persistent_collection_attribute.html#a40ad23a9b9a02016926e3f7c3694d8a7',1,'Nxdb::Persistence::Attributes::PersistentCollectionAttribute']]],
   ['attachkeys',['AttachKeys',['../class_nxdb_1_1_persistence_1_1_attributes_1_1_persistent_kvp_collection_attribute.html#ae34fb54c2643017baa4bacdc41f67d01',1,'Nxdb::Persistence::Attributes::PersistentKvpCollectionAttribute']]],
   ['attachvalues',['AttachValues',['../class_nxdb_1_1_persistence_1_1_attributes_1_1_persistent_kvp_collection_attribute.html#a40be89e5231eb2d1cc9ea3f9ece97422',1,'Nxdb::Persistence::Attributes::PersistentKvpCollectionAttribute']]],
-  ['attribute',['Attribute',['../class_nxdb_1_1_node_1_1_attribute.html#af9f8df4f65f36c540e5243a575eb8a63',1,'Nxdb.Node.Attribute.Attribute()'],['../class_nxdb_1_1_node_1_1_element.html#a7f9af55a9401ebc0ac56d5c7e8429025',1,'Nxdb.Node.Element.Attribute()']]],
   ['attribute',['Attribute',['../class_nxdb_1_1_node_1_1_attribute.html',1,'Nxdb::Node']]],
+  ['attribute',['Attribute',['../class_nxdb_1_1_node_1_1_attribute.html#af9f8df4f65f36c540e5243a575eb8a63',1,'Nxdb.Node.Attribute.Attribute()'],['../class_nxdb_1_1_node_1_1_element.html#a7f9af55a9401ebc0ac56d5c7e8429025',1,'Nxdb.Node.Element.Attribute()']]],
   ['attribute_2ecs',['Attribute.cs',['../_attribute_8cs.html',1,'']]],
   ['attributes',['Attributes',['../class_nxdb_1_1_dom_1_1_dom_element.html#a334a24c4374427be0213cc77c66b005b',1,'Nxdb.Dom.DomElement.Attributes()'],['../class_nxdb_1_1_node_1_1_node.html#a4ad87f673b0ba0211bbe67d4f1554134',1,'Nxdb.Node.Node.Attributes()']]],
   ['attributevalue',['AttributeValue',['../class_nxdb_1_1_node_1_1_element.html#a3a269736d27d392318080d00e00207a5',1,'Nxdb::Node::Element']]],
+  ['autoflush',['AutoFlush',['../class_nxdb_1_1_properties.html#a7414dec4ad4d04f83daefdc932cf4ac0',1,'Nxdb::Properties']]],
   ['autorefresh',['AutoRefresh',['../class_nxdb_1_1_persistence_1_1_manager.html#a03c28548a0a427e457f9909f1ba2a9c8',1,'Nxdb::Persistence::Manager']]]
 ];

@@ -106,81 +106,117 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <a name="l00037"></a>00037             <span class="keyword">set</span> { Set(<a class="code" href="class_nxdb_1_1_database.html" title="Represents a single database into which all documents should be stored. The documents in the database...">Database</a>.Context.prop, Prop.CHOP, value); }
 <a name="l00038"></a>00038         }
 <a name="l00039"></a>00039 
-<a name="l00043"></a>00043         <span class="keyword">public</span> <span class="keyword">static</span> <span class="keywordtype">bool</span> <a class="code" href="class_nxdb_1_1_properties.html#a82c4754d9954a4fe1b06abedbbf518d2" title="Gets or sets a value indicating whether a path index should be used.">UsePathIndex</a>
-<a name="l00044"></a><a class="code" href="class_nxdb_1_1_properties.html#a82c4754d9954a4fe1b06abedbbf518d2">00044</a>         {
-<a name="l00045"></a>00045             <span class="keyword">get</span> { <span class="keywordflow">return</span> Is(<a class="code" href="class_nxdb_1_1_database.html" title="Represents a single database into which all documents should be stored. The documents in the database...">Database</a>.Context.prop, Prop.PATHINDEX); }
-<a name="l00046"></a>00046             <span class="keyword">set</span> { Set(<a class="code" href="class_nxdb_1_1_database.html" title="Represents a single database into which all documents should be stored. The documents in the database...">Database</a>.Context.prop, Prop.PATHINDEX, value); }
-<a name="l00047"></a>00047         }
-<a name="l00048"></a>00048 
-<a name="l00052"></a>00052         <span class="keyword">public</span> <span class="keyword">static</span> <span class="keywordtype">bool</span> <a class="code" href="class_nxdb_1_1_properties.html#a4c235535033d1a6342c8877be80b0953" title="Gets or sets a value indicating whether a text index should be used.">UseTextIndex</a>
-<a name="l00053"></a><a class="code" href="class_nxdb_1_1_properties.html#a4c235535033d1a6342c8877be80b0953">00053</a>         {
-<a name="l00054"></a>00054             <span class="keyword">get</span> { <span class="keywordflow">return</span> Is(<a class="code" href="class_nxdb_1_1_database.html" title="Represents a single database into which all documents should be stored. The documents in the database...">Database</a>.Context.prop, Prop.TEXTINDEX); }
-<a name="l00055"></a>00055             <span class="keyword">set</span> { Set(<a class="code" href="class_nxdb_1_1_database.html" title="Represents a single database into which all documents should be stored. The documents in the database...">Database</a>.Context.prop, Prop.TEXTINDEX, value); }
-<a name="l00056"></a>00056         }
-<a name="l00057"></a>00057 
-<a name="l00061"></a>00061         <span class="keyword">public</span> <span class="keyword">static</span> <span class="keywordtype">bool</span> <a class="code" href="class_nxdb_1_1_properties.html#ab64e9536675f045f79e3735730a23e6d" title="Gets or sets a value indicating whether an attribute index should be used.">UseAttributeIndex</a>
-<a name="l00062"></a><a class="code" href="class_nxdb_1_1_properties.html#ab64e9536675f045f79e3735730a23e6d">00062</a>         {
-<a name="l00063"></a>00063             <span class="keyword">get</span> { <span class="keywordflow">return</span> Is(<a class="code" href="class_nxdb_1_1_database.html" title="Represents a single database into which all documents should be stored. The documents in the database...">Database</a>.Context.prop, Prop.ATTRINDEX); }
-<a name="l00064"></a>00064             <span class="keyword">set</span> { Set(<a class="code" href="class_nxdb_1_1_database.html" title="Represents a single database into which all documents should be stored. The documents in the database...">Database</a>.Context.prop, Prop.ATTRINDEX, value); }
-<a name="l00065"></a>00065         }
-<a name="l00066"></a>00066 
-<a name="l00070"></a>00070         <span class="keyword">public</span> <span class="keyword">static</span> <span class="keywordtype">bool</span> <a class="code" href="class_nxdb_1_1_properties.html#a1c967c13054b17efa37ac19f68b8d8d9" title="Gets or sets a value indicating whether a full text index should be used.">UseFullTextIndex</a>
-<a name="l00071"></a><a class="code" href="class_nxdb_1_1_properties.html#a1c967c13054b17efa37ac19f68b8d8d9">00071</a>         {
-<a name="l00072"></a>00072             <span class="keyword">get</span> { <span class="keywordflow">return</span> Is(<a class="code" href="class_nxdb_1_1_database.html" title="Represents a single database into which all documents should be stored. The documents in the database...">Database</a>.Context.prop, Prop.FTINDEX); }
-<a name="l00073"></a>00073             <span class="keyword">set</span> { Set(<a class="code" href="class_nxdb_1_1_database.html" title="Represents a single database into which all documents should be stored. The documents in the database...">Database</a>.Context.prop, Prop.FTINDEX, value); }
-<a name="l00074"></a>00074         }
-<a name="l00075"></a>00075 
-<a name="l00079"></a>00079         <span class="keyword">public</span> <span class="keyword">static</span> <span class="keywordtype">bool</span> <a class="code" href="class_nxdb_1_1_properties.html#af57d7b793d25d8310e65c055c1877393" title="Gets or sets a value indicating whether indexes should be incrementally updated.">UpdateIndexes</a>
-<a name="l00080"></a><a class="code" href="class_nxdb_1_1_properties.html#af57d7b793d25d8310e65c055c1877393">00080</a>         {
-<a name="l00081"></a>00081             <span class="keyword">get</span> { <span class="keywordflow">return</span> Is(<a class="code" href="class_nxdb_1_1_database.html" title="Represents a single database into which all documents should be stored. The documents in the database...">Database</a>.Context.prop, Prop.UPDINDEX); }
-<a name="l00082"></a>00082             <span class="keyword">set</span> { Set(<a class="code" href="class_nxdb_1_1_database.html" title="Represents a single database into which all documents should be stored. The documents in the database...">Database</a>.Context.prop, Prop.UPDINDEX, value); }
-<a name="l00083"></a>00083         }
-<a name="l00084"></a>00084 
-<a name="l00088"></a>00088         <span class="keyword">public</span> <span class="keyword">static</span> <span class="keywordtype">bool</span> <a class="code" href="class_nxdb_1_1_properties.html#a7a704d274cf9ad07e7ab349ab20da7d7" title="Gets or sets a value indicating whether databases should be dropped (deleted from disk) when disposed...">DropOnDispose</a>
-<a name="l00089"></a><a class="code" href="class_nxdb_1_1_properties.html#a7a704d274cf9ad07e7ab349ab20da7d7">00089</a>         {
-<a name="l00090"></a>00090             <span class="keyword">get</span> { <span class="keywordflow">return</span> Is(<a class="code" href="class_nxdb_1_1_database.html" title="Represents a single database into which all documents should be stored. The documents in the database...">Database</a>.Properties, <a class="code" href="class_nxdb_1_1_nxdb_prop.html" title="Properties container for Nxdb-specific properties. Intended for BaseX - not to be used directly by Nx...">NxdbProp</a>.<a class="code" href="class_nxdb_1_1_nxdb_prop.html#a9ac7e76fe19d792893a1ede5504588cd">DROPONDISPOSE</a>); }
-<a name="l00091"></a>00091             <span class="keyword">set</span> { Set(<a class="code" href="class_nxdb_1_1_database.html" title="Represents a single database into which all documents should be stored. The documents in the database...">Database</a>.Properties, <a class="code" href="class_nxdb_1_1_nxdb_prop.html" title="Properties container for Nxdb-specific properties. Intended for BaseX - not to be used directly by Nx...">NxdbProp</a>.<a class="code" href="class_nxdb_1_1_nxdb_prop.html#a9ac7e76fe19d792893a1ede5504588cd">DROPONDISPOSE</a>, value); }
-<a name="l00092"></a>00092         }
-<a name="l00093"></a>00093 
-<a name="l00097"></a>00097         <span class="keyword">public</span> <span class="keyword">static</span> <span class="keywordtype">bool</span> <a class="code" href="class_nxdb_1_1_properties.html#a26a8194f20b7452a2ef049d07d7047c6" title="Gets or sets a value indicating whether databases should be optimized after update operations...">OptimizeAfterUpdates</a>
-<a name="l00098"></a><a class="code" href="class_nxdb_1_1_properties.html#a26a8194f20b7452a2ef049d07d7047c6">00098</a>         {
-<a name="l00099"></a>00099             <span class="keyword">get</span> { <span class="keywordflow">return</span> Is(<a class="code" href="class_nxdb_1_1_database.html" title="Represents a single database into which all documents should be stored. The documents in the database...">Database</a>.Properties, <a class="code" href="class_nxdb_1_1_nxdb_prop.html" title="Properties container for Nxdb-specific properties. Intended for BaseX - not to be used directly by Nx...">NxdbProp</a>.<a class="code" href="class_nxdb_1_1_nxdb_prop.html#aa6a360db03b947f26cdeeebacdc92ea4">OPTIMIZEAFTERUPDATES</a>); }
-<a name="l00100"></a>00100             <span class="keyword">set</span> { Set(<a class="code" href="class_nxdb_1_1_database.html" title="Represents a single database into which all documents should be stored. The documents in the database...">Database</a>.Properties, <a class="code" href="class_nxdb_1_1_nxdb_prop.html" title="Properties container for Nxdb-specific properties. Intended for BaseX - not to be used directly by Nx...">NxdbProp</a>.<a class="code" href="class_nxdb_1_1_nxdb_prop.html#aa6a360db03b947f26cdeeebacdc92ea4">OPTIMIZEAFTERUPDATES</a>, value); }
-<a name="l00101"></a>00101         }
-<a name="l00102"></a>00102 
-<a name="l00103"></a>00103         <span class="keyword">private</span> <span class="keyword">static</span> <span class="keywordtype">bool</span> Is(AProp prop, <span class="keywordtype">object</span>[] key)
-<a name="l00104"></a>00104         {
-<a name="l00105"></a>00105             <span class="keywordflow">return</span> prop.@is(key);
-<a name="l00106"></a>00106         }
-<a name="l00107"></a>00107 
-<a name="l00108"></a>00108         <span class="keyword">private</span> <span class="keyword">static</span> <span class="keywordtype">string</span> Get(AProp prop, <span class="keywordtype">object</span>[] key)
-<a name="l00109"></a>00109         {
-<a name="l00110"></a>00110             <span class="keywordflow">return</span> prop.get(key);
-<a name="l00111"></a>00111         }
-<a name="l00112"></a>00112 
-<a name="l00113"></a>00113         <span class="keyword">private</span> <span class="keyword">static</span> <span class="keywordtype">void</span> Set(AProp prop, <span class="keywordtype">object</span>[] key, <span class="keywordtype">bool</span> value)
-<a name="l00114"></a>00114         {
-<a name="l00115"></a>00115             prop.set(key, value);
-<a name="l00116"></a>00116             prop.write();
-<a name="l00117"></a>00117         }
-<a name="l00118"></a>00118 
-<a name="l00119"></a>00119         <span class="keyword">private</span> <span class="keyword">static</span> <span class="keywordtype">void</span> Set(AProp prop, <span class="keywordtype">object</span>[] key, <span class="keywordtype">string</span> value)
-<a name="l00120"></a>00120         {
-<a name="l00121"></a>00121             prop.set(key, value);
-<a name="l00122"></a>00122             prop.write();
-<a name="l00123"></a>00123         }
-<a name="l00124"></a>00124     }
-<a name="l00125"></a>00125 
-<a name="l00129"></a><a class="code" href="class_nxdb_1_1_nxdb_prop.html">00129</a>     <span class="keyword">public</span> <span class="keyword">class </span><a class="code" href="class_nxdb_1_1_nxdb_prop.html" title="Properties container for Nxdb-specific properties. Intended for BaseX - not to be used directly by Nx...">NxdbProp</a> : AProp
-<a name="l00130"></a>00130     {
-<a name="l00131"></a><a class="code" href="class_nxdb_1_1_nxdb_prop.html#a9ac7e76fe19d792893a1ede5504588cd">00131</a>         <span class="keyword">public</span> <span class="keyword">static</span> readonly <span class="keywordtype">object</span>[] <a class="code" href="class_nxdb_1_1_nxdb_prop.html#a9ac7e76fe19d792893a1ede5504588cd">DROPONDISPOSE</a> = { <span class="stringliteral">&quot;DROPONDISPOSE&quot;</span>, <span class="keyword">new</span> java.lang.Boolean(<span class="keyword">false</span>) };
-<a name="l00132"></a><a class="code" href="class_nxdb_1_1_nxdb_prop.html#aa6a360db03b947f26cdeeebacdc92ea4">00132</a>         <span class="keyword">public</span> <span class="keyword">static</span> readonly <span class="keywordtype">object</span>[] <a class="code" href="class_nxdb_1_1_nxdb_prop.html#aa6a360db03b947f26cdeeebacdc92ea4">OPTIMIZEAFTERUPDATES</a> = { <span class="stringliteral">&quot;OPTIMIZEAFTERUPDATES&quot;</span>, <span class="keyword">new</span> java.lang.Boolean(<span class="keyword">true</span>) };
-<a name="l00133"></a>00133 
-<a name="l00134"></a>00134         <span class="keyword">internal</span> <a class="code" href="class_nxdb_1_1_nxdb_prop.html" title="Properties container for Nxdb-specific properties. Intended for BaseX - not to be used directly by Nx...">NxdbProp</a>() : base(<span class="stringliteral">&quot;.nxdb&quot;</span>)
-<a name="l00135"></a>00135         {
-<a name="l00136"></a>00136         }
-<a name="l00137"></a>00137     }
-<a name="l00138"></a>00138 }
+<a name="l00044"></a>00044         <span class="keyword">public</span> <span class="keyword">static</span> <span class="keywordtype">bool</span> <a class="code" href="class_nxdb_1_1_properties.html#a392d52223cc45314db8b145b4f47c3b0" title="Creates a path index whenever a new database is created. A path index helps to optimize location path...">CreatePathIndex</a>
+<a name="l00045"></a><a class="code" href="class_nxdb_1_1_properties.html#a392d52223cc45314db8b145b4f47c3b0">00045</a>         {
+<a name="l00046"></a>00046             <span class="keyword">get</span> { <span class="keywordflow">return</span> Is(<a class="code" href="class_nxdb_1_1_database.html" title="Represents a single database into which all documents should be stored. The documents in the database...">Database</a>.Context.prop, Prop.PATHINDEX); }
+<a name="l00047"></a>00047             <span class="keyword">set</span> { Set(<a class="code" href="class_nxdb_1_1_database.html" title="Represents a single database into which all documents should be stored. The documents in the database...">Database</a>.Context.prop, Prop.PATHINDEX, value); }
+<a name="l00048"></a>00048         }
+<a name="l00049"></a>00049 
+<a name="l00054"></a>00054         <span class="keyword">public</span> <span class="keyword">static</span> <span class="keywordtype">bool</span> <a class="code" href="class_nxdb_1_1_properties.html#a1ed308d63dbfd3d5faa475d53db1eb80" title="Creates a text index whenever a new database is created. A text index speeds up queries with equality...">CreateTextIndex</a>
+<a name="l00055"></a><a class="code" href="class_nxdb_1_1_properties.html#a1ed308d63dbfd3d5faa475d53db1eb80">00055</a>         {
+<a name="l00056"></a>00056             <span class="keyword">get</span> { <span class="keywordflow">return</span> Is(<a class="code" href="class_nxdb_1_1_database.html" title="Represents a single database into which all documents should be stored. The documents in the database...">Database</a>.Context.prop, Prop.TEXTINDEX); }
+<a name="l00057"></a>00057             <span class="keyword">set</span> { Set(<a class="code" href="class_nxdb_1_1_database.html" title="Represents a single database into which all documents should be stored. The documents in the database...">Database</a>.Context.prop, Prop.TEXTINDEX, value); }
+<a name="l00058"></a>00058         }
+<a name="l00059"></a>00059 
+<a name="l00064"></a>00064         <span class="keyword">public</span> <span class="keyword">static</span> <span class="keywordtype">bool</span> <a class="code" href="class_nxdb_1_1_properties.html#a49a03f9ce98bf2c3a848ed6a875744a6" title="Creates an attribute index whenever a new database is created. An attribute index speeds up queries w...">CreateAttributeIndex</a>
+<a name="l00065"></a><a class="code" href="class_nxdb_1_1_properties.html#a49a03f9ce98bf2c3a848ed6a875744a6">00065</a>         {
+<a name="l00066"></a>00066             <span class="keyword">get</span> { <span class="keywordflow">return</span> Is(<a class="code" href="class_nxdb_1_1_database.html" title="Represents a single database into which all documents should be stored. The documents in the database...">Database</a>.Context.prop, Prop.ATTRINDEX); }
+<a name="l00067"></a>00067             <span class="keyword">set</span> { Set(<a class="code" href="class_nxdb_1_1_database.html" title="Represents a single database into which all documents should be stored. The documents in the database...">Database</a>.Context.prop, Prop.ATTRINDEX, value); }
+<a name="l00068"></a>00068         }
+<a name="l00069"></a>00069 
+<a name="l00074"></a>00074         <span class="keyword">public</span> <span class="keyword">static</span> <span class="keywordtype">bool</span> <a class="code" href="class_nxdb_1_1_properties.html#af84682c0964a64e8ce00e38ea8dc2426" title="Creates a full-text index whenever a new database is created. A full-text index speeds up queries wit...">CreateFullTextIndex</a>
+<a name="l00075"></a><a class="code" href="class_nxdb_1_1_properties.html#af84682c0964a64e8ce00e38ea8dc2426">00075</a>         {
+<a name="l00076"></a>00076             <span class="keyword">get</span> { <span class="keywordflow">return</span> Is(<a class="code" href="class_nxdb_1_1_database.html" title="Represents a single database into which all documents should be stored. The documents in the database...">Database</a>.Context.prop, Prop.FTINDEX); }
+<a name="l00077"></a>00077             <span class="keyword">set</span> { Set(<a class="code" href="class_nxdb_1_1_database.html" title="Represents a single database into which all documents should be stored. The documents in the database...">Database</a>.Context.prop, Prop.FTINDEX, value); }
+<a name="l00078"></a>00078         }
+<a name="l00079"></a>00079 
+<a name="l00086"></a>00086         <span class="keyword">public</span> <span class="keyword">static</span> <span class="keywordtype">int</span> <a class="code" href="class_nxdb_1_1_properties.html#a10e363dd1fea016fc7d76fa3dba9c6fd" title="Specifies the maximum length of strings that are to be indexed by the name, path, value...">MaximumStringIndexLength</a>
+<a name="l00087"></a><a class="code" href="class_nxdb_1_1_properties.html#a10e363dd1fea016fc7d76fa3dba9c6fd">00087</a>         {
+<a name="l00088"></a>00088             <span class="keyword">get</span> { <span class="keywordflow">return</span> Num(<a class="code" href="class_nxdb_1_1_database.html" title="Represents a single database into which all documents should be stored. The documents in the database...">Database</a>.Context.prop, Prop.MAXLEN); }
+<a name="l00089"></a>00089             <span class="keyword">set</span> { Set(<a class="code" href="class_nxdb_1_1_database.html" title="Represents a single database into which all documents should be stored. The documents in the database...">Database</a>.Context.prop, Prop.MAXLEN, value); }
+<a name="l00090"></a>00090         }
+<a name="l00091"></a>00091 
+<a name="l00098"></a>00098         <span class="keyword">public</span> <span class="keyword">static</span> <span class="keywordtype">int</span> <a class="code" href="class_nxdb_1_1_properties.html#a69c38e3c9519b1c4227c149052560624" title="Specifies the maximum number of distinct values (categories) that will be remembered for a particular...">MaximumIndexCategories</a>
+<a name="l00099"></a><a class="code" href="class_nxdb_1_1_properties.html#a69c38e3c9519b1c4227c149052560624">00099</a>         {
+<a name="l00100"></a>00100             <span class="keyword">get</span> { <span class="keywordflow">return</span> Num(<a class="code" href="class_nxdb_1_1_database.html" title="Represents a single database into which all documents should be stored. The documents in the database...">Database</a>.Context.prop, Prop.MAXCATS); }
+<a name="l00101"></a>00101             <span class="keyword">set</span> { Set(<a class="code" href="class_nxdb_1_1_database.html" title="Represents a single database into which all documents should be stored. The documents in the database...">Database</a>.Context.prop, Prop.MAXCATS, value); }
+<a name="l00102"></a>00102         }
+<a name="l00103"></a>00103 
+<a name="l00111"></a>00111         <span class="keyword">public</span> <span class="keyword">static</span> <span class="keywordtype">bool</span> <a class="code" href="class_nxdb_1_1_properties.html#af57d7b793d25d8310e65c055c1877393" title="Gets or sets a value indicating whether indexes should be incrementally updated. The value of this op...">UpdateIndexes</a>
+<a name="l00112"></a><a class="code" href="class_nxdb_1_1_properties.html#af57d7b793d25d8310e65c055c1877393">00112</a>         {
+<a name="l00113"></a>00113             <span class="keyword">get</span> { <span class="keywordflow">return</span> Is(<a class="code" href="class_nxdb_1_1_database.html" title="Represents a single database into which all documents should be stored. The documents in the database...">Database</a>.Context.prop, Prop.UPDINDEX); }
+<a name="l00114"></a>00114             <span class="keyword">set</span> { Set(<a class="code" href="class_nxdb_1_1_database.html" title="Represents a single database into which all documents should be stored. The documents in the database...">Database</a>.Context.prop, Prop.UPDINDEX, value); }
+<a name="l00115"></a>00115         }
+<a name="l00116"></a>00116 
+<a name="l00122"></a>00122         <span class="keyword">public</span> <span class="keyword">static</span> <span class="keywordtype">bool</span> <a class="code" href="class_nxdb_1_1_properties.html#a7414dec4ad4d04f83daefdc932cf4ac0" title="Flushes database buffers to disk after each update. If this option is set to false, bulk operations (multiple single updates) will be evaluated faster. As a drawback, the chance of data loss increases if the database is not explicitly flushed.">AutoFlush</a>
+<a name="l00123"></a><a class="code" href="class_nxdb_1_1_properties.html#a7414dec4ad4d04f83daefdc932cf4ac0">00123</a>         {
+<a name="l00124"></a>00124             <span class="keyword">get</span> { <span class="keywordflow">return</span> Is(<a class="code" href="class_nxdb_1_1_database.html" title="Represents a single database into which all documents should be stored. The documents in the database...">Database</a>.Context.prop, Prop.AUTOFLUSH); }
+<a name="l00125"></a>00125             <span class="keyword">set</span> { Set(<a class="code" href="class_nxdb_1_1_database.html" title="Represents a single database into which all documents should be stored. The documents in the database...">Database</a>.Context.prop, Prop.AUTOFLUSH, value); }
+<a name="l00126"></a>00126         }
+<a name="l00127"></a>00127 
+<a name="l00131"></a>00131         <span class="keyword">public</span> <span class="keyword">static</span> <span class="keywordtype">bool</span> <a class="code" href="class_nxdb_1_1_properties.html#a7a704d274cf9ad07e7ab349ab20da7d7" title="Specifies whether databases should be dropped (deleted from disk) when disposed.">DropOnDispose</a>
+<a name="l00132"></a><a class="code" href="class_nxdb_1_1_properties.html#a7a704d274cf9ad07e7ab349ab20da7d7">00132</a>         {
+<a name="l00133"></a>00133             <span class="keyword">get</span> { <span class="keywordflow">return</span> Is(<a class="code" href="class_nxdb_1_1_database.html" title="Represents a single database into which all documents should be stored. The documents in the database...">Database</a>.Properties, <a class="code" href="class_nxdb_1_1_nxdb_prop.html" title="Properties container for Nxdb-specific properties. Intended for BaseX - not to be used directly by Nx...">NxdbProp</a>.<a class="code" href="class_nxdb_1_1_nxdb_prop.html#a9ac7e76fe19d792893a1ede5504588cd">DROPONDISPOSE</a>); }
+<a name="l00134"></a>00134             <span class="keyword">set</span> { Set(<a class="code" href="class_nxdb_1_1_database.html" title="Represents a single database into which all documents should be stored. The documents in the database...">Database</a>.Properties, <a class="code" href="class_nxdb_1_1_nxdb_prop.html" title="Properties container for Nxdb-specific properties. Intended for BaseX - not to be used directly by Nx...">NxdbProp</a>.<a class="code" href="class_nxdb_1_1_nxdb_prop.html#a9ac7e76fe19d792893a1ede5504588cd">DROPONDISPOSE</a>, value); }
+<a name="l00135"></a>00135         }
+<a name="l00136"></a>00136 
+<a name="l00144"></a>00144         <span class="keyword">public</span> <span class="keyword">static</span> <span class="keywordtype">bool</span> <a class="code" href="class_nxdb_1_1_properties.html#a26a8194f20b7452a2ef049d07d7047c6" title="Specifies whether databases should be optimized after update operations. If this is true and an Updat...">OptimizeAfterUpdates</a>
+<a name="l00145"></a><a class="code" href="class_nxdb_1_1_properties.html#a26a8194f20b7452a2ef049d07d7047c6">00145</a>         {
+<a name="l00146"></a>00146             <span class="keyword">get</span> { <span class="keywordflow">return</span> Is(<a class="code" href="class_nxdb_1_1_database.html" title="Represents a single database into which all documents should be stored. The documents in the database...">Database</a>.Properties, <a class="code" href="class_nxdb_1_1_nxdb_prop.html" title="Properties container for Nxdb-specific properties. Intended for BaseX - not to be used directly by Nx...">NxdbProp</a>.<a class="code" href="class_nxdb_1_1_nxdb_prop.html#aa6a360db03b947f26cdeeebacdc92ea4">OPTIMIZEAFTERUPDATES</a>); }
+<a name="l00147"></a>00147             <span class="keyword">set</span> { Set(<a class="code" href="class_nxdb_1_1_database.html" title="Represents a single database into which all documents should be stored. The documents in the database...">Database</a>.Properties, <a class="code" href="class_nxdb_1_1_nxdb_prop.html" title="Properties container for Nxdb-specific properties. Intended for BaseX - not to be used directly by Nx...">NxdbProp</a>.<a class="code" href="class_nxdb_1_1_nxdb_prop.html#aa6a360db03b947f26cdeeebacdc92ea4">OPTIMIZEAFTERUPDATES</a>, value); }
+<a name="l00148"></a>00148         }
+<a name="l00149"></a>00149 
+<a name="l00158"></a>00158         <span class="keyword">public</span> <span class="keyword">static</span> <span class="keywordtype">bool</span> <a class="code" href="class_nxdb_1_1_properties.html#a5a2edccb60a4fdcc2724e5d7b2911c30" title="Specifies whether databases should be flushed after update operations. This is only used if AutoFlush...">FlushAfterUpdates</a>
+<a name="l00159"></a><a class="code" href="class_nxdb_1_1_properties.html#a5a2edccb60a4fdcc2724e5d7b2911c30">00159</a>         {
+<a name="l00160"></a>00160             <span class="keyword">get</span> { <span class="keywordflow">return</span> Is(<a class="code" href="class_nxdb_1_1_database.html" title="Represents a single database into which all documents should be stored. The documents in the database...">Database</a>.Properties, <a class="code" href="class_nxdb_1_1_nxdb_prop.html" title="Properties container for Nxdb-specific properties. Intended for BaseX - not to be used directly by Nx...">NxdbProp</a>.<a class="code" href="class_nxdb_1_1_nxdb_prop.html#afbeb1963b383b3672af633e145be9b32">FLUSHAFTERUPDATES</a>); }
+<a name="l00161"></a>00161             <span class="keyword">set</span> { Set(<a class="code" href="class_nxdb_1_1_database.html" title="Represents a single database into which all documents should be stored. The documents in the database...">Database</a>.Properties, <a class="code" href="class_nxdb_1_1_nxdb_prop.html" title="Properties container for Nxdb-specific properties. Intended for BaseX - not to be used directly by Nx...">NxdbProp</a>.<a class="code" href="class_nxdb_1_1_nxdb_prop.html#afbeb1963b383b3672af633e145be9b32">FLUSHAFTERUPDATES</a>, value); }
+<a name="l00162"></a>00162         }
+<a name="l00163"></a>00163 
+<a name="l00164"></a>00164         <span class="keyword">private</span> <span class="keyword">static</span> <span class="keywordtype">bool</span> Is(AProp prop, <span class="keywordtype">object</span>[] key)
+<a name="l00165"></a>00165         {
+<a name="l00166"></a>00166             <span class="keywordflow">return</span> prop.@is(key);
+<a name="l00167"></a>00167         }
+<a name="l00168"></a>00168 
+<a name="l00169"></a>00169         <span class="keyword">private</span> <span class="keyword">static</span> <span class="keywordtype">string</span> Get(AProp prop, <span class="keywordtype">object</span>[] key)
+<a name="l00170"></a>00170         {
+<a name="l00171"></a>00171             <span class="keywordflow">return</span> prop.get(key);
+<a name="l00172"></a>00172         }
+<a name="l00173"></a>00173 
+<a name="l00174"></a>00174         <span class="keyword">private</span> <span class="keyword">static</span> <span class="keywordtype">int</span> Num(AProp prop, <span class="keywordtype">object</span>[] key)
+<a name="l00175"></a>00175         {
+<a name="l00176"></a>00176             <span class="keywordflow">return</span> prop.num(key);
+<a name="l00177"></a>00177         }
+<a name="l00178"></a>00178 
+<a name="l00179"></a>00179         <span class="keyword">private</span> <span class="keyword">static</span> <span class="keywordtype">void</span> Set(AProp prop, <span class="keywordtype">object</span>[] key, <span class="keywordtype">bool</span> value)
+<a name="l00180"></a>00180         {
+<a name="l00181"></a>00181             prop.set(key, value);
+<a name="l00182"></a>00182             prop.write();
+<a name="l00183"></a>00183         }
+<a name="l00184"></a>00184 
+<a name="l00185"></a>00185         <span class="keyword">private</span> <span class="keyword">static</span> <span class="keywordtype">void</span> Set(AProp prop, <span class="keywordtype">object</span>[] key, <span class="keywordtype">string</span> value)
+<a name="l00186"></a>00186         {
+<a name="l00187"></a>00187             prop.set(key, value);
+<a name="l00188"></a>00188             prop.write();
+<a name="l00189"></a>00189         }
+<a name="l00190"></a>00190 
+<a name="l00191"></a>00191         <span class="keyword">private</span> <span class="keyword">static</span> <span class="keywordtype">void</span> Set(AProp prop, <span class="keywordtype">object</span>[] key, <span class="keywordtype">int</span> value)
+<a name="l00192"></a>00192         {
+<a name="l00193"></a>00193             prop.set(key, value);
+<a name="l00194"></a>00194             prop.write();
+<a name="l00195"></a>00195         }
+<a name="l00196"></a>00196     }
+<a name="l00197"></a>00197 
+<a name="l00201"></a><a class="code" href="class_nxdb_1_1_nxdb_prop.html">00201</a>     <span class="keyword">public</span> <span class="keyword">class </span><a class="code" href="class_nxdb_1_1_nxdb_prop.html" title="Properties container for Nxdb-specific properties. Intended for BaseX - not to be used directly by Nx...">NxdbProp</a> : AProp
+<a name="l00202"></a>00202     {
+<a name="l00203"></a><a class="code" href="class_nxdb_1_1_nxdb_prop.html#a9ac7e76fe19d792893a1ede5504588cd">00203</a>         <span class="keyword">public</span> <span class="keyword">static</span> readonly <span class="keywordtype">object</span>[] <a class="code" href="class_nxdb_1_1_nxdb_prop.html#a9ac7e76fe19d792893a1ede5504588cd">DROPONDISPOSE</a> = { <span class="stringliteral">&quot;DROPONDISPOSE&quot;</span>, <span class="keyword">new</span> java.lang.Boolean(<span class="keyword">false</span>) };
+<a name="l00204"></a><a class="code" href="class_nxdb_1_1_nxdb_prop.html#aa6a360db03b947f26cdeeebacdc92ea4">00204</a>         <span class="keyword">public</span> <span class="keyword">static</span> readonly <span class="keywordtype">object</span>[] <a class="code" href="class_nxdb_1_1_nxdb_prop.html#aa6a360db03b947f26cdeeebacdc92ea4">OPTIMIZEAFTERUPDATES</a> = { <span class="stringliteral">&quot;OPTIMIZEAFTERUPDATES&quot;</span>, <span class="keyword">new</span> java.lang.Boolean(<span class="keyword">true</span>) };
+<a name="l00205"></a><a class="code" href="class_nxdb_1_1_nxdb_prop.html#afbeb1963b383b3672af633e145be9b32">00205</a>         <span class="keyword">public</span> <span class="keyword">static</span> readonly <span class="keywordtype">object</span>[] <a class="code" href="class_nxdb_1_1_nxdb_prop.html#afbeb1963b383b3672af633e145be9b32">FLUSHAFTERUPDATES</a> = { <span class="stringliteral">&quot;FLUSHAFTERUPDATES&quot;</span>, <span class="keyword">new</span> java.lang.Boolean(<span class="keyword">true</span>) };
+<a name="l00206"></a>00206 
+<a name="l00207"></a>00207         <span class="keyword">internal</span> <a class="code" href="class_nxdb_1_1_nxdb_prop.html" title="Properties container for Nxdb-specific properties. Intended for BaseX - not to be used directly by Nx...">NxdbProp</a>() : base(<span class="stringliteral">&quot;.nxdb&quot;</span>)
+<a name="l00208"></a>00208         {
+<a name="l00209"></a>00209         }
+<a name="l00210"></a>00210     }
+<a name="l00211"></a>00211 }
 </pre></div></div><!-- contents -->
 
 
