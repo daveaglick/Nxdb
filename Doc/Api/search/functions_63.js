@@ -1,5 +1,7 @@
 var searchData=
 [
+  ['canconvertfrom',['CanConvertFrom',['../class_nxdb_1_1_persistence_1_1_persistent_type_converter.html#a92469d922178d94d00786d168c5c975e',1,'Nxdb::Persistence::PersistentTypeConverter']]],
+  ['canconvertto',['CanConvertTo',['../class_nxdb_1_1_persistence_1_1_persistent_type_converter.html#a5210920a4be52bf05ae688d55bc9365a',1,'Nxdb::Persistence::PersistentTypeConverter']]],
   ['check',['Check',['../class_nxdb_1_1_node_1_1_node.html#afcdd08e18060ff35426bd0fd16e7955c',1,'Nxdb::Node::Node']]],
   ['child',['Child',['../class_nxdb_1_1_node_1_1_node.html#a365ad004a6068ff93a44abf4570a29b4',1,'Nxdb::Node::Node']]],
   ['comment',['Comment',['../class_nxdb_1_1_node_1_1_comment.html#aa6b87880d1672afab9095f5f6afeb20a',1,'Nxdb::Node::Comment']]],

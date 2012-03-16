@@ -291,7 +291,7 @@ namespace Nxdb.Persistence.Attributes
             return collection;
         }
 
-        private static object FetchValue(Element item, string attributeName, string elementName, string query, bool arePersistentObjects, bool attach, TypeCache typeCache, Cache cache)
+        private object FetchValue(Element item, string attributeName, string elementName, string query, bool arePersistentObjects, bool attach, TypeCache typeCache, Cache cache)
         {
             object value = null;
             if (!String.IsNullOrEmpty(attributeName))

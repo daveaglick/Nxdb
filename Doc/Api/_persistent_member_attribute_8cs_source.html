@@ -121,75 +121,91 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <a name="l00068"></a>00068 
 <a name="l00076"></a><a class="code" href="class_nxdb_1_1_persistence_1_1_attributes_1_1_persistent_member_attribute.html#a2d50e8baad3f8b468f0bec5401d87588">00076</a>         <span class="keyword">public</span> <span class="keywordtype">string</span> CreateQuery { <span class="keyword">get</span>; <span class="keyword">set</span>; }
 <a name="l00077"></a>00077 
-<a name="l00081"></a>00081         <span class="keyword">internal</span> <span class="keyword">virtual</span> <span class="keywordtype">void</span> Inititalize(MemberInfo memberInfo, Cache cache)
-<a name="l00082"></a>00082         {
-<a name="l00083"></a>00083         }
-<a name="l00084"></a>00084 
-<a name="l00085"></a>00085         <span class="keyword">internal</span> <span class="keyword">abstract</span> <span class="keywordtype">object</span> FetchValue(<a class="code" href="class_nxdb_1_1_node_1_1_element.html" title="Representation of an XML element node.">Element</a> element, <span class="keywordtype">object</span> target, TypeCache typeCache, Cache cache);
-<a name="l00086"></a>00086         <span class="keyword">internal</span> <span class="keyword">abstract</span> <span class="keywordtype">object</span> SerializeValue(<span class="keywordtype">object</span> source, TypeCache typeCache, Cache cache);
-<a name="l00087"></a>00087         <span class="keyword">internal</span> <span class="keyword">abstract</span> <span class="keywordtype">void</span> StoreValue(<a class="code" href="class_nxdb_1_1_node_1_1_element.html" title="Representation of an XML element node.">Element</a> element, <span class="keywordtype">object</span> serialized, <span class="keywordtype">object</span> source, TypeCache typeCache, Cache cache);
-<a name="l00088"></a>00088 
-<a name="l00089"></a>00089         <span class="keyword">internal</span> <span class="keyword">static</span> <span class="keywordtype">object</span> GetObjectFromString(<span class="keywordtype">string</span> value, <span class="keywordtype">string</span> defaultValue, <span class="keywordtype">object</span> target, Type type)
-<a name="l00090"></a>00090         {
-<a name="l00091"></a>00091             value = value ?? defaultValue;
-<a name="l00092"></a>00092             TypeConverter typeConverter = target == null
-<a name="l00093"></a>00093                 ? TypeDescriptor.GetConverter(type) : TypeDescriptor.GetConverter(target);
-<a name="l00094"></a>00094             <span class="keywordflow">if</span> (typeConverter == null) <span class="keywordflow">throw</span> <span class="keyword">new</span> Exception(<span class="stringliteral">&quot;Could not get TypeConverter for member.&quot;</span>);
-<a name="l00095"></a>00095             <span class="keywordflow">if</span> (!typeConverter.CanConvertFrom(typeof(<span class="keywordtype">string</span>))) <span class="keywordflow">throw</span> <span class="keyword">new</span> Exception(<span class="stringliteral">&quot;Can not convert member from string.&quot;</span>);
-<a name="l00096"></a>00096             <span class="keywordflow">return</span> typeConverter.ConvertFromString(value);
-<a name="l00097"></a>00097         }
-<a name="l00098"></a>00098 
-<a name="l00099"></a>00099         <span class="keyword">internal</span> <span class="keyword">static</span> <span class="keywordtype">string</span> GetStringFromObject(<span class="keywordtype">object</span> source, Type type)
-<a name="l00100"></a>00100         {
-<a name="l00101"></a>00101             TypeConverter typeConverter = source == null
-<a name="l00102"></a>00102                 ? TypeDescriptor.GetConverter(type) : TypeDescriptor.GetConverter(source);
-<a name="l00103"></a>00103             <span class="keywordflow">if</span> (typeConverter == null) <span class="keywordflow">throw</span> <span class="keyword">new</span> Exception(<span class="stringliteral">&quot;Could not get TypeConverter for member.&quot;</span>);
-<a name="l00104"></a>00104             <span class="keywordflow">if</span> (!typeConverter.CanConvertTo(typeof(<span class="keywordtype">string</span>))) <span class="keywordflow">throw</span> <span class="keyword">new</span> Exception(<span class="stringliteral">&quot;Can not convert member to string.&quot;</span>);
-<a name="l00105"></a>00105             <span class="keywordflow">return</span> typeConverter.ConvertToString(source);
+<a name="l00078"></a>00078 
+<a name="l00086"></a><a class="code" href="class_nxdb_1_1_persistence_1_1_attributes_1_1_persistent_member_attribute.html#aa806138af5be9ae6322cddebd4d056a8">00086</a>         <span class="keyword">public</span> Type TypeConverter { <span class="keyword">get</span>; <span class="keyword">set</span>; }
+<a name="l00087"></a>00087 
+<a name="l00088"></a>00088         <span class="keyword">private</span> TypeConverter _typeConverter = null;
+<a name="l00089"></a>00089 
+<a name="l00093"></a>00093         <span class="keyword">internal</span> <span class="keyword">virtual</span> <span class="keywordtype">void</span> Inititalize(MemberInfo memberInfo, Cache cache)
+<a name="l00094"></a>00094         {
+<a name="l00095"></a>00095             <span class="keywordflow">if</span>(TypeConverter != null)
+<a name="l00096"></a>00096             {
+<a name="l00097"></a>00097                 <span class="keywordflow">if</span>(TypeConverter != null)
+<a name="l00098"></a>00098                 {
+<a name="l00099"></a>00099                     <span class="keywordflow">if</span> (!typeof (TypeConverter).IsAssignableFrom(TypeConverter)) 
+<a name="l00100"></a>00100                         <span class="keywordflow">throw</span> <span class="keyword">new</span> Exception(<span class="stringliteral">&quot;TypeConverter must specify a valid TypeConverter type.&quot;</span>);
+<a name="l00101"></a>00101                     ConstructorInfo constructor = TypeConverter.GetConstructor(Type.EmptyTypes);
+<a name="l00102"></a>00102                     <span class="keywordflow">if</span> (constructor == null) <span class="keywordflow">throw</span> <span class="keyword">new</span> Exception(<span class="stringliteral">&quot;Explicit TypeConverter must implement an empty constructor.&quot;</span>);
+<a name="l00103"></a>00103                     _typeConverter = constructor.Invoke(null) as TypeConverter;
+<a name="l00104"></a>00104                 }
+<a name="l00105"></a>00105             }
 <a name="l00106"></a>00106         }
 <a name="l00107"></a>00107 
-<a name="l00108"></a>00108         <span class="comment">// Returns true if a query was specified (even if it didn&#39;t return a node)</span>
-<a name="l00109"></a><a class="code" href="class_nxdb_1_1_persistence_1_1_attributes_1_1_persistent_member_attribute.html#a4dd8da903bcccbbc5d14eb3546eeb91b">00109</a>         <span class="keyword">protected</span> <span class="keyword">static</span> <span class="keywordtype">bool</span> GetNodeFromQuery&lt;T&gt;(<span class="keywordtype">string</span> query, <span class="keywordtype">string</span> createQuery,
-<a name="l00110"></a>00110             <a class="code" href="class_nxdb_1_1_node_1_1_element.html" title="Representation of an XML element node.">Element</a> element, out T node) where T : <a class="code" href="class_nxdb_1_1_node_1_1_node.html" title="The base class for XML nodes in Nxdb. There are two types of nodes, database nodes and query nodes (o...">Node</a>.<a class="code" href="class_nxdb_1_1_node_1_1_node.html#a85a24413d6ac6a41c2996201a37b6023">Node</a>
-<a name="l00111"></a>00111         {
-<a name="l00112"></a>00112             node = null;
-<a name="l00113"></a>00113             if (!String.IsNullOrEmpty(query))
-<a name="l00114"></a>00114             {
-<a name="l00115"></a>00115                 node = element.EvalSingle(query) as T;
-<a name="l00116"></a>00116                 <span class="keywordflow">if</span> (node == null)
-<a name="l00117"></a>00117                 {
-<a name="l00118"></a>00118                     <span class="comment">// We didn&#39;t get the target, see if we have a query that can create it</span>
-<a name="l00119"></a>00119                     <span class="keywordflow">if</span> (!String.IsNullOrEmpty(createQuery))
-<a name="l00120"></a>00120                     {
-<a name="l00121"></a>00121                         element.Eval(createQuery);
-<a name="l00122"></a>00122                         node = element.EvalSingle(query) as T;  <span class="comment">//Try to get the target again</span>
-<a name="l00123"></a>00123                     }
-<a name="l00124"></a>00124                 }
-<a name="l00125"></a>00125                 <span class="keywordflow">return</span> <span class="keyword">true</span>;
-<a name="l00126"></a>00126             }
-<a name="l00127"></a>00127             <span class="keywordflow">return</span> <span class="keyword">false</span>;
-<a name="l00128"></a>00128         }
-<a name="l00129"></a>00129 
-<a name="l00130"></a><a class="code" href="class_nxdb_1_1_persistence_1_1_attributes_1_1_persistent_member_attribute.html#aac0ee1fb3584193aa2dd73170aebad1a">00130</a>         <span class="keyword">protected</span> <span class="keywordtype">string</span> GetName(<span class="keywordtype">string</span> name, <span class="keywordtype">string</span> defaultName, params <span class="keywordtype">string</span>[] exclusive)
-<a name="l00131"></a>00131         {
-<a name="l00132"></a>00132             <span class="keywordflow">if</span> (exclusive.Any(e =&gt; !String.IsNullOrEmpty(e)))
-<a name="l00133"></a>00133             {
-<a name="l00134"></a>00134                 <span class="keywordflow">if</span> (!String.IsNullOrEmpty(name))
-<a name="l00135"></a>00135                 {
-<a name="l00136"></a>00136                     <span class="keywordflow">throw</span> <span class="keyword">new</span> Exception(<span class="stringliteral">&quot;Multiple exclusive properties specified.&quot;</span>);
-<a name="l00137"></a>00137                 }
-<a name="l00138"></a>00138                 <span class="keywordflow">return</span> null;
-<a name="l00139"></a>00139             }
-<a name="l00140"></a>00140             <span class="keywordflow">if</span> (String.IsNullOrEmpty(name))
-<a name="l00141"></a>00141             {
-<a name="l00142"></a>00142                 <span class="keywordflow">return</span> String.IsNullOrEmpty(defaultName)
-<a name="l00143"></a>00143                     ? null : XmlConvert.EncodeName(defaultName);
-<a name="l00144"></a>00144             }
-<a name="l00145"></a>00145             XmlConvert.VerifyName(name);
-<a name="l00146"></a>00146             <span class="keywordflow">return</span> name;
-<a name="l00147"></a>00147         }
-<a name="l00148"></a>00148     }
-<a name="l00149"></a>00149 }
+<a name="l00108"></a>00108         <span class="keyword">internal</span> <span class="keyword">abstract</span> <span class="keywordtype">object</span> FetchValue(<a class="code" href="class_nxdb_1_1_node_1_1_element.html" title="Representation of an XML element node.">Element</a> element, <span class="keywordtype">object</span> target, TypeCache typeCache, Cache cache);
+<a name="l00109"></a>00109         <span class="keyword">internal</span> <span class="keyword">abstract</span> <span class="keywordtype">object</span> SerializeValue(<span class="keywordtype">object</span> source, TypeCache typeCache, Cache cache);
+<a name="l00110"></a>00110         <span class="keyword">internal</span> <span class="keyword">abstract</span> <span class="keywordtype">void</span> StoreValue(<a class="code" href="class_nxdb_1_1_node_1_1_element.html" title="Representation of an XML element node.">Element</a> element, <span class="keywordtype">object</span> serialized, <span class="keywordtype">object</span> source, TypeCache typeCache, Cache cache);
+<a name="l00111"></a>00111 
+<a name="l00112"></a>00112         <span class="keyword">internal</span> <span class="keywordtype">object</span> GetObjectFromString(<span class="keywordtype">string</span> value, <span class="keywordtype">string</span> defaultValue, <span class="keywordtype">object</span> target, Type type)
+<a name="l00113"></a>00113         {
+<a name="l00114"></a>00114             value = value ?? defaultValue;
+<a name="l00115"></a>00115             TypeConverter typeConverter = _typeConverter ?? (target == null
+<a name="l00116"></a>00116                 ? TypeDescriptor.GetConverter(type) : TypeDescriptor.GetConverter(target));
+<a name="l00117"></a>00117             <span class="keywordflow">if</span> (typeConverter == null) <span class="keywordflow">throw</span> <span class="keyword">new</span> Exception(<span class="stringliteral">&quot;Could not get TypeConverter for member.&quot;</span>);
+<a name="l00118"></a>00118             <span class="keywordflow">if</span> (!typeConverter.CanConvertFrom(typeof(<span class="keywordtype">string</span>))) <span class="keywordflow">throw</span> <span class="keyword">new</span> Exception(<span class="stringliteral">&quot;Can not convert member from string.&quot;</span>);
+<a name="l00119"></a>00119             <span class="keywordflow">return</span> typeConverter.ConvertFromString(value);
+<a name="l00120"></a>00120         }
+<a name="l00121"></a>00121 
+<a name="l00122"></a>00122         <span class="keyword">internal</span> <span class="keywordtype">string</span> GetStringFromObject(<span class="keywordtype">object</span> source, Type type)
+<a name="l00123"></a>00123         {
+<a name="l00124"></a>00124             TypeConverter typeConverter = _typeConverter ?? (source == null
+<a name="l00125"></a>00125                 ? TypeDescriptor.GetConverter(type) : TypeDescriptor.GetConverter(source));
+<a name="l00126"></a>00126             <span class="keywordflow">if</span> (typeConverter == null) <span class="keywordflow">throw</span> <span class="keyword">new</span> Exception(<span class="stringliteral">&quot;Could not get TypeConverter for member.&quot;</span>);
+<a name="l00127"></a>00127             <span class="keywordflow">if</span> (!typeConverter.CanConvertTo(typeof(<span class="keywordtype">string</span>))) <span class="keywordflow">throw</span> <span class="keyword">new</span> Exception(<span class="stringliteral">&quot;Can not convert member to string.&quot;</span>);
+<a name="l00128"></a>00128             <span class="keywordflow">return</span> typeConverter.ConvertToString(source);
+<a name="l00129"></a>00129         }
+<a name="l00130"></a>00130 
+<a name="l00131"></a>00131         <span class="comment">// Returns true if a query was specified (even if it didn&#39;t return a node)</span>
+<a name="l00132"></a><a class="code" href="class_nxdb_1_1_persistence_1_1_attributes_1_1_persistent_member_attribute.html#a4dd8da903bcccbbc5d14eb3546eeb91b">00132</a>         <span class="keyword">protected</span> <span class="keyword">static</span> <span class="keywordtype">bool</span> GetNodeFromQuery&lt;T&gt;(<span class="keywordtype">string</span> query, <span class="keywordtype">string</span> createQuery,
+<a name="l00133"></a>00133             <a class="code" href="class_nxdb_1_1_node_1_1_element.html" title="Representation of an XML element node.">Element</a> element, out T node) where T : <a class="code" href="class_nxdb_1_1_node_1_1_node.html" title="The base class for XML nodes in Nxdb. There are two types of nodes, database nodes and query nodes (o...">Node</a>.<a class="code" href="class_nxdb_1_1_node_1_1_node.html#a85a24413d6ac6a41c2996201a37b6023">Node</a>
+<a name="l00134"></a>00134         {
+<a name="l00135"></a>00135             node = null;
+<a name="l00136"></a>00136             if (!String.IsNullOrEmpty(query))
+<a name="l00137"></a>00137             {
+<a name="l00138"></a>00138                 node = element.EvalSingle(query) as T;
+<a name="l00139"></a>00139                 <span class="keywordflow">if</span> (node == null)
+<a name="l00140"></a>00140                 {
+<a name="l00141"></a>00141                     <span class="comment">// We didn&#39;t get the target, see if we have a query that can create it</span>
+<a name="l00142"></a>00142                     <span class="keywordflow">if</span> (!String.IsNullOrEmpty(createQuery))
+<a name="l00143"></a>00143                     {
+<a name="l00144"></a>00144                         element.Eval(createQuery);
+<a name="l00145"></a>00145                         node = element.EvalSingle(query) as T;  <span class="comment">//Try to get the target again</span>
+<a name="l00146"></a>00146                     }
+<a name="l00147"></a>00147                 }
+<a name="l00148"></a>00148                 <span class="keywordflow">return</span> <span class="keyword">true</span>;
+<a name="l00149"></a>00149             }
+<a name="l00150"></a>00150             <span class="keywordflow">return</span> <span class="keyword">false</span>;
+<a name="l00151"></a>00151         }
+<a name="l00152"></a>00152 
+<a name="l00153"></a><a class="code" href="class_nxdb_1_1_persistence_1_1_attributes_1_1_persistent_member_attribute.html#aac0ee1fb3584193aa2dd73170aebad1a">00153</a>         <span class="keyword">protected</span> <span class="keywordtype">string</span> GetName(<span class="keywordtype">string</span> name, <span class="keywordtype">string</span> defaultName, params <span class="keywordtype">string</span>[] exclusive)
+<a name="l00154"></a>00154         {
+<a name="l00155"></a>00155             <span class="keywordflow">if</span> (exclusive.Any(e =&gt; !String.IsNullOrEmpty(e)))
+<a name="l00156"></a>00156             {
+<a name="l00157"></a>00157                 <span class="keywordflow">if</span> (!String.IsNullOrEmpty(name))
+<a name="l00158"></a>00158                 {
+<a name="l00159"></a>00159                     <span class="keywordflow">throw</span> <span class="keyword">new</span> Exception(<span class="stringliteral">&quot;Multiple exclusive properties specified.&quot;</span>);
+<a name="l00160"></a>00160                 }
+<a name="l00161"></a>00161                 <span class="keywordflow">return</span> null;
+<a name="l00162"></a>00162             }
+<a name="l00163"></a>00163             <span class="keywordflow">if</span> (String.IsNullOrEmpty(name))
+<a name="l00164"></a>00164             {
+<a name="l00165"></a>00165                 <span class="keywordflow">return</span> String.IsNullOrEmpty(defaultName)
+<a name="l00166"></a>00166                     ? null : XmlConvert.EncodeName(defaultName);
+<a name="l00167"></a>00167             }
+<a name="l00168"></a>00168             XmlConvert.VerifyName(name);
+<a name="l00169"></a>00169             <span class="keywordflow">return</span> name;
+<a name="l00170"></a>00170         }
+<a name="l00171"></a>00171     }
+<a name="l00172"></a>00172 }
 </pre></div></div><!-- contents -->
 
 

@@ -1,6 +1,8 @@
 var searchData=
 [
   ['cache_2ecs',['Cache.cs',['../_cache_8cs.html',1,'']]],
+  ['canconvertfrom',['CanConvertFrom',['../class_nxdb_1_1_persistence_1_1_persistent_type_converter.html#a92469d922178d94d00786d168c5c975e',1,'Nxdb::Persistence::PersistentTypeConverter']]],
+  ['canconvertto',['CanConvertTo',['../class_nxdb_1_1_persistence_1_1_persistent_type_converter.html#a5210920a4be52bf05ae688d55bc9365a',1,'Nxdb::Persistence::PersistentTypeConverter']]],
   ['check',['Check',['../class_nxdb_1_1_node_1_1_node.html#afcdd08e18060ff35426bd0fd16e7955c',1,'Nxdb::Node::Node']]],
   ['child',['Child',['../class_nxdb_1_1_node_1_1_node.html#a365ad004a6068ff93a44abf4570a29b4',1,'Nxdb::Node::Node']]],
   ['childnodes',['ChildNodes',['../class_nxdb_1_1_dom_1_1_dom_document.html#a3d8caeb4dbd6ab6e94473c375e896140',1,'Nxdb.Dom.DomDocument.ChildNodes()'],['../class_nxdb_1_1_dom_1_1_dom_element.html#ad1cd47d7f1f9045c94bb440e4222d54e',1,'Nxdb.Dom.DomElement.ChildNodes()']]],

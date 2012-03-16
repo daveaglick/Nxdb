@@ -171,6 +171,7 @@
     <Compile Include="Persistence\Attributes\PersistentTextAttribute.cs" />
     <Compile Include="Persistence\Attributes\XmlSerializerPersisterAttribute.cs" />
     <Compile Include="Persistence\ICustomPersistence.cs" />
+    <Compile Include="Persistence\PersistentTypeConverter.cs" />
     <Compile Include="Persistence\XmlSerializerPersister.cs" />
     <Compile Include="Persistence\CustomPersister.cs" />
     <Compile Include="Persistence\DefaultPersister.cs" />

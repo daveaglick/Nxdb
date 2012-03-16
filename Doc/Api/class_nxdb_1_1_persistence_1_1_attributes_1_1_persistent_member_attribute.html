@@ -129,6 +129,8 @@ Properties</h2></td></tr>
 <tr class="memdesc:a54c424ea5c726b49a1fa73030c0be775"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets or sets a query to use for getting the node to use for a value. This is exclusive with Name (if an available property) and both may not be used.  <a href="#a54c424ea5c726b49a1fa73030c0be775"></a><br/></td></tr>
 <tr class="memitem:a2d50e8baad3f8b468f0bec5401d87588"><td class="memItemLeft" align="right" valign="top">string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_nxdb_1_1_persistence_1_1_attributes_1_1_persistent_member_attribute.html#a2d50e8baad3f8b468f0bec5401d87588">CreateQuery</a><code> [get, set]</code></td></tr>
 <tr class="memdesc:a2d50e8baad3f8b468f0bec5401d87588"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets or sets a query to use when the field or property is being stored and the query does not result in a usable node. If the query does not result in a node and this is not specified, a value will not be stored for the field or property. This is exclusive with Name (if an available property) and both may not be used.  <a href="#a2d50e8baad3f8b468f0bec5401d87588"></a><br/></td></tr>
+<tr class="memitem:aa806138af5be9ae6322cddebd4d056a8"><td class="memItemLeft" align="right" valign="top">Type&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_nxdb_1_1_persistence_1_1_attributes_1_1_persistent_member_attribute.html#aa806138af5be9ae6322cddebd4d056a8">TypeConverter</a><code> [get, set]</code></td></tr>
+<tr class="memdesc:aa806138af5be9ae6322cddebd4d056a8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets or sets an explicit type converter to use for converting the value to and from a string. If this is not specified, the default TypeConverter for the object type will be used. If it is specified, it should be able to convert between the object type and a string. As a convenience, simple custom TypeConverters can be derived from <a class="el" href="class_nxdb_1_1_persistence_1_1_persistent_type_converter.html" title="Provides a simple base class for implementing custom TypeConverters that can be used with the default...">PersistentTypeConverter</a>.  <a href="#aa806138af5be9ae6322cddebd4d056a8"></a><br/></td></tr>
 </table>
 <hr/><a name="details" id="details"></a><h2>Detailed Description</h2>
 <div class="textblock"><p>The base class for all persistent attributes. </p>
@@ -185,7 +187,7 @@ Properties</h2></td></tr>
 </div>
 <div class="memdoc">
 
-<p>Definition at line <a class="el" href="_persistent_member_attribute_8cs_source.html#l00130">130</a> of file <a class="el" href="_persistent_member_attribute_8cs_source.html">PersistentMemberAttribute.cs</a>.</p>
+<p>Definition at line <a class="el" href="_persistent_member_attribute_8cs_source.html#l00153">153</a> of file <a class="el" href="_persistent_member_attribute_8cs_source.html">PersistentMemberAttribute.cs</a>.</p>
 
 </div>
 </div>
@@ -233,7 +235,7 @@ Properties</h2></td></tr>
 </dl>
 </div>
 
-<p>Definition at line <a class="el" href="_persistent_member_attribute_8cs_source.html#l00109">109</a> of file <a class="el" href="_persistent_member_attribute_8cs_source.html">PersistentMemberAttribute.cs</a>.</p>
+<p>Definition at line <a class="el" href="_persistent_member_attribute_8cs_source.html#l00132">132</a> of file <a class="el" href="_persistent_member_attribute_8cs_source.html">PersistentMemberAttribute.cs</a>.</p>
 
 </div>
 </div>
@@ -337,6 +339,23 @@ Properties</h2></td></tr>
 <p>Gets or sets a value indicating whether this field or property should be stored. </p>
 
 <p>Definition at line <a class="el" href="_persistent_member_attribute_8cs_source.html#l00043">43</a> of file <a class="el" href="_persistent_member_attribute_8cs_source.html">PersistentMemberAttribute.cs</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="aa806138af5be9ae6322cddebd4d056a8"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">Type <a class="el" href="class_nxdb_1_1_persistence_1_1_attributes_1_1_persistent_member_attribute.html#aa806138af5be9ae6322cddebd4d056a8">Nxdb.Persistence.Attributes.PersistentMemberAttribute.TypeConverter</a><code> [get, set]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Gets or sets an explicit type converter to use for converting the value to and from a string. If this is not specified, the default TypeConverter for the object type will be used. If it is specified, it should be able to convert between the object type and a string. As a convenience, simple custom TypeConverters can be derived from <a class="el" href="class_nxdb_1_1_persistence_1_1_persistent_type_converter.html" title="Provides a simple base class for implementing custom TypeConverters that can be used with the default...">PersistentTypeConverter</a>. </p>
+
+<p>Definition at line <a class="el" href="_persistent_member_attribute_8cs_source.html#l00086">86</a> of file <a class="el" href="_persistent_member_attribute_8cs_source.html">PersistentMemberAttribute.cs</a>.</p>
 
 </div>
 </div>

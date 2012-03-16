@@ -7,6 +7,7 @@ var searchData=
   ['persistentmemberattribute',['PersistentMemberAttribute',['../class_nxdb_1_1_persistence_1_1_attributes_1_1_persistent_member_attribute.html',1,'Nxdb::Persistence::Attributes']]],
   ['persistentpathattribute',['PersistentPathAttribute',['../class_nxdb_1_1_persistence_1_1_attributes_1_1_persistent_path_attribute.html',1,'Nxdb::Persistence::Attributes']]],
   ['persistenttextattribute',['PersistentTextAttribute',['../class_nxdb_1_1_persistence_1_1_attributes_1_1_persistent_text_attribute.html',1,'Nxdb::Persistence::Attributes']]],
+  ['persistenttypeconverter',['PersistentTypeConverter',['../class_nxdb_1_1_persistence_1_1_persistent_type_converter.html',1,'Nxdb::Persistence']]],
   ['persister',['Persister',['../class_nxdb_1_1_persistence_1_1_persister.html',1,'Nxdb::Persistence']]],
   ['persisterattribute',['PersisterAttribute',['../class_nxdb_1_1_persistence_1_1_attributes_1_1_persister_attribute.html',1,'Nxdb::Persistence::Attributes']]],
   ['processinginstruction',['ProcessingInstruction',['../class_nxdb_1_1_node_1_1_processing_instruction.html',1,'Nxdb::Node']]],
