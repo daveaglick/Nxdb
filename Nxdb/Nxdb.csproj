@@ -173,7 +173,6 @@
     <Compile Include="Persistence\ICustomPersistence.cs" />
     <Compile Include="Persistence\PersistentTypeConverter.cs" />
     <Compile Include="Persistence\XmlSerializerPersister.cs" />
-    <Compile Include="Persistence\CustomPersister.cs" />
     <Compile Include="Persistence\DefaultPersister.cs" />
     <Compile Include="Persistence\ObjectWrapper.cs" />
     <Compile Include="Persistence\Extensions.cs" />

@@ -87,16 +87,7 @@ namespace Nxdb.Persistence
         {
             if (type.IsValueType) throw new ArgumentException("obj must not be a value type.");
             if (element == null) throw new ArgumentNullException("element");
-            object obj = _cache.GetObject(type, element, attach);
-            if (attach)
-            {
-                Attach(obj, element);
-            }
-            else
-            {
-                Fetch(obj, element);
-            }
-            return obj;
+            return _cache.GetObject(type, element, attach);
         }
 
         public object GetObject(Type type, Element element)

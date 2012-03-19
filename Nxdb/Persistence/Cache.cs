@@ -50,21 +50,52 @@ namespace Nxdb.Persistence
             return typeCache;
         }
 
-        // Gets or constructs an object of the specified type
-        public object GetObject(Type type, Element element, bool search)
+        // Gets or constructs an object of the specified type and attaches or fetches it
+        public object GetObject(Type type, Element element, bool attach)
         {
-            return GetObject(GetTypeCache(type), element, search);
+            return GetObject(GetTypeCache(type), element, attach);
         }
 
-        public object GetObject(TypeCache typeCache, Element element, bool search)
+        public object GetObject(TypeCache typeCache, Element element, bool attach)
         {
             Clean();
             object obj = null;
-            if(search)
+            
+            // Search for an existing instance if requested
+            if (attach)
             {
                 obj = typeCache.FindObject(element);
             }
-            return obj ?? typeCache.CreateInstance();
+
+            // If we didn't find an existing instance, create one
+            if(obj == null)
+            {
+                // Create an instance
+                obj = typeCache.CreateInstance();
+
+                // Attach or fetch the new instance
+                if(obj != null)
+                {
+                    if (attach)
+                    {
+                        // Use the ObjectWrapper.Fetch() to take advantage of last update time caching
+                        ObjectWrapper wrapper = Attach(obj, element);
+                        wrapper.Fetch();
+                    }
+                    else
+                    {
+                        typeCache.Persister.Fetch(element, obj, typeCache, this);
+                    }
+                }
+
+                // Call it's initialize method if implemented
+                ICustomInitialize custom = obj as ICustomInitialize;
+                if (custom != null)
+                {
+                    custom.Initialize(element);
+                }
+            }
+            return obj;
         }
 
         public bool TryGetWrapper(object obj, out ObjectWrapper wrapper)

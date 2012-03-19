@@ -113,15 +113,7 @@ namespace Nxdb.Persistence
 
         public Persister Persister
         {
-            get
-            {
-                if(_persister == null)
-                {
-                    _persister = typeof(ICustomPersistence).IsAssignableFrom(_type)
-                        ? new CustomPersister() : PersisterAttribute.Persister;
-                }
-                return _persister;
-            }
+            get { return _persister ?? (_persister = PersisterAttribute.Persister); }
         }
 
         public PersisterAttribute PersisterAttribute

@@ -28,7 +28,7 @@ namespace Nxdb.Persistence
     /// Implements an enumerable type for top-level persistent collections.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    internal class PersistentCollection<T> : ICustomPersistence, IEnumerable<T> where T : class
+    internal class PersistentCollection<T> : ICustomFetch, IEnumerable<T> where T : class
     {
         private readonly Manager _manager;
         private readonly string _expression;
@@ -72,8 +72,5 @@ namespace Nxdb.Persistence
             _elementCache = elementCache;
             _persistentObjects = persistentObjects;
         }
-
-        public object Serialize() { return null; }
-        public void Store(Element element, object serialized) { }
     }
 }

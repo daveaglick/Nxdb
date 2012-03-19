@@ -204,15 +204,6 @@ namespace Nxdb.Persistence.Attributes
                     Element itemElement = item as Element;
                     if (itemElement == null) throw new Exception("Persistent value node must be an element.");
                     object itemObject = cache.GetObject(_itemTypeCache, itemElement, AttachItems);
-                    if (AttachItems)
-                    {
-                        ObjectWrapper wrapper = cache.Attach(itemObject, itemElement);
-                        wrapper.Fetch();    // Use the ObjectWrapper.Fetch() to take advantage of last update time caching
-                    }
-                    else
-                    {
-                        typeCache.Persister.Fetch(itemElement, itemObject, _itemTypeCache, cache);
-                    }
                     _setCollectionItem(collection, c++, itemObject);
                 }
                 else

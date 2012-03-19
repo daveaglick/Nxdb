@@ -82,25 +82,8 @@ namespace Nxdb.Persistence.Attributes
                 return null;
             }
 
-            if (IsPersistentObject)
-            {
-                // Get, attach, and fetch the persistent object instance
-                object value = cache.GetObject(typeCache, child, Attach);
-                if (Attach)
-                {
-                    ObjectWrapper wrapper = cache.Attach(value, child);
-                    wrapper.Fetch();    // Use the ObjectWrapper.Fetch() to take advantage of last update time caching
-                }
-                else
-                {
-                    typeCache.Persister.Fetch(child, value, typeCache, cache);
-                }
-                return value;
-            }
-            else
-            {
-                return GetObjectFromString(child.Value, Default, target, typeCache.Type);
-            }
+            return IsPersistentObject ? cache.GetObject(typeCache, child, Attach)
+                : GetObjectFromString(child.Value, Default, target, typeCache.Type);
         }
 
         internal override object SerializeValue(object source, TypeCache typeCache, Cache cache)

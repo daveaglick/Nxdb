@@ -50,6 +50,13 @@ namespace Nxdb.Persistence
             {
                 SetValue(value.Key, target, value.Value);
             }
+
+            // Call any custom logic if implemented
+            ICustomFetch custom = target as ICustomFetch;
+            if(custom != null)
+            {
+                custom.Fetch(element);
+            }
         }
 
         private class SerializedValue
@@ -74,6 +81,15 @@ namespace Nxdb.Persistence
             if (source == null) return null; 
             
             List<SerializedValue> values = new List<SerializedValue>();
+
+            // Do custom serialization
+            ICustomStore custom = source as ICustomStore;
+            if(custom != null)
+            {
+                values.Add(new SerializedValue(null, custom.Serialize(), null, null));
+            }
+
+            // Serialize the members
             foreach (KeyValuePair<MemberInfo, PersistentMemberAttribute> kvp
                 in typeCache.PersistentMembers.Where(kvp => kvp.Value.Store))
             {
@@ -91,7 +107,19 @@ namespace Nxdb.Persistence
         internal override void Store(Element element, object serialized, object source, TypeCache typeCache, Cache cache)
         {
             if (source == null || serialized == null) return;
-            foreach (SerializedValue value in (List<SerializedValue>)serialized)
+
+            // Custom store
+            List<SerializedValue> values = (List<SerializedValue>) serialized;
+            ICustomStore custom = source as ICustomStore;
+            if (custom != null && values.Count > 0)
+            {
+                // The custom serialized value is always first
+                custom.Store(element, values[0]);
+                values.RemoveAt(0);
+            }
+
+            // Store the members
+            foreach (SerializedValue value in values)
             {
                 value.PersistentMemberAttribute.StoreValue(element, value.Serialized,
                     value.Member, value.MemberTypeCache, cache);
