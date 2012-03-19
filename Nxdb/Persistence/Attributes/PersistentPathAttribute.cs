@@ -16,6 +16,7 @@
  */
 
 using System;
+using System.ComponentModel;
 using System.Reflection;
 using Nxdb.Node;
 
@@ -36,6 +37,17 @@ namespace Nxdb.Persistence.Attributes
         public string Default { get; set; }
 
         /// <summary>
+        /// Gets or sets an explicit type converter to use for converting the value
+        /// to and from a string. If this is not specified, the default TypeConverter
+        /// for the object type will be used. If it is specified, it should be able to
+        /// convert between the object type and a string. As a convenience, simple
+        /// custom TypeConverters can be derived from PersistentTypeConverter.
+        /// </summary>
+        public Type TypeConverter { get; set; }
+
+        private TypeConverter _typeConverter = null;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="PersistentPathAttribute"/> class.
         /// </summary>
         /// <param name="query">The query to use for fetching the value. If the specified
@@ -53,18 +65,23 @@ namespace Nxdb.Persistence.Attributes
             CreateQuery = createQuery;
         }
 
+        internal override void Inititalize(MemberInfo memberInfo, Cache cache)
+        {
+            _typeConverter = InitializeTypeConverter(TypeConverter);
+        }
+
         internal override object FetchValue(Element element, object target, TypeCache typeCache, Cache cache)
         {
             object result = element.EvalSingle(Query);
             if (result == null) return null;
             Node.Node node = result as Node.Node;
             return GetObjectFromString(
-                node != null ? node.Value : result.ToString(), Default, target, typeCache.Type);
+                node != null ? node.Value : result.ToString(), Default, target, typeCache.Type, _typeConverter);
         }
 
         internal override object SerializeValue(object source, TypeCache typeCache, Cache cache)
         {
-            return GetStringFromObject(source, typeCache.Type);
+            return GetStringFromObject(source, typeCache.Type, _typeConverter);
         }
 
         internal override void StoreValue(Element element, object serialized, object source, TypeCache typeCache, Cache cache)

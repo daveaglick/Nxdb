@@ -94,6 +94,15 @@ namespace Nxdb.Persistence.Attributes
         public Type KeyType { get; set; }
 
         /// <summary>
+        /// Gets or sets an explicit type converter to use for converting the value
+        /// to and from a string. If this is not specified, the default TypeConverter
+        /// for the object type will be used. If it is specified, it should be able to
+        /// convert between the object type and a string. As a convenience, simple
+        /// custom TypeConverters can be derived from PersistentTypeConverter.
+        /// </summary>
+        public Type KeyTypeConverter { get; set; }
+
+        /// <summary>
         /// Gets or sets a value indicating whether the keys are persistent object types.
         /// If this is true, KeyAttributeName must not be specified and KeyQuery if
         /// specified should return an element node.
@@ -132,7 +141,16 @@ namespace Nxdb.Persistence.Attributes
         /// Gets or sets the type of values. If unspecified, the actual type of the values will be used. If specified,
         /// this must be assignable to the type of the value in the dictionary.
         /// </summary>
-        public Type ValueType { get; set; }
+        public Type ValueType { get; set; }        
+        
+        /// <summary>
+        /// Gets or sets an explicit type converter to use for converting the value
+        /// to and from a string. If this is not specified, the default TypeConverter
+        /// for the object type will be used. If it is specified, it should be able to
+        /// convert between the object type and a string. As a convenience, simple
+        /// custom TypeConverters can be derived from PersistentTypeConverter.
+        /// </summary>
+        public Type ValueTypeConverter { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether the values are persistent object types.
@@ -152,6 +170,8 @@ namespace Nxdb.Persistence.Attributes
 
         private TypeCache _keyTypeCache = null;
         private TypeCache _valueTypeCache = null;
+        private TypeConverter _keyTypeConverter = null;
+        private TypeConverter _valueTypeConverter = null;
         private Func<object> _getCollection = null;
         private Action<object, object, object> _setCollectionItem = null; // (collection, key, value)
         private Func<object, object> _getKey = null;
@@ -170,6 +190,7 @@ namespace Nxdb.Persistence.Attributes
         {
             base.Inititalize(memberInfo, cache);
 
+            // Get element names
             Name = GetName(Name, memberInfo.Name, Query, CreateQuery);
             ItemName = GetName(ItemName, "Item", ItemQuery);
             KeyAttributeName = GetName(KeyAttributeName, null, KeyElementName, KeyQuery);
@@ -183,10 +204,23 @@ namespace Nxdb.Persistence.Attributes
                 ValueElementName = GetName(ValueElementName, "Value", ValueQuery);
             }
 
+            // Get attribute names
             if(KeysArePersistentObjects && !String.IsNullOrEmpty(KeyAttributeName))
                 throw new Exception("KeyAttributeName must not be specified if KeysArePersistentObjects is true.");
             if (ValuesArePersistentObjects && !String.IsNullOrEmpty(ValueAttributeName))
                 throw new Exception("ValueAttributeName must not be specified if ValuesArePersistentObjects is true.");
+
+            // Get the TypeConverters
+            if (KeyTypeConverter != null)
+            {
+                if (KeysArePersistentObjects) throw new Exception("A TypeConverter can not be specified for persistent member objects.");
+                _keyTypeConverter = InitializeTypeConverter(KeyTypeConverter);
+            }
+            if (ValueTypeConverter != null)
+            {
+                if (ValuesArePersistentObjects) throw new Exception("A TypeConverter can not be specified for persistent member objects.");
+                _valueTypeConverter = InitializeTypeConverter(ValueTypeConverter);
+            }
             
             // Resolve the type of collection and the key/value type
             // Key = ICollection<>, Value = KeyValuePair<,>
@@ -282,22 +316,23 @@ namespace Nxdb.Persistence.Attributes
             foreach(Element item in items)
             {
                 object keyValue = FetchValue(item, KeyAttributeName, KeyElementName, KeyQuery,
-                    KeysArePersistentObjects, AttachKeys, _keyTypeCache, cache);
+                    KeysArePersistentObjects, AttachKeys, _keyTypeCache, _keyTypeConverter, cache);
                 object valueValue = FetchValue(item, ValueAttributeName, ValueElementName, ValueQuery,
-                    ValuesArePersistentObjects, AttachValues, _valueTypeCache, cache);
+                    ValuesArePersistentObjects, AttachValues, _valueTypeCache, _valueTypeConverter, cache);
                 if(keyValue != null && valueValue != null) _setCollectionItem(collection, keyValue, valueValue);
             }
 
             return collection;
         }
 
-        private object FetchValue(Element item, string attributeName, string elementName, string query, bool arePersistentObjects, bool attach, TypeCache typeCache, Cache cache)
+        private object FetchValue(Element item, string attributeName, string elementName, string query,
+            bool arePersistentObjects, bool attach, TypeCache typeCache, TypeConverter typeConverter, Cache cache)
         {
             object value = null;
             if (!String.IsNullOrEmpty(attributeName))
             {
                 Node.Attribute attribute = item.Attribute(attributeName);
-                value = attribute == null ? null : GetObjectFromString(attribute.Value, null, null, typeCache.Type);
+                value = attribute == null ? null : GetObjectFromString(attribute.Value, null, null, typeCache.Type, typeConverter);
             }
             else
             {
@@ -314,7 +349,7 @@ namespace Nxdb.Persistence.Attributes
                 {
                     Node.Node itemNode = result as Node.Node;
                     value = GetObjectFromString(itemNode != null ? itemNode.Value
-                        : result == null ? null : result.ToString(), null, null, typeCache.Type);
+                        : result == null ? null : result.ToString(), null, null, typeCache.Type, typeConverter);
                 }
             }
             return value;
@@ -341,12 +376,12 @@ namespace Nxdb.Persistence.Attributes
                     object key = _getKey(item);
                     object keyValue = KeysArePersistentObjects
                         ? _keyTypeCache.Persister.Serialize(key, _keyTypeCache, cache)
-                        : GetStringFromObject(key, KeyType);
+                        : GetStringFromObject(key, KeyType, _keyTypeConverter);
 
                     object value = _getValue(item);
                     object valueValue = ValuesArePersistentObjects
                         ? _valueTypeCache.Persister.Serialize(value, _valueTypeCache, cache)
-                        : GetStringFromObject(value, ValueType);
+                        : GetStringFromObject(value, ValueType, _valueTypeConverter);
 
                     values.Add(new KeyValuePair<KeyValuePair<object, object>, KeyValuePair<object, object>>(
                         new KeyValuePair<object, object>(key, keyValue), new KeyValuePair<object, object>(value, valueValue)));

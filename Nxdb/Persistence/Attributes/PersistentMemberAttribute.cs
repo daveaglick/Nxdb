@@ -75,57 +75,47 @@ namespace Nxdb.Persistence.Attributes
         /// </summary>
         public string CreateQuery { get; set; }
 
-
-        /// <summary>
-        /// Gets or sets an explicit type converter to use for converting the value
-        /// to and from a string. If this is not specified, the default TypeConverter
-        /// for the object type will be used. If it is specified, it should be able to
-        /// convert between the object type and a string. As a convenience, simple
-        /// custom TypeConverters can be derived from PersistentTypeConverter.
-        /// </summary>
-        public Type TypeConverter { get; set; }
-
-        private TypeConverter _typeConverter = null;
-
         /// <summary>
         /// Allows derived classes to initialze state based on attached member.
         /// </summary>
         internal virtual void Inititalize(MemberInfo memberInfo, Cache cache)
         {
-            if(TypeConverter != null)
+        }
+
+        internal TypeConverter InitializeTypeConverter(Type typeConverterType)
+        {
+            if (typeConverterType != null)
             {
-                if(TypeConverter != null)
-                {
-                    if (!typeof (TypeConverter).IsAssignableFrom(TypeConverter)) 
-                        throw new Exception("TypeConverter must specify a valid TypeConverter type.");
-                    ConstructorInfo constructor = TypeConverter.GetConstructor(Type.EmptyTypes);
-                    if (constructor == null) throw new Exception("Explicit TypeConverter must implement an empty constructor.");
-                    _typeConverter = constructor.Invoke(null) as TypeConverter;
-                }
+                if (!typeof (TypeConverter).IsAssignableFrom(typeConverterType)) 
+                    throw new Exception("TypeConverter must specify a valid TypeConverter type.");
+                ConstructorInfo constructor = typeConverterType.GetConstructor(Type.EmptyTypes);
+                if (constructor == null) throw new Exception("Explicit TypeConverter must implement an empty constructor.");
+                return constructor.Invoke(null) as TypeConverter;
             }
+            return null;
         }
 
         internal abstract object FetchValue(Element element, object target, TypeCache typeCache, Cache cache);
         internal abstract object SerializeValue(object source, TypeCache typeCache, Cache cache);
         internal abstract void StoreValue(Element element, object serialized, object source, TypeCache typeCache, Cache cache);
 
-        internal object GetObjectFromString(string value, string defaultValue, object target, Type type)
+        internal object GetObjectFromString(string value, string defaultValue, object target, Type type, TypeConverter typeConverter)
         {
             value = value ?? defaultValue;
-            TypeConverter typeConverter = _typeConverter ?? (target == null
+            TypeConverter converter = typeConverter ?? (target == null
                 ? TypeDescriptor.GetConverter(type) : TypeDescriptor.GetConverter(target));
-            if (typeConverter == null) throw new Exception("Could not get TypeConverter for member.");
-            if (!typeConverter.CanConvertFrom(typeof(string))) throw new Exception("Can not convert member from string.");
-            return typeConverter.ConvertFromString(value);
+            if (converter == null) throw new Exception("Could not get TypeConverter for member.");
+            if (!converter.CanConvertFrom(typeof(string))) throw new Exception("Can not convert member from string.");
+            return converter.ConvertFromString(value);
         }
 
-        internal string GetStringFromObject(object source, Type type)
+        internal string GetStringFromObject(object source, Type type, TypeConverter typeConverter)
         {
-            TypeConverter typeConverter = _typeConverter ?? (source == null
+            TypeConverter converter = typeConverter ?? (source == null
                 ? TypeDescriptor.GetConverter(type) : TypeDescriptor.GetConverter(source));
-            if (typeConverter == null) throw new Exception("Could not get TypeConverter for member.");
-            if (!typeConverter.CanConvertTo(typeof(string))) throw new Exception("Can not convert member to string.");
-            return typeConverter.ConvertToString(source);
+            if (converter == null) throw new Exception("Could not get TypeConverter for member.");
+            if (!converter.CanConvertTo(typeof(string))) throw new Exception("Can not convert member to string.");
+            return converter.ConvertToString(source);
         }
 
         // Returns true if a query was specified (even if it didn't return a node)

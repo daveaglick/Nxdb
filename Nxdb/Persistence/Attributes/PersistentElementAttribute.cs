@@ -16,6 +16,7 @@
  */
 
 using System;
+using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using Nxdb.Node;
@@ -49,12 +50,23 @@ namespace Nxdb.Persistence.Attributes
         public bool IsPersistentObject { get; set; }
 
         /// <summary>
+        /// Gets or sets an explicit type converter to use for converting the value
+        /// to and from a string. If this is not specified, the default TypeConverter
+        /// for the object type will be used. If it is specified, it should be able to
+        /// convert between the object type and a string. As a convenience, simple
+        /// custom TypeConverters can be derived from PersistentTypeConverter.
+        /// </summary>
+        public Type TypeConverter { get; set; }
+
+        /// <summary>
         /// Gets or sets a value indicating whether this field or property should be attached
         /// to the manager. Only valid if IsPersistentObject is true. If true (default), the
         /// manager cache will be searched and an existing instance used or a new instance
         /// created and attached. If false, a new detached instance will be created on every fetch.
         /// </summary>
         public bool Attach { get; set; }
+
+        private TypeConverter _typeConverter = null;
 
         public PersistentElementAttribute()
         {
@@ -65,6 +77,14 @@ namespace Nxdb.Persistence.Attributes
         {
             base.Inititalize(memberInfo, cache);
             Name = GetName(Name, memberInfo.Name, Query, CreateQuery);
+
+            // Get the TypeConverter
+            if (TypeConverter != null)
+            {
+                if (IsPersistentObject) throw new Exception("A TypeConverter can not be specified for persistent member objects.");
+                _typeConverter = InitializeTypeConverter(TypeConverter);
+            }
+
             if(IsPersistentObject && !String.IsNullOrEmpty(Default))
                 throw new Exception("Persistent object based members cannot specify a default value.");
         }
@@ -83,14 +103,14 @@ namespace Nxdb.Persistence.Attributes
             }
 
             return IsPersistentObject ? cache.GetObject(typeCache, child, Attach)
-                : GetObjectFromString(child.Value, Default, target, typeCache.Type);
+                : GetObjectFromString(child.Value, Default, target, typeCache.Type, _typeConverter);
         }
 
         internal override object SerializeValue(object source, TypeCache typeCache, Cache cache)
         {
             return IsPersistentObject
                 ? typeCache.Persister.Serialize(source, typeCache, cache)
-                : GetStringFromObject(source, typeCache.Type);
+                : GetStringFromObject(source, typeCache.Type, _typeConverter);
         }
 
         internal override void StoreValue(Element element, object serialized, object source, TypeCache typeCache, Cache cache)

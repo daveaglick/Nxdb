@@ -16,6 +16,7 @@
  */
 
 using System;
+using System.ComponentModel;
 using System.Linq;
 using Nxdb.Node;
 
@@ -35,6 +36,22 @@ namespace Nxdb.Persistence.Attributes
         /// </summary>
         public string Default { get; set; }
 
+        /// <summary>
+        /// Gets or sets an explicit type converter to use for converting the value
+        /// to and from a string. If this is not specified, the default TypeConverter
+        /// for the object type will be used. If it is specified, it should be able to
+        /// convert between the object type and a string. As a convenience, simple
+        /// custom TypeConverters can be derived from PersistentTypeConverter.
+        /// </summary>
+        public Type TypeConverter { get; set; }
+
+        private TypeConverter _typeConverter = null;
+
+        internal override void Inititalize(System.Reflection.MemberInfo memberInfo, Cache cache)
+        {
+            _typeConverter = InitializeTypeConverter(TypeConverter);
+        }
+
         internal override object FetchValue(Element element, object target, TypeCache typeCache, Cache cache)
         {
             Text child;
@@ -42,12 +59,12 @@ namespace Nxdb.Persistence.Attributes
             {
                 child = element.Children.OfType<Text>().FirstOrDefault();
             }
-            return child == null ? null : GetObjectFromString(child.Value, Default, target, typeCache.Type);
+            return child == null ? null : GetObjectFromString(child.Value, Default, target, typeCache.Type, _typeConverter);
         }
 
         internal override object SerializeValue(object source, TypeCache typeCache, Cache cache)
         {
-            return GetStringFromObject(source, typeCache.Type);
+            return GetStringFromObject(source, typeCache.Type, _typeConverter);
         }
 
         internal override void StoreValue(Element element, object serialized, object source, TypeCache typeCache, Cache cache)

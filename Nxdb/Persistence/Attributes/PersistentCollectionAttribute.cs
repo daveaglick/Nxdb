@@ -72,6 +72,15 @@ namespace Nxdb.Persistence.Attributes
         public Type ItemType { get; set; }
 
         /// <summary>
+        /// Gets or sets an explicit type converter to use for converting the value
+        /// to and from a string. If this is not specified, the default TypeConverter
+        /// for the object type will be used. If it is specified, it should be able to
+        /// convert between the object type and a string. As a convenience, simple
+        /// custom TypeConverters can be derived from PersistentTypeConverter.
+        /// </summary>
+        public Type ItemTypeConverter { get; set; }
+
+        /// <summary>
         /// Gets or sets a value indicating whether the items are persistent object types.
         /// </summary>
         public bool ItemsArePersistentObjects { get; set; }
@@ -86,6 +95,7 @@ namespace Nxdb.Persistence.Attributes
         public bool AttachItems { get; set; }
 
         private TypeCache _itemTypeCache = null;
+        private TypeConverter _itemTypeConverter = null;
         private Func<int, object> _getCollection = null;
         private Action<object, int, object> _setCollectionItem = null; // (collection, index, value)
 
@@ -103,6 +113,13 @@ namespace Nxdb.Persistence.Attributes
 
             Name = GetName(Name, memberInfo.Name, Query, CreateQuery);
             ItemName = GetName(ItemName, "Item", ItemQuery);
+
+            // Get the TypeConverter
+            if(ItemTypeConverter != null)
+            {
+                if (ItemsArePersistentObjects) throw new Exception("A TypeConverter can not be specified for persistent member objects.");
+                _itemTypeConverter = InitializeTypeConverter(ItemTypeConverter);
+            }
 
             // Resolve the type of collection and the item type
             Type memberType = DefaultPersister.GetMemberType(memberInfo);
@@ -210,7 +227,7 @@ namespace Nxdb.Persistence.Attributes
                 {
                     Node.Node itemNode = item as Node.Node;
                     object itemObject = GetObjectFromString(
-                        itemNode != null ? itemNode.Value : item.ToString(), null, null, _itemTypeCache.Type);
+                        itemNode != null ? itemNode.Value : item.ToString(), null, null, _itemTypeCache.Type, _itemTypeConverter);
                     if (itemObject != null) _setCollectionItem(collection, c++, itemObject);
                 }
             }
@@ -233,7 +250,7 @@ namespace Nxdb.Persistence.Attributes
                 {
                     object value = ItemsArePersistentObjects
                         ? _itemTypeCache.Persister.Serialize(item, _itemTypeCache, cache)
-                        : GetStringFromObject(item, _itemTypeCache.Type);
+                        : GetStringFromObject(item, _itemTypeCache.Type, _itemTypeConverter);
                     values.Add(new KeyValuePair<object, object>(item, value));
                 }
             }
