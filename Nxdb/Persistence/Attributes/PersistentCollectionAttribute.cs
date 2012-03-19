@@ -204,14 +204,14 @@ namespace Nxdb.Persistence.Attributes
                     Element itemElement = item as Element;
                     if (itemElement == null) throw new Exception("Persistent value node must be an element.");
                     object itemObject = cache.GetObject(_itemTypeCache, itemElement, AttachItems);
-                    _setCollectionItem(collection, c++, itemObject);
+                    if(itemObject != null) _setCollectionItem(collection, c++, itemObject);
                 }
                 else
                 {
                     Node.Node itemNode = item as Node.Node;
                     object itemObject = GetObjectFromString(
                         itemNode != null ? itemNode.Value : item.ToString(), null, null, _itemTypeCache.Type);
-                    _setCollectionItem(collection, c++, itemObject);
+                    if (itemObject != null) _setCollectionItem(collection, c++, itemObject);
                 }
             }
 

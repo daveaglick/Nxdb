@@ -285,7 +285,7 @@ namespace Nxdb.Persistence.Attributes
                     KeysArePersistentObjects, AttachKeys, _keyTypeCache, cache);
                 object valueValue = FetchValue(item, ValueAttributeName, ValueElementName, ValueQuery,
                     ValuesArePersistentObjects, AttachValues, _valueTypeCache, cache);
-                _setCollectionItem(collection, keyValue, valueValue);
+                if(keyValue != null && valueValue != null) _setCollectionItem(collection, keyValue, valueValue);
             }
 
             return collection;

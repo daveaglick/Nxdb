@@ -74,12 +74,13 @@ namespace Nxdb.Persistence
                 obj = typeCache.CreateInstance();
 
                 // Attach or fetch the new instance
+                ObjectWrapper wrapper = null;
                 if(obj != null)
                 {
                     if (attach)
                     {
                         // Use the ObjectWrapper.Fetch() to take advantage of last update time caching
-                        ObjectWrapper wrapper = Attach(obj, element);
+                        wrapper = Attach(obj, element);
                         wrapper.Fetch();
                     }
                     else
@@ -92,7 +93,15 @@ namespace Nxdb.Persistence
                 ICustomInitialize custom = obj as ICustomInitialize;
                 if (custom != null)
                 {
-                    custom.Initialize(element);
+                    try
+                    {   
+                        custom.Initialize(element);
+                    }
+                    catch (Exception)
+                    {
+                        if(wrapper != null) Detach(wrapper);
+                        obj = null;
+                    }
                 }
             }
             return obj;
