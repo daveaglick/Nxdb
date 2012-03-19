@@ -170,7 +170,14 @@
     <Compile Include="Persistence\Attributes\PersistentPathAttribute.cs" />
     <Compile Include="Persistence\Attributes\PersistentTextAttribute.cs" />
     <Compile Include="Persistence\Attributes\XmlSerializerPersisterAttribute.cs" />
+    <Compile Include="Persistence\CollectionPersister.cs" />
+    <Compile Include="Persistence\ICustomFetch.cs" />
+    <Compile Include="Persistence\ICustomInitialize.cs" />
     <Compile Include="Persistence\ICustomPersistence.cs" />
+    <Compile Include="Persistence\ICustomStore.cs" />
+    <Compile Include="Persistence\PersistentDictionary.cs" />
+    <Compile Include="Persistence\PersistentList.cs" />
+    <Compile Include="Persistence\PersistentMemberInfo.cs" />
     <Compile Include="Persistence\PersistentTypeConverter.cs" />
     <Compile Include="Persistence\XmlSerializerPersister.cs" />
     <Compile Include="Persistence\DefaultPersister.cs" />

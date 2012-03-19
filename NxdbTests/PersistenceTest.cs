@@ -35,15 +35,73 @@ namespace NxdbTests
     public class PersistenceTest
     {
         [Test]
-        public void XmlSerializerBehavior()
+        public void XmlSerializer()
         {
             RunTests<XmlSerializerPersistentClass>();
         }
 
         [Test]
-        public void DefaultBehavior()
+        public void Default()
         {
             RunTests<DefaultPersistentClass>();
+        }
+
+        [Test]
+        public void Collections()
+        {
+            Common.Reset();
+            using (Database database = Database.Get(Common.DatabaseName))
+            {
+                database.Add("Doc", "<Doc/>");
+                Element elem = database.GetDocument("Doc").Root;
+                Assert.IsNotNull(elem);
+
+                // Add content
+                List<int> numbers = new List<int>();
+                using (new Updates())
+                {
+                    for (int c = 0; c < 10; c++)
+                    {
+                        elem.Append(String.Format("<A x='{0}'><B y='{1}'>{2}</B><C>{3}</C></A>",
+                            c, c * 2, c * 3, c * 4));
+                        numbers.Add(c);
+                    }
+                }
+
+                // Create and attach a dictionary
+                PersistentDictionary<int, string> dictionary = new PersistentDictionary<int, string>(
+                    new PersistentKvpCollectionAttribute(){Query = ".", ItemQuery = "./A",
+                        KeyAttributeName = "x", ValueElementName = "C"});
+                dictionary.Attach(elem);
+                CollectionAssert.AreEqual(numbers, dictionary.Keys);
+                CollectionAssert.AreEqual(numbers.Select(n => (n * 4).ToString()), dictionary.Values);
+
+                // Create and attach a list
+                PersistentList<int> list = new PersistentList<int>(
+                    new PersistentCollectionAttribute(){Query = ".", ItemQuery = "./A/B"});
+                list.Attach(elem);
+                CollectionAssert.AreEqual(numbers.Select(n => n * 3), list);
+
+                // Change the database (remove every other)
+                for(int c = 9 ; c >= 0 ; c -= 2)
+                {
+                    elem.Child(c).Remove();
+                    numbers.RemoveAt(c);
+                }
+                Manager.Default.FetchAll();
+                CollectionAssert.AreEqual(numbers, dictionary.Keys);
+                CollectionAssert.AreEqual(numbers.Select(n => (n * 4).ToString()), dictionary.Values);
+                CollectionAssert.AreEqual(numbers.Select(n => n * 3), list);
+
+                // Change the dictionary and attempt to store
+                dictionary.Add(20, (20 * 4).ToString());
+                Assert.Throws(Is.InstanceOf<Exception>(), dictionary.Store);
+
+                // Refetch and verify
+                dictionary.Fetch();
+                CollectionAssert.AreEqual(numbers, dictionary.Keys);
+                CollectionAssert.AreEqual(numbers.Select(n => (n * 4).ToString()), dictionary.Values);
+            }
         }
 
         private void RunTests<T>() where T : IPersistentClass, new()
@@ -126,33 +184,6 @@ namespace NxdbTests
         int[] NumArr { get; set; }
         string ToString(string elementName);
     }
-
-public class Vehicle
-{
-    [PersistentAttribute]
-    private int _numberWheels;
-
-    [PersistentAttribute]
-    private bool _isCar;
-
-    public int NumberWheels
-    {
-        get { return _numberWheels; }
-        set
-        {
-            _numberWheels = value;
-            _isCar = value == 4;
-        }
-    }
-
-    public bool IsCar
-    {
-        get { return _isCar; }
-    }
-
-    [PersistentElement]
-    public string Model { get; set; }
-}
 
     [XmlSerializerPersister(Indent = false)]
     public class XmlSerializerPersistentClass : IPersistentClass

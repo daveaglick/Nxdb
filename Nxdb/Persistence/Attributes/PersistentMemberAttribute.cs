@@ -78,7 +78,7 @@ namespace Nxdb.Persistence.Attributes
         /// <summary>
         /// Allows derived classes to initialze state based on attached member.
         /// </summary>
-        internal virtual void Inititalize(MemberInfo memberInfo, Cache cache)
+        internal virtual void Inititalize(Type memberType, string memberName, Cache cache)
         {
         }
 

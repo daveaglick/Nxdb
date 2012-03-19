@@ -19,21 +19,21 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Nxdb.Node;
 
-namespace Nxdb.Persistence.Attributes
+namespace Nxdb.Persistence
 {
     /// <summary>
-    /// Indicates that the class this is applied to should use the default persister.
-    /// Normally this does not have to be explicitly added as classes without a persister
-    /// attribute will always use the default persister.
+    /// Implement this interface to provide custom persistence fetch logic.
+    /// The custom persistence method will be called after any persistence attributes
+    /// are processed.
     /// </summary>
-    public class DefaultPersisterAttribute : PersisterAttribute
+    public interface ICustomFetch
     {
-        private readonly DefaultPersister _persister = new DefaultPersister();
-
-        internal override Persister Persister
-        {
-            get { return _persister; }
-        }
+        /// <summary>
+        /// Refreshes the persistent object's state from the specified database element.
+        /// </summary>
+        /// <param name="element">The element the object is currently attached to.</param>
+        void Fetch(Element element);
     }
 }

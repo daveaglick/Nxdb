@@ -31,7 +31,6 @@ namespace Nxdb.Persistence
         private readonly int _hash;
         private readonly Cache _cache;
         private Element _element = null;
-        private long _databaseTime = 0;
 
         // These are lazy initialized for performance
         private TypeCache _typeCache = null;
@@ -124,9 +123,7 @@ namespace Nxdb.Persistence
                 _cache.Detach(this);
                 return;
             }
-            if (Element.Database.Time == _databaseTime) return;
             Persister.Fetch(Element, obj, TypeCache, _cache);
-            _databaseTime = Element.Database.Time;
         }
 
         public void Store()

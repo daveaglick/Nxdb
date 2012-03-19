@@ -19,21 +19,23 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Nxdb.Node;
 
-namespace Nxdb.Persistence.Attributes
+namespace Nxdb.Persistence
 {
     /// <summary>
-    /// Indicates that the class this is applied to should use the default persister.
-    /// Normally this does not have to be explicitly added as classes without a persister
-    /// attribute will always use the default persister.
+    /// Implement this interface to provide custom persistence initialization logic.
+    /// The custom persistence method will be called after any persistence attributes
+    /// are processed.
     /// </summary>
-    public class DefaultPersisterAttribute : PersisterAttribute
+    public interface ICustomInitialize
     {
-        private readonly DefaultPersister _persister = new DefaultPersister();
-
-        internal override Persister Persister
-        {
-            get { return _persister; }
-        }
+        /// <summary>
+        /// Initializes a persistent object after construction. Since the object must
+        /// have an empty default constructor and none of the persistent members are
+        /// populated at construction, this allows the object to provide more complete
+        /// initialization that uses persistent members if required.
+        /// </summary>
+        void Initialize(Element element);
     }
 }

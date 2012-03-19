@@ -40,17 +40,6 @@ namespace Nxdb.Persistence
             return Manager.Default.GetObject<T>(element, attach);
         }
 
-        public static IEnumerable<T> GetObjects<T>(this Element element, string expression) where T : class
-        {
-            return Manager.Default.GetObjects<T>(element, expression);
-        }
-
-        public static IEnumerable<T> GetObjects<T>(this Element element, string expression,
-            bool attach, bool attachItems) where T : class
-        {
-            return Manager.Default.GetObjects<T>(element, expression, attach, attachItems);
-        }
-
         public static void Attach(this object target, Element element)
         {
             Manager.Default.Attach(target, element);

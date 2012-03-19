@@ -19,58 +19,53 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using Nxdb.Node;
+using Nxdb.Persistence.Attributes;
 
 namespace Nxdb.Persistence
 {
     /// <summary>
-    /// Implements an enumerable type for top-level persistent collections.
+    /// Base class for collections of persistent data or objects.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
-    internal class PersistentCollection<T> : ICustomFetch, IEnumerable<T> where T : class
+    public abstract class PersistentCollection
     {
-        private readonly Manager _manager;
-        private readonly string _expression;
-        private readonly bool _attachItems;
-        private Dictionary<Element, T> _elementCache = new Dictionary<Element, T>(); 
-        private List<T> _persistentObjects = new List<T>(); 
+        private readonly PersistentMemberAttribute _attribute;
+        private Type _type = null;
 
-        public PersistentCollection(Manager manager, string expression, bool attachItems)
+        protected PersistentCollection(PersistentMemberAttribute attribute)
         {
-            _manager = manager;
-            _expression = expression;
-            _attachItems = attachItems;
+            _attribute = attribute;
         }
 
-        public IEnumerator<T> GetEnumerator()
+        internal abstract object Collection { get; set; }
+
+        // Need to lazily initialize the attribute since we don't have an object instance when
+        // the CollectionPersister is created for the overall type
+        internal void Initialize(Cache cache)
         {
-            return _persistentObjects.GetEnumerator();
+            if (_type != null) return;
+            _type = Collection.GetType();
+            _attribute.Inititalize(_type, "Collection", cache);
         }
 
-        IEnumerator IEnumerable.GetEnumerator()
+        internal void Fetch(Element element, Cache cache)
         {
-            return GetEnumerator();
+            Initialize(cache);
+            Collection = _attribute.FetchValue(element, Collection, cache.GetTypeCache(_type), cache);
         }
 
-        public void Fetch(Element element)
+        internal object Serialize(Cache cache)
         {
-            Dictionary<Element, T> elementCache = new Dictionary<Element, T>(); 
-            List<T> persistentObjects = new List<T>(); 
+            Initialize(cache);
+            return _attribute.SerializeValue(Collection, cache.GetTypeCache(_type), cache);
+        }
 
-            foreach (Element result in element.Eval<Element>(_expression))
-            {
-                T persistentObject;
-                if (!_elementCache.TryGetValue(result, out persistentObject))
-                {
-                    persistentObject = _manager.GetObject<T>(result, _attachItems);
-                }
-                elementCache.Add(result, persistentObject);
-                persistentObjects.Add(persistentObject);
-            }
-
-            _elementCache = elementCache;
-            _persistentObjects = persistentObjects;
+        internal void Store(Element element, object serialized, Cache cache)
+        {
+            Initialize(cache);
+            _attribute.StoreValue(element, serialized, Collection, cache.GetTypeCache(_type), cache);
         }
     }
 }

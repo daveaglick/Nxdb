@@ -16,6 +16,7 @@
  */
 
 using System;
+using System.Linq;
 using System.Xml;
 using Nxdb.Dom;
 using org.basex.data;
@@ -51,7 +52,7 @@ namespace Nxdb.Node
         /// <param name="xmlReader">The XML reader to get content from.</param>
         public override void InsertBefore(System.Xml.XmlReader xmlReader)
         {
-            throw new NotSupportedException("cannot insert before a document node");
+            throw new NotSupportedException("Cannot insert before a document node.");
         }
 
         /// <summary>
@@ -61,7 +62,7 @@ namespace Nxdb.Node
         /// <param name="xmlReader">The XML reader to get content from.</param>
         public override void InsertAfter(System.Xml.XmlReader xmlReader)
         {
-            throw new NotSupportedException("cannot insert after a document node");
+            throw new NotSupportedException("Cannot insert after a document node.");
         }
 
         public override string Name
@@ -82,6 +83,20 @@ namespace Nxdb.Node
         protected override XmlNode CreateXmlNode()
         {
             return new DomDocument(this);
+        }
+
+        /// <summary>
+        /// Gets the root Element of this document. Though it is not technically valid XML,
+        /// a Document may have more than one root Element in which case only the first
+        /// is returned.
+        /// </summary>
+        public Element Root
+        {
+            get
+            {
+                Check();
+                return Children.OfType<Element>().FirstOrDefault();
+            }
         }
     }
 }

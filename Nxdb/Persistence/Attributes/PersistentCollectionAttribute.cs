@@ -107,11 +107,11 @@ namespace Nxdb.Persistence.Attributes
             AttachItems = true;
         }
 
-        internal override void Inititalize(MemberInfo memberInfo, Cache cache)
+        internal override void Inititalize(Type memberType, string memberName, Cache cache)
         {
-            base.Inititalize(memberInfo, cache);
+            base.Inititalize(memberType, memberName, cache);
 
-            Name = GetName(Name, memberInfo.Name, Query, CreateQuery);
+            Name = GetName(Name, memberName, Query, CreateQuery);
             ItemName = GetName(ItemName, "Item", ItemQuery);
 
             // Get the TypeConverter
@@ -122,7 +122,6 @@ namespace Nxdb.Persistence.Attributes
             }
 
             // Resolve the type of collection and the item type
-            Type memberType = DefaultPersister.GetMemberType(memberInfo);
             if (memberType.IsArray)
             {
                 // It's an array, get the array item type
@@ -237,7 +236,8 @@ namespace Nxdb.Persistence.Attributes
 
         internal override object SerializeValue(object source, TypeCache typeCache, Cache cache)
         {
-            if (!String.IsNullOrEmpty(ItemQuery)) return null;
+            if (!String.IsNullOrEmpty(ItemQuery))
+                throw new Exception("Can not store persistent collection that uses queries.");
             
             // Key = source object, Value = serialized data
             List<KeyValuePair<object, object>> values = new List<KeyValuePair<object, object>>();
@@ -260,7 +260,8 @@ namespace Nxdb.Persistence.Attributes
 
         internal override void StoreValue(Element element, object serialized, object source, TypeCache typeCache, Cache cache)
         {
-            if (!String.IsNullOrEmpty(ItemQuery)) return;
+            if (!String.IsNullOrEmpty(ItemQuery))
+                throw new Exception("Can not store persistent collection that uses queries.");
 
             // Get the child element
             Element child;

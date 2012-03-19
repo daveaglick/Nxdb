@@ -104,39 +104,7 @@ namespace Nxdb.Persistence
         {
             return GetObject<T>(element, true);
         }
-
-        /// <summary>
-        /// Returns a collection of objects created by evaluating the specified query
-        /// against the specified parent element and attaches it to the parent element if specified.
-        /// This requires the specified object type to provide an accessible
-        /// empty constructor. If one is not available, an exception will be thrown.
-        /// </summary>
-        /// <typeparam name="T">The type of objects to construct.</typeparam>
-        /// <param name="parent">The element against which to evaluate the expression to get result
-        /// elements to be used for the construction of new objects.</param>
-        /// <param name="expression">The expression to evaluate. Only Element results
-        /// will be used (I.e., no text elements, attributes elements, etc. will be used).</param>
-        /// <param name="attach">If set to <c>true</c> attaches the newly created
-        /// collection, otherwise just populates it.</param>
-        /// <param name="attachItems">If set to <c>true</c> attaches result objects, otherwise does
-        /// not attach result objects.</param>
-        /// <returns>
-        /// A collection of persistent objects of the specified type. Though the return
-        /// object can be explicitly refreshed and is also automatically refreshed (if enabled
-        /// for this manager), explicitly saving or deleting it has no effect.
-        /// </returns>
-        public IEnumerable<T> GetObjects<T>(Element parent, string expression, bool attach, bool attachItems) where T : class
-        {
-            PersistentCollection<T> collection = new PersistentCollection<T>(this, expression, attachItems);
-            Attach(collection, parent);
-            return collection;
-        }
-
-        public IEnumerable<T> GetObjects<T>(Element parent, string expression) where T : class
-        {
-            return GetObjects<T>(parent, expression, true, true);
-        }
-
+        
         /// <summary>
         /// Attaches the specified object to the specified element. If the object is already
         /// attached to a different element, it will be detached from that element and reattached to the

@@ -32,23 +32,22 @@ namespace Nxdb.Persistence
             if (target == null) return;
 
             // Get all values first so if something goes wrong we haven't started modifying the object
-            List<KeyValuePair<MemberInfo, object>> values
-                = new List<KeyValuePair<MemberInfo, object>>();
-            foreach (KeyValuePair<MemberInfo, PersistentMemberAttribute> kvp
-                in typeCache.PersistentMembers.Where(kvp => kvp.Value.Fetch))
+            List<KeyValuePair<PersistentMemberInfo, object>> values
+                = new List<KeyValuePair<PersistentMemberInfo, object>>();
+            foreach (PersistentMemberInfo memberInfo
+                in typeCache.PersistentMemberInfo.Where(m => m.Attribute.Fetch))
             {
-                Type memberType;
-                object member = GetValue(kvp.Key, target, out memberType);
-                TypeCache memberTypeCache = memberType != null ? cache.GetTypeCache(memberType) : null;
-                object value = kvp.Value.FetchValue(element, member, memberTypeCache, cache);
-                if(kvp.Value.Required && value == null) throw new Exception("Could not get required member.");
-                values.Add(new KeyValuePair<MemberInfo, object>(kvp.Key, value));
+                object member = memberInfo.GetValue(target);
+                TypeCache memberTypeCache = cache.GetTypeCache(memberInfo.Type);
+                object value = memberInfo.Attribute.FetchValue(element, member, memberTypeCache, cache);
+                if (memberInfo.Attribute.Required && value == null) throw new Exception("Could not get required member.");
+                values.Add(new KeyValuePair<PersistentMemberInfo, object>(memberInfo, value));
             }
 
             // Now that all conversions have been succesfully performed, set the values
-            foreach (KeyValuePair<MemberInfo, object> value in values)
+            foreach (KeyValuePair<PersistentMemberInfo, object> value in values)
             {
-                SetValue(value.Key, target, value.Value);
+                value.Key.SetValue(target, value.Value);
             }
 
             // Call any custom logic if implemented
@@ -90,14 +89,13 @@ namespace Nxdb.Persistence
             }
 
             // Serialize the members
-            foreach (KeyValuePair<MemberInfo, PersistentMemberAttribute> kvp
-                in typeCache.PersistentMembers.Where(kvp => kvp.Value.Store))
+            foreach (PersistentMemberInfo memberInfo
+                in typeCache.PersistentMemberInfo.Where(m => m.Attribute.Store))
             {
-                Type memberType;
-                object member = GetValue(kvp.Key, source, out memberType);
-                TypeCache memberTypeCache = memberType != null ? cache.GetTypeCache(memberType) : null;
-                object serialized = kvp.Value.SerializeValue(member, memberTypeCache, cache);
-                values.Add(new SerializedValue(kvp.Value, serialized, member, memberTypeCache));
+                object member = memberInfo.GetValue(source);
+                TypeCache memberTypeCache = cache.GetTypeCache(memberInfo.Type);
+                object serialized = memberInfo.Attribute.SerializeValue(member, memberTypeCache, cache);
+                values.Add(new SerializedValue(memberInfo.Attribute, serialized, member, memberTypeCache));
             }
             return values;
         }
@@ -124,59 +122,6 @@ namespace Nxdb.Persistence
                 value.PersistentMemberAttribute.StoreValue(element, value.Serialized,
                     value.Member, value.MemberTypeCache, cache);
             }
-        }
-
-        private object GetValue(MemberInfo memberInfo, object member, out Type type)
-        {
-            FieldInfo fieldInfo = memberInfo as FieldInfo;
-            if (fieldInfo != null)
-            {
-                type = fieldInfo.FieldType;
-                return fieldInfo.GetValue(member);
-            }
-            
-            PropertyInfo propertyInfo = memberInfo as PropertyInfo;
-            if(propertyInfo != null)
-            {
-                type = propertyInfo.PropertyType;
-                return propertyInfo.GetValue(member, null);
-            }
-
-            throw new Exception("Unexpected MemberInfo type.");
-        }
-
-        private void SetValue(MemberInfo memberInfo, object member, object value)
-        {
-            FieldInfo fieldInfo = memberInfo as FieldInfo;
-            if (fieldInfo != null)
-            {
-                fieldInfo.SetValue(member, value);
-            }
-            else
-            {
-                PropertyInfo propertyInfo = memberInfo as PropertyInfo;
-                if(propertyInfo != null)
-                {
-                    propertyInfo.SetValue(member, value, null);
-                }
-            }
-        }
-
-        internal static Type GetMemberType(MemberInfo memberInfo)
-        {
-            FieldInfo fieldInfo = memberInfo as FieldInfo;
-            if (fieldInfo != null)
-            {
-                return fieldInfo.FieldType;
-            }
-
-            PropertyInfo propertyInfo = memberInfo as PropertyInfo;
-            if (propertyInfo != null)
-            {
-                return propertyInfo.PropertyType;
-            }
-
-            throw new Exception("Unexpected MemberInfo type.");
         }
     }
 }

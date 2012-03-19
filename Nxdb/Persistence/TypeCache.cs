@@ -42,7 +42,7 @@ namespace Nxdb.Persistence
         private List<PropertyInfo> _properties = null;
         private Persister _persister = null;
         private PersisterAttribute _persisterAttribute = null;
-        private List<KeyValuePair<MemberInfo, PersistentMemberAttribute>> _persistentMembers;
+        private List<PersistentMemberInfo> _persistentMemberInfo;
 
         public TypeCache(Type type, Cache cache)
         {
@@ -113,7 +113,15 @@ namespace Nxdb.Persistence
 
         public Persister Persister
         {
-            get { return _persister ?? (_persister = PersisterAttribute.Persister); }
+            get
+            {
+                if (_persister == null)
+                {
+                    _persister = typeof(PersistentCollection).IsAssignableFrom(_type)
+                        ? new CollectionPersister() : PersisterAttribute.Persister;
+                }
+                return _persister;
+            }
         }
 
         public PersisterAttribute PersisterAttribute
@@ -136,43 +144,48 @@ namespace Nxdb.Persistence
             }
         }
 
-        public IEnumerable<KeyValuePair<MemberInfo, PersistentMemberAttribute>> PersistentMembers
+        public IEnumerable<PersistentMemberInfo> PersistentMemberInfo
         {
             get
             {
-                if (_persistentMembers == null)
+                if (_persistentMemberInfo == null)
                 {
-                    _persistentMembers = new List<KeyValuePair<MemberInfo, PersistentMemberAttribute>>();
+                    _persistentMemberInfo = new List<PersistentMemberInfo>();
 
                     // Fields
                     foreach (FieldInfo fieldInfo in Fields)
                     {
-                        CheckMemberForPersistentAttribute(fieldInfo, _persistentMembers);
+                        CheckMemberForPersistentAttribute(fieldInfo, fieldInfo.FieldType,
+                            fieldInfo.GetValue, fieldInfo.SetValue, _persistentMemberInfo);
                     }
 
                     // Properties
                     foreach (PropertyInfo propertyInfo in Properties)
                     {
-                        CheckMemberForPersistentAttribute(propertyInfo, _persistentMembers);
+                        PropertyInfo info = propertyInfo;
+                        CheckMemberForPersistentAttribute(propertyInfo, propertyInfo.PropertyType,
+                            o => info.GetValue(o, null), (o, v) => info.SetValue(o, v, null),
+                            _persistentMemberInfo);
                     }
 
                     // Sort by order
-                    _persistentMembers.Sort((a, b) => a.Value.Order.CompareTo(b.Value.Order));
+                    _persistentMemberInfo.Sort((a, b) => a.Attribute.Order.CompareTo(b.Attribute.Order));
                 }
-                return _persistentMembers;
+                return _persistentMemberInfo;
             }
         }
 
-        private void CheckMemberForPersistentAttribute(MemberInfo memberInfo,
-            List<KeyValuePair<MemberInfo, PersistentMemberAttribute>> persistentMembers)
+        private void CheckMemberForPersistentAttribute(MemberInfo memberInfo, Type type,
+            Func<object, object> getValue, Action<object, object> setValue,
+            List<PersistentMemberInfo> persistentMemberInfo)
         {
             object[] attributes = memberInfo.GetCustomAttributes(typeof (PersistentMemberAttribute), true);
             if(attributes.Length > 0)
             {
                 if(attributes.Length != 1) throw new Exception("Only one PersistentAttribute can be used per field or property.");
-                PersistentMemberAttribute persistentAttribute = (PersistentMemberAttribute) attributes[0];
-                persistentAttribute.Inititalize(memberInfo, _cache);
-                persistentMembers.Add(new KeyValuePair<MemberInfo, PersistentMemberAttribute>(memberInfo, persistentAttribute));
+                PersistentMemberAttribute attribute = (PersistentMemberAttribute) attributes[0];
+                attribute.Inititalize(type, memberInfo.Name, _cache);
+                persistentMemberInfo.Add(new PersistentMemberInfo(type, memberInfo.Name, attribute, getValue, setValue));
             }
         }
 

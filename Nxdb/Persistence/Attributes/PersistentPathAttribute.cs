@@ -65,8 +65,9 @@ namespace Nxdb.Persistence.Attributes
             CreateQuery = createQuery;
         }
 
-        internal override void Inititalize(MemberInfo memberInfo, Cache cache)
+        internal override void Inititalize(Type memberType, string memberName, Cache cache)
         {
+            base.Inititalize(memberType, memberName, cache);
             _typeConverter = InitializeTypeConverter(TypeConverter);
         }
 

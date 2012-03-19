@@ -72,11 +72,10 @@ namespace Nxdb.Persistence.Attributes
         {
             Attach = true;
         }
-
-        internal override void Inititalize(MemberInfo memberInfo, Cache cache)
+        internal override void Inititalize(Type memberType, string memberName, Cache cache)
         {
-            base.Inititalize(memberInfo, cache);
-            Name = GetName(Name, memberInfo.Name, Query, CreateQuery);
+            base.Inititalize(memberType, memberName, cache);
+            Name = GetName(Name, memberName, Query, CreateQuery);
 
             // Get the TypeConverter
             if (TypeConverter != null)

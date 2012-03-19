@@ -52,10 +52,10 @@ namespace Nxdb.Persistence.Attributes
 
         private TypeConverter _typeConverter = null;
 
-        internal override void Inititalize(MemberInfo memberInfo, Cache cache)
+        internal override void Inititalize(Type memberType, string memberName, Cache cache)
         {
-            base.Inititalize(memberInfo, cache);
-            Name = GetName(Name, memberInfo.Name, Query, CreateQuery);
+            base.Inititalize(memberType, memberName, cache);
+            Name = GetName(Name, memberName, Query, CreateQuery);
             _typeConverter = InitializeTypeConverter(TypeConverter);
         }
 

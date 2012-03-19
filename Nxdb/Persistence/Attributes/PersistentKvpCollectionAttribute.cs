@@ -35,9 +35,9 @@ namespace Nxdb.Persistence.Attributes
     /// <code>
     /// <Container>
     ///   <Name>
-    ///     <Pair><Key>...</Key><Value>...</Value></Pair>
-    ///     <Pair><Key>...</Key><Value>...</Value></Pair>
-    ///     <Pair><Key>...</Key><Value>...</Value></Pair>
+    ///     <Item><Key>...</Key><Value>...</Value></Item>
+    ///     <Item><Key>...</Key><Value>...</Value></Item>
+    ///     <Item><Key>...</Key><Value>...</Value></Item>
     ///   </Name>
     /// </Container>
     /// </code> 
@@ -186,12 +186,12 @@ namespace Nxdb.Persistence.Attributes
             AttachValues = true;
         }
 
-        internal override void Inititalize(MemberInfo memberInfo, Cache cache)
+        internal override void Inititalize(Type memberType, string memberName, Cache cache)
         {
-            base.Inititalize(memberInfo, cache);
+            base.Inititalize(memberType, memberName, cache);
 
             // Get element names
-            Name = GetName(Name, memberInfo.Name, Query, CreateQuery);
+            Name = GetName(Name, memberName, Query, CreateQuery);
             ItemName = GetName(ItemName, "Item", ItemQuery);
             KeyAttributeName = GetName(KeyAttributeName, null, KeyElementName, KeyQuery);
             if (String.IsNullOrEmpty(KeyAttributeName))
@@ -224,7 +224,6 @@ namespace Nxdb.Persistence.Attributes
             
             // Resolve the type of collection and the key/value type
             // Key = ICollection<>, Value = KeyValuePair<,>
-            Type memberType = DefaultPersister.GetMemberType(memberInfo);
             List<KeyValuePair<Type, Type>> kvpInterfaces =
                 new List<KeyValuePair<Type, Type>>(memberType.GetInterfaces()
                 .Where(t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(ICollection<>))
@@ -360,7 +359,7 @@ namespace Nxdb.Persistence.Attributes
             if (!String.IsNullOrEmpty(ItemQuery)
                 || !String.IsNullOrEmpty(KeyQuery)
                 || !String.IsNullOrEmpty(ValueQuery))
-                return null;
+                throw new Exception("Can not store persistent collection that uses queries.");
 
             // Key/key = key source object, key/value = serialized key data
             // Value/key = value source object, value/value = serialized value data
@@ -396,7 +395,7 @@ namespace Nxdb.Persistence.Attributes
             if (!String.IsNullOrEmpty(ItemQuery)
                 || !String.IsNullOrEmpty(KeyQuery)
                 || !String.IsNullOrEmpty(ValueQuery))
-                return;
+                throw new Exception("Can not store persistent collection that uses queries.");
 
             // Get the child element
             Element child;
