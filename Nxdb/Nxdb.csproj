@@ -175,10 +175,13 @@
     <Compile Include="Persistence\ICustomInitialize.cs" />
     <Compile Include="Persistence\ICustomPersistence.cs" />
     <Compile Include="Persistence\ICustomStore.cs" />
-    <Compile Include="Persistence\PersistentDictionary.cs" />
+    <Compile Include="Persistence\PersistentIDictionary.cs" />
+    <Compile Include="Persistence\PersistentICollection.cs" />
+    <Compile Include="Persistence\PersistentIList.cs" />
     <Compile Include="Persistence\PersistentList.cs" />
     <Compile Include="Persistence\PersistentMemberInfo.cs" />
     <Compile Include="Persistence\PersistentTypeConverter.cs" />
+    <Compile Include="Persistence\PersistentDictionary.cs" />
     <Compile Include="Persistence\XmlSerializerPersister.cs" />
     <Compile Include="Persistence\DefaultPersister.cs" />
     <Compile Include="Persistence\ObjectWrapper.cs" />
