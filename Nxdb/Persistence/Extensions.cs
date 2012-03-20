@@ -40,6 +40,11 @@ namespace Nxdb.Persistence
             return Manager.Default.GetObject<T>(element, attach);
         }
 
+        public static Element GetElement(this object attachedObject)
+        {
+            return Manager.Default.GetElement(attachedObject);
+        }
+
         public static void Attach(this object target, Element element)
         {
             Manager.Default.Attach(target, element);

@@ -104,7 +104,20 @@ namespace Nxdb.Persistence
         {
             return GetObject<T>(element, true);
         }
-        
+
+        /// <summary>
+        /// Gets the Element that the specified attached object is attached to.
+        /// </summary>
+        /// <param name="attachedObject">The attached object.</param>
+        /// <returns></returns>
+        public Element GetElement(object attachedObject)
+        {
+            if (attachedObject == null) throw new ArgumentNullException("attachedObject");
+
+            ObjectWrapper wrapper;
+            return _cache.TryGetWrapper(attachedObject, out wrapper) ? wrapper.Element : null;
+        }
+
         /// <summary>
         /// Attaches the specified object to the specified element. If the object is already
         /// attached to a different element, it will be detached from that element and reattached to the

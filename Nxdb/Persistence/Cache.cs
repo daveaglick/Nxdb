@@ -27,7 +27,7 @@ namespace Nxdb.Persistence
     internal class Cache : IEnumerable<ObjectWrapper>
     {
         private readonly Dictionary<ObjectWrapper, ObjectWrapper> _wrappers
-            = new Dictionary<ObjectWrapper, ObjectWrapper>();
+            = new Dictionary<ObjectWrapper, ObjectWrapper>();   // ObjectWrapper compares target / keyed by target
         private readonly Dictionary<Type, TypeCache> _typeCaches
             = new Dictionary<Type, TypeCache>();
         private readonly Dictionary<Database, int> _databases = new Dictionary<Database, int>();
@@ -165,6 +165,7 @@ namespace Nxdb.Persistence
         // Detaches a wrapper (must already be in the cache)
         public void Detach(ObjectWrapper wrapper)
         {
+            if (wrapper.Element == null) return;    // Sanity check - if the wrapper has been removed already it won't have an Element
             RemoveDatabaseUpdatedHandler(wrapper.Element);
             _wrappers.Remove(wrapper);
             wrapper.TypeCache.Remove(wrapper);

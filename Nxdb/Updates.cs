@@ -108,15 +108,20 @@ namespace Nxdb
                 // Optimize databases
                 Cleanup(databases);
 
+                // Reset query context (before notifying the database in case of nested updates)
+                _queryContext = GetQueryContext();
+
                 // Update databases
                 foreach (Database database in databases)
                 {
                     database.Update();
                 }
             }
-
-            // Reset
-            _queryContext = GetQueryContext();
+            else
+            {
+                // Reset query context
+                _queryContext = GetQueryContext();
+            }
         }
 
         // Cleans up (optimizes and flushes) all databases that need it, but only if no Updates instances exist
