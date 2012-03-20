@@ -172,7 +172,7 @@ namespace Nxdb.Persistence.Attributes
         private TypeCache _valueTypeCache = null;
         private TypeConverter _keyTypeConverter = null;
         private TypeConverter _valueTypeConverter = null;
-        private Func<object> _getCollection = null;
+        private Func<object, object> _getCollection = null; // collection (collection)
         private Action<object, object, object> _setCollectionItem = null; // (collection, key, value)
         private Func<object, object> _getKey = null;
         private Func<object, object> _getValue = null;
@@ -254,8 +254,13 @@ namespace Nxdb.Persistence.Attributes
                 // Get the constructor and other functions
                 ConstructorInfo constructor = memberType.GetConstructor(Type.EmptyTypes);
                 if (constructor == null) throw new Exception("Persistent collection member must implement an empty constructor.");
-                _getCollection = () => constructor.Invoke(null);
-
+                MethodInfo clearMethod = kvpType.Value.Key.GetMethod("Clear");
+                _getCollection = c =>
+                    {
+                        if (c == null) return constructor.Invoke(null);
+                        clearMethod.Invoke(c, null);
+                        return c;
+                    };
                 ConstructorInfo kvpConstructor = kvpType.Value.Value.GetConstructor(new[] { KeyType, ValueType });
                 if (kvpConstructor == null) throw new Exception("Could not get KeyValuePair constructor.");
                 MethodInfo addMethod = kvpType.Value.Key.GetMethod("Add");
@@ -276,7 +281,12 @@ namespace Nxdb.Persistence.Attributes
                 if (ValueType == null) throw new Exception("A persistent collection that implements IDictionary must provide a ValueType.");
                 ConstructorInfo constructor = memberType.GetConstructor(Type.EmptyTypes);
                 if (constructor == null) throw new Exception("Persistent collection member must implement an empty constructor.");
-                _getCollection = () => constructor.Invoke(null);
+                _getCollection = c =>
+                    {
+                        if (c == null) return constructor.Invoke(null);
+                        ((IDictionary)c).Clear();
+                        return c;
+                    };
                 _setCollectionItem = (c, k, v) => ((IDictionary)c).Add(k, v);
                 _getKey = i => ((DictionaryEntry)i).Key;
                 _getValue = i => ((DictionaryEntry)i).Value;
@@ -309,7 +319,7 @@ namespace Nxdb.Persistence.Attributes
                 : child.Children.OfType<Element>().Where(e => e.Name.Equals(ItemName)));
 
             // Create the collection
-            object collection = _getCollection();
+            object collection = _getCollection(target);
 
             // Populate with values
             foreach(Element item in items)

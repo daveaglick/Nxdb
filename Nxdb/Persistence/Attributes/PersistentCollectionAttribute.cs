@@ -96,7 +96,7 @@ namespace Nxdb.Persistence.Attributes
 
         private TypeCache _itemTypeCache = null;
         private TypeConverter _itemTypeConverter = null;
-        private Func<int, object> _getCollection = null;
+        private Func<object, int, object> _getCollection = null;    // collection (collection, size)
         private Action<object, int, object> _setCollectionItem = null; // (collection, index, value)
 
         /// <summary>
@@ -138,7 +138,11 @@ namespace Nxdb.Persistence.Attributes
                 {
                     throw new Exception("The specified ItemType must be assignable to the array type.");
                 }
-                _getCollection = s => Array.CreateInstance(ItemType, s);
+                _getCollection = (c, s) =>
+                    {
+                        if (c == null || ((Array)c).Length != s) return Array.CreateInstance(ItemType, s);
+                        return c;
+                    };
                 _setCollectionItem = (c, i, v) => ((Array)c).SetValue(v, (Int64)i);
             }
             else
@@ -167,7 +171,13 @@ namespace Nxdb.Persistence.Attributes
                     // Get the constructor and add functions
                     ConstructorInfo constructor = memberType.GetConstructor(Type.EmptyTypes);
                     if (constructor == null) throw new Exception("Persistent collection member must implement an empty constructor.");
-                    _getCollection = s => constructor.Invoke(null);
+                    MethodInfo clearMethod = collectionType.GetMethod("Clear");
+                    _getCollection = (c, s) =>
+                        {
+                            if (c == null) return constructor.Invoke(null);
+                            clearMethod.Invoke(c, null);
+                            return c;
+                        };
                     MethodInfo addMethod = collectionType.GetMethod("Add");
                     _setCollectionItem = (c, i, v) => addMethod.Invoke(c, new[] {v});
                 }
@@ -177,7 +187,12 @@ namespace Nxdb.Persistence.Attributes
                     if (ItemType == null) throw new Exception("A persistent collection that implements IList must provide an ItemType.");
                     ConstructorInfo constructor = memberType.GetConstructor(Type.EmptyTypes);
                     if (constructor == null) throw new Exception("Persistent collection member must implement an empty constructor.");
-                    _getCollection = s => constructor.Invoke(null);
+                    _getCollection = (c, s) =>
+                        {
+                            if( c == null) return constructor.Invoke(null);
+                            ((IList) c).Clear();
+                            return c;
+                        };
                     _setCollectionItem = (c, i, v) => ((IList) c).Add(v);
                 }
                 else
@@ -207,8 +222,8 @@ namespace Nxdb.Persistence.Attributes
             IList<object> items = new List<object>(!String.IsNullOrEmpty(ItemQuery) ? child.Eval(ItemQuery)
                 : child.Children.OfType<Element>().Where(e => e.Name.Equals(ItemName)).Cast<object>());
 
-            // Create the collection
-            object collection = _getCollection(items.Count);
+            // Create the collection (or reuse it if appropriate)
+            object collection = _getCollection(target, items.Count);
 
             // Populate with values
             int c = 0;
