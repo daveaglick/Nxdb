@@ -304,6 +304,9 @@ namespace Nxdb
             _nodes[pre] = new WeakReference(node);
         }
 
+        private bool _inUpdated = false;
+        private bool _recursiveUpdated = false;
+
         // Called by Updates.Apply()
         internal void Update()
         {
@@ -352,11 +355,26 @@ namespace Nxdb
                 _nodes[node.Index] = new WeakReference(node);
             }
 
-            //Raise the Updated event
+            //Raise the Updated event, but avoid recursivly raising it
             EventHandler<EventArgs> handler = Updated;
-            if (handler != null) handler(this, EventArgs.Empty);
+            if (handler == null) return;
+            do
+            {
+                if (!_inUpdated)
+                {
+                    _recursiveUpdated = false;
+                    _inUpdated = true;
+                    handler(this, EventArgs.Empty); 
+                    _inUpdated = false;
+                }
+                else
+                {
+                    _recursiveUpdated = true;
+                    break;
+                }
+            } while (_recursiveUpdated);
         }
-
+        
         /// <summary>
         /// Occurs when the database is updated.
         /// </summary>

@@ -274,8 +274,10 @@ namespace Nxdb.Persistence
         {
             Clean();
 
-            foreach(ObjectWrapper wrapper
-                in _wrappers.Values.Where(w => w.Element.Database == (Database)sender))
+            // Copy wrappers to a local collection because the Fetch operation might modify the dictionary
+            List<ObjectWrapper> wrappers = new List<ObjectWrapper>(
+                _wrappers.Values.Where(w => w.Element.Database == (Database)sender));
+            foreach(ObjectWrapper wrapper in wrappers)
             {
                 wrapper.Fetch();
             }
