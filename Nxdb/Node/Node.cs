@@ -732,6 +732,10 @@ namespace Nxdb.Node
             {
                 return this == other;
             }
+            if (ANode == null || other.ANode == null)
+            {
+                return false;
+            }
             return ANode.id == other.ANode.id;
         }
 
