@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using org.basex.core;
@@ -27,6 +28,7 @@ using org.basex.query.expr;
 using org.basex.query.func;
 using org.basex.query.up;
 using org.basex.query.up.primitives;
+using org.basex.query.util;
 
 namespace Nxdb
 {
@@ -96,32 +98,58 @@ namespace Nxdb
         // Applies pending updates - used from the query class after a query
         internal static void Apply()
         {
-            // Check if there are any updates to perform (if not, updates.mod will be null)
-            if (QueryContext.updates != null && QueryContext.updates.mod != null)
-            {
-                // Get all updating databases
-                List<Database> databases = QueryUpdates.mod.datas().Select(Database.Get).ToList();
-
-                // Apply the updates
-                QueryContext.updates.apply();
-
-                // Optimize databases
-                Cleanup(databases);
-
-                // Reset query context (before notifying the database in case of nested updates)
-                _queryContext = GetQueryContext();
-
-                // Update databases
-                foreach (Database database in databases)
+                // Check if there are any updates to perform (if not, updates.mod will be null)
+                if (QueryContext.updates != null && QueryContext.updates.mod != null)
                 {
-                    database.Update();
+                    // Get all updating databases
+                    List<Database> databases = QueryUpdates.mod.datas().Select(Database.Get).ToList();
+
+                    // Apply the updates - try several times because sometimes the updating flag gets confused
+                    int tries = 3;
+                    Exception exception = null;
+                    while (tries > 0)
+                    {
+                        try
+                        {   
+                            QueryContext.updates.apply();
+                            break;
+                        }
+                        catch (Exception ex)
+                        {
+                            exception = ex;
+                            if (ex is QueryException && ex.Message.StartsWith(Err.UNLOCK.desc.Substring(0, 10)))
+                            {
+                                // Manually remove all of the lock flags since we couldn't remove one before trying again
+                                foreach (Database database in databases)
+                                {
+                                    File.Delete((((DiskData)database.Data).updateFile()).file().getAbsolutePath());
+                                }
+                            }
+                        }
+                        tries--;
+                    }
+                    if(tries == 0)
+                    {
+                        throw exception ?? new Exception("Could not apply database updates.");
+                    }
+
+                    // Optimize databases
+                    Cleanup(databases);
+
+                    // Reset query context (before notifying the database in case of nested updates)
+                    _queryContext = GetQueryContext();
+
+                    // Update databases
+                    foreach (Database database in databases)
+                    {
+                        database.Update();
+                    }
                 }
-            }
-            else
-            {
-                // Reset query context
-                _queryContext = GetQueryContext();
-            }
+                else
+                {
+                    // Reset query context
+                    _queryContext = GetQueryContext();
+                }
         }
 
         // Cleans up (optimizes and flushes) all databases that need it, but only if no Updates instances exist
